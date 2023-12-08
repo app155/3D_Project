@@ -31,6 +31,9 @@ public class Test_CharacterController : NetworkBehaviour
 
     private void FixedUpdate()
     {
+        if (IsOwner == false)
+            return;
+
         transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
     }
 

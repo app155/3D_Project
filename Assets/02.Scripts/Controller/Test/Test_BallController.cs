@@ -5,7 +5,8 @@ using UnityEngine;
 public class Test_BallController : MonoBehaviour
 {
     [SerializeField] private Vector3 _moveDir;
-    [SerializeField] private LayerMask _targetLayer;
+    [SerializeField] private LayerMask _characterMask;
+    [SerializeField] private LayerMask _wallMask;
     [SerializeField] private Vector3 _pushDir;
     [SerializeField] private float _pushPower;
     private Rigidbody rigid;
@@ -20,27 +21,34 @@ public class Test_BallController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if ((1 << other.gameObject.layer & _targetLayer) > 0)
+        if ((1 << other.gameObject.layer & _characterMask) > 0)
         {
             Debug.Log($"{other.gameObject.name} triggered");
 
-            if (_moveSpeed == 0f)
-            {
-                Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
+            Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
 
-                Vector3 tempDir = transform.position - otherPos;
-                tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
+            Vector3 tempDir = transform.position - otherPos;
+            tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
 
-                _moveDir = tempDir.normalized;
+            _moveDir = tempDir.normalized;
 
-                _moveSpeed = _pushPower;
-            }
-
-            else
-            {
+            _moveSpeed = _pushPower;
             
-            }
-            
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if ((1 << collision.gameObject.layer & _wallMask) > 0)
+        {
+            Vector3 tempVec = collision.contacts[0].normal;
+            Vector3 normalVec = new Vector3(tempVec.x, 0.0f, tempVec.z);
+
+            Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
+
+            _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
+
+            _moveSpeed = _pushPower;
         }
     }
 
