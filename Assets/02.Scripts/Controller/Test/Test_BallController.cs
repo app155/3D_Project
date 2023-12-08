@@ -11,6 +11,7 @@ public class Test_BallController : MonoBehaviour
     [SerializeField] private float _pushPower;
     private Rigidbody rigid;
     [SerializeField] private float _moveSpeed;
+    [SerializeField] private Vector3 _moveStartPos;
 
     private void Awake()
     {
@@ -33,7 +34,8 @@ public class Test_BallController : MonoBehaviour
             _moveDir = tempDir.normalized;
 
             _moveSpeed = _pushPower;
-            
+
+            _moveStartPos = transform.position;
         }
     }
 
