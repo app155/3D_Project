@@ -38,7 +38,7 @@ public class Test_BallController : MonoBehaviour
 
             else
             {
-                _moveDir = Vector3.Reflect(_moveDir,).normalized;
+            
             }
             
         }
