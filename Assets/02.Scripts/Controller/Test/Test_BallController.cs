@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Test_BallController : MonoBehaviour
+public class Test_BallController : NetworkBehaviour
 {
     [SerializeField] private Vector3 _moveDir;
     [SerializeField] private LayerMask _characterMask;
@@ -16,8 +17,6 @@ public class Test_BallController : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
-
-        //rigid.AddForce(_pushDir.normalized * _pushPower, ForceMode.Impulse);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -61,6 +60,6 @@ public class Test_BallController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        transform.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
+        rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
     }
 }
