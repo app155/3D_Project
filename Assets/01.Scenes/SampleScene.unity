@@ -903,8 +903,8 @@ GameObject:
   - component: {fileID: 1216946827}
   - component: {fileID: 1216946831}
   - component: {fileID: 1216946832}
-  - component: {fileID: 1216946834}
   - component: {fileID: 1216946833}
+  - component: {fileID: 1216946834}
   m_Layer: 12
   m_Name: Test_Ball
   m_TagString: Untagged
@@ -1023,7 +1023,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
@@ -1049,6 +1049,7 @@ MonoBehaviour:
   _pushDir: {x: 21, y: 0, z: 10}
   _pushPower: 10
   _moveSpeed: 0
+  _moveStartPos: {x: 0, y: 0, z: 0}
 --- !u!114 &1216946833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1078,27 +1079,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1216946826}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: 38c1b1e2f846fc445a8bc1b64bb8f92e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  Interpolate: 1
-  SlerpPosition: 0
+  _interpolationTime: 0.1
 --- !u!1 &1585872591
 GameObject:
   m_ObjectHideFlags: 0
