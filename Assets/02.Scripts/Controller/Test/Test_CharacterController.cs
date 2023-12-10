@@ -16,6 +16,11 @@ public class Test_CharacterController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        if (IsOwner == false)
+        {
+            enabled = false;
+        }
+
         base.OnNetworkSpawn();
 
         _rigid = GetComponent<Rigidbody>();
@@ -34,7 +39,7 @@ public class Test_CharacterController : NetworkBehaviour
         if (IsOwner == false)
             return;
 
-        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
     }
 
     private bool IsGrounded()
