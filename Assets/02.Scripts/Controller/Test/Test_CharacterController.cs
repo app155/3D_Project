@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class Test_CharacterController : NetworkBehaviour
+public class CharacterController : NetworkBehaviour
 {
     public float speed
     {
