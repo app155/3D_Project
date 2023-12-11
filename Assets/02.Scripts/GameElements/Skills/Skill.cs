@@ -1,9 +1,10 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Project3D.GameElements.Skill
 {
-    public abstract class Skill : MonoBehaviour
+    public abstract class Skill : NetworkBehaviour
     {
         public string description;
 

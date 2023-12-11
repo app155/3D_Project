@@ -5,16 +5,19 @@ using Project3D.Controller;
 
 public class Hit : Skill
 {
-    private BoxCollider _col;
     private float _pushPower;
-    private CharacterController owner;
-    private BallController target;
+    [SerializeField] private CharacterController _owner;
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
-        _col = GetComponent<BoxCollider>();
-        owner = transform.root.GetComponent<CharacterController>();
-        enabled = false;
+        base.OnNetworkSpawn();
+
+        _owner = transform.root.GetComponent<CharacterController>();
+    }
+
+    private void Awake()
+    {
+        _owner = transform.root.GetComponent<CharacterController>();
     }
 
     public override void Execute()
@@ -22,8 +25,19 @@ public class Hit : Skill
         if (coolTime > 0)
             return;
 
-        Debug.Log("Hit Excuted!");
-        _col.enabled = true;
+        Collider[] cols = Physics.OverlapBox(gameObject.transform.position + Vector3.forward, Vector3.one, Quaternion.identity, _owner.ballMask);
+
+        if (cols.Length > 0)
+        {
+            foreach (Collider col in cols)
+            {
+                Debug.Log(col.gameObject.name);
+            }
+
+            cols[0].GetComponent<IKnockback>().Knockback(Vector3.forward, 10.0f);
+        }
+
+        Debug.Log("Hit Ball");
     }
 
     private void Update()
@@ -35,14 +49,10 @@ public class Hit : Skill
             coolTime = 0;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnDrawGizmos()
     {
-        if ((1 << other.gameObject.layer & owner.ballMask) > 1)
-        {
-            other.GetComponent<IKnockback>().Knockback((other.transform.position - transform.position).normalized, _pushPower);
-        }
+        Gizmos.color = Color.red;
 
-        _col.enabled = false;
-        coolTimer = coolTime;
+        Gizmos.DrawWireCube(transform.position + Vector3.forward + Vector3.down * 0.3f, Vector3.one);
     }
 }

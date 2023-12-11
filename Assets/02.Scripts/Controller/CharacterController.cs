@@ -69,6 +69,12 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
 
+            foreach (var skill in _skills)
+            {
+                GameObject go = new GameObject(skill.name);
+                go.transform.SetParent(transform);
+                go.AddComponent(skill.GetType());
+            }
         }
 
         private void Update()
@@ -81,7 +87,7 @@ namespace Project3D.Controller
             // Temp
             if (Input.GetMouseButtonDown(0))
             {
-                _skills[0].Execute();
+                _skills[0].GetComponent<Skill>().Execute();
             }
 
             if (Input.GetMouseButtonDown(1))
