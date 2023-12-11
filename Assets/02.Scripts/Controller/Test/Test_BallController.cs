@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class Test_BallController : NetworkBehaviour
+public class BallController : NetworkBehaviour
 {
     [SerializeField] private Vector3 _moveDir;
     [SerializeField] private LayerMask _characterMask;
@@ -48,14 +48,12 @@ public class Test_BallController : NetworkBehaviour
             Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
 
             _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-
-            _moveSpeed = _pushPower;
         }
     }
 
     private void Update()
     {
-
+        _moveSpeed -= Time.deltaTime;
     }
 
     private void FixedUpdate()
