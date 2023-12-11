@@ -58,6 +58,9 @@ namespace Project3D.Controller
         {
             if (_moveSpeed > 0.0f)
                 _moveSpeed -= Time.deltaTime;
+
+            else if (_moveSpeed < 0.0f)
+                _moveSpeed = 0.0f;
         }
 
         private void FixedUpdate()
