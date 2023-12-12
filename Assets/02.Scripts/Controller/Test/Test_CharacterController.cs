@@ -1,51 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Unity.Netcode;
+//using System.Collections;
+//using System.Collections.Generic;
+//using UnityEngine;
+//using Unity.Netcode;
 
-public class Test_CharacterController : NetworkBehaviour
-{
-    public float speed
-    {
-        get => _speed;
-    }
+//public class CharacterController : NetworkBehaviour
+//{
+//    public float speed
+//    {
+//        get => _speed;
+//    }
 
-    [SerializeField] private float _speed;
-    [SerializeField] LayerMask _groundMask;
-    private Rigidbody _rigid;
+//    [SerializeField] private float _speed;
+//    [SerializeField] LayerMask _groundMask;
+//    private Rigidbody _rigid;
 
-    public override void OnNetworkSpawn()
-    {
-        if (IsOwner == false)
-        {
-            enabled = false;
-        }
+//    public override void OnNetworkSpawn()
+//    {
+//        if (IsOwner == false)
+//        {
+//            enabled = false;
+//        }
 
-        base.OnNetworkSpawn();
+//        base.OnNetworkSpawn();
 
-        _rigid = GetComponent<Rigidbody>();
-    }
+//        _rigid = GetComponent<Rigidbody>();
+//    }
 
-    private void Update()
-    {
-        if (IsGrounded())
-        {
-            transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
-        }
-    }
+//    private void Update()
+//    {
+//        if (IsGrounded())
+//        {
+//            transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
+//        }
+//    }
 
-    private void FixedUpdate()
-    {
-        if (IsOwner == false)
-            return;
+//    private void FixedUpdate()
+//    {
+//        if (IsOwner == false)
+//            return;
 
-        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
-    }
+//        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
+//    }
 
-    private bool IsGrounded()
-    {
-        Collider[] cols = Physics.OverlapSphere(transform.position, 0.15f, _groundMask);
+//    private bool IsGrounded()
+//    {
+//        Collider[] cols = Physics.OverlapSphere(transform.position, 0.15f, _groundMask);
 
-        return cols.Length > 0;
-    }
-}
+//        return cols.Length > 0;
+//    }
+//}
