@@ -112,7 +112,7 @@ namespace Project3D.Controller
 
         private void MovePosition()
         {
-            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
+            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * _speed * Time.fixedDeltaTime;
         }
 
         private void ChangeRotation()

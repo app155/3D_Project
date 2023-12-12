@@ -23,23 +23,24 @@ namespace Project3D.Controller
 
         private void OnTriggerEnter(Collider other)
         {
-            if ((1 << other.gameObject.layer & _characterMask) > 0)
-            {
-                Debug.Log($"{other.gameObject.name} triggered");
+            // Ä³¸¯ÅÍ Á¢ÃË ½Ã Æ¨±â±â - ¾È¾¸
+            //if ((1 << other.gameObject.layer & _characterMask) > 0)
+            //{
+            //    Debug.Log($"{other.gameObject.name} triggered");
 
-                Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
+            //    Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
 
-                Vector3 tempDir = transform.position - otherPos;
-                tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
+            //    Vector3 tempDir = transform.position - otherPos;
+            //    tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
 
-                _moveDir = tempDir.normalized;
+            //    _moveDir = tempDir.normalized;
 
-                _moveSpeed = _pushPower;
+            //    _moveSpeed = _pushPower;
 
-                _moveStartPos = transform.position;
-            }
+            //    _moveStartPos = transform.position;
+            //}
 
-            else if ((1 << other.gameObject.layer & _wallMask) > 0)
+            if ((1 << other.gameObject.layer & _wallMask) > 0)
             {
                 Debug.Log($"{other.gameObject.name} triggered");
 
@@ -49,20 +50,6 @@ namespace Project3D.Controller
                 Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec);
 
                 _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-            }
-        }
-
-        private void OnCollisionEnter(Collision collision)
-        {
-            if ((1 << collision.gameObject.layer & _wallMask) > 0)
-            {
-                Vector3 tempVec = collision.contacts[0].normal;
-                Vector3 normalVec = new Vector3(tempVec.x, 0.0f, tempVec.z);
-
-                Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
-
-                _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-
             }
         }
 

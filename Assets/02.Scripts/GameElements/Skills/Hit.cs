@@ -9,45 +9,83 @@ public class Hit : Skill
 {
     private float _pushPower = 10.0f;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+    }
+
+    public override void Init(CharacterController owner)
+    {
+        base.Init(owner);
+        coolTime = 1.0f;
+    }
+
     public override void Execute()
     {
-        if (coolTime > 0)
-            return;
-
-        Collider[] cols = Physics.OverlapBox(transform.position + Vector3.forward, Vector3.one, Quaternion.identity, owner.ballMask);
-
-        if (cols.Length > 0)
+        if (coolTimer > 0)
         {
-            if (cols[0].TryGetComponent(out IKnockback ball))
-            {
-                ball.Knockback((cols[0].transform.position - transform.position).normalized, _pushPower);
-            }
-
-            else
-            {
-                throw new Exception("[Hit] - Target Wrong");
-            }
-
-            Debug.Log("Hit Ball");
+            Debug.Log("[Hit] - Cooltime");
+            return;
         }
+
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity))
+        {
+            Collider[] cols = Physics.OverlapSphere(transform.position + hit.point.normalized, 0.5f, owner.ballMask);
+
+            if (cols.Length > 0)
+            {
+                if (cols[0].TryGetComponent(out IKnockback ball))
+                {
+                    ball.Knockback((cols[0].transform.position - transform.position).normalized, _pushPower);
+                }
+
+                else
+                {
+                    throw new Exception("[Hit] - Target Wrong");
+                }
+
+                Debug.Log("Hit Ball");
+            }
+        }
+
+        coolTimer = coolTime;
     }
 
     private void Update()
     {
-        if (coolTime > 0)
-            coolTime -= Time.deltaTime;
+        if (coolTimer > 0)
+            coolTimer -= Time.deltaTime;
 
-        else if (coolTime < 0)
-            coolTime = 0;
+        else if (coolTimer < 0)
+            coolTimer = 0;
     }
 
     private void OnDrawGizmos()
     {
+        DrawCube();
+        DrawRay();
+    }
+
+    void DrawCube()
+    {
         Gizmos.color = Color.red;
 
-        Vector3 tempMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 mousePos = new Vector3(tempMousePos.x, 0.0f, tempMousePos.z);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity))
+        {
+            Gizmos.DrawWireSphere(transform.position + hit.point.normalized, 0.5f);
+        }
+    }
 
-        Gizmos.DrawWireCube(transform.position + (mousePos - transform.position).normalized + Vector3.down * 0.3f, Vector3.one);
+    void DrawRay()
+    {
+        Gizmos.color = Color.yellow;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Gizmos.DrawRay(ray.origin, ray.direction * 30.0f);
     }
 }
