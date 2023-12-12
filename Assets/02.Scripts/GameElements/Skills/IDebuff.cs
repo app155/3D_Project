@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IDebuff
+namespace Project3D.GameElements.Skill
 {
-    public float duration { get; set; }
+    public interface IDebuff
+    {
+        public float duration { get; set; }
 
-    public void Debuff();
+        public void Debuff();
+    }
 }
