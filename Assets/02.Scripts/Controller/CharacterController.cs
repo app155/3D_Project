@@ -51,6 +51,7 @@ namespace Project3D.Controller
         private float _hpValue;
         private float _hpMax;
         private float _hpMin = 0.0f;
+        [SerializeField] private GameObject[] _skillList;
         [SerializeField] private Skill[] _skills;
         [SerializeField] private float _speed;
         [SerializeField] private LayerMask _enemyMask;
@@ -69,11 +70,14 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
 
-            foreach (var skill in _skills)
+            _skills = new Skill[_skillList.Length];
+
+            for (int i = 0; i < _skillList.Length; i++)
             {
-                GameObject go = new GameObject(skill.name);
-                go.transform.SetParent(transform);
-                go.AddComponent(skill.GetType());
+                GameObject go = Instantiate(_skillList[i], transform);
+                Skill skill = go.GetComponent<Skill>();
+                skill.Init(this);
+                _skills[i] = skill;
             }
         }
 

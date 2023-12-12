@@ -2,42 +2,34 @@ using CharacterController = Project3D.Controller.CharacterController;
 using Project3D.GameElements.Skill;
 using UnityEngine;
 using Project3D.Controller;
+using Unity.Netcode;
+using System;
 
 public class Hit : Skill
 {
-    private float _pushPower;
-    [SerializeField] private CharacterController _owner;
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        _owner = transform.root.GetComponent<CharacterController>();
-    }
-
-    private void Awake()
-    {
-        _owner = transform.root.GetComponent<CharacterController>();
-    }
+    private float _pushPower = 10.0f;
 
     public override void Execute()
     {
         if (coolTime > 0)
             return;
 
-        Collider[] cols = Physics.OverlapBox(gameObject.transform.position + Vector3.forward, Vector3.one, Quaternion.identity, _owner.ballMask);
+        Collider[] cols = Physics.OverlapBox(transform.position + Vector3.forward, Vector3.one, Quaternion.identity, owner.ballMask);
 
         if (cols.Length > 0)
         {
-            foreach (Collider col in cols)
+            if (cols[0].TryGetComponent(out IKnockback ball))
             {
-                Debug.Log(col.gameObject.name);
+                ball.Knockback((cols[0].transform.position - transform.position).normalized, _pushPower);
             }
 
-            cols[0].GetComponent<IKnockback>().Knockback(Vector3.forward, 10.0f);
-        }
+            else
+            {
+                throw new Exception("[Hit] - Target Wrong");
+            }
 
-        Debug.Log("Hit Ball");
+            Debug.Log("Hit Ball");
+        }
     }
 
     private void Update()
@@ -53,6 +45,9 @@ public class Hit : Skill
     {
         Gizmos.color = Color.red;
 
-        Gizmos.DrawWireCube(transform.position + Vector3.forward + Vector3.down * 0.3f, Vector3.one);
+        Vector3 tempMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePos = new Vector3(tempMousePos.x, 0.0f, tempMousePos.z);
+
+        Gizmos.DrawWireCube(transform.position + (mousePos - transform.position).normalized + Vector3.down * 0.3f, Vector3.one);
     }
 }
