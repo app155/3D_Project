@@ -8,11 +8,7 @@ using System;
 public class Hit : Skill
 {
     private float _pushPower = 10.0f;
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-    }
+    [SerializeField] GameObject _prefab;
 
     public override void Init(CharacterController owner)
     {
@@ -28,12 +24,12 @@ public class Hit : Skill
             return;
         }
 
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity))
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Collider[] cols = Physics.OverlapSphere(transform.position + hit.point.normalized, 0.5f, owner.ballMask);
+            Instantiate(_prefab, hit.point, Quaternion.identity);
+            Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized, 0.5f, owner.ballMask);
 
             if (cols.Length > 0)
             {
@@ -74,9 +70,9 @@ public class Hit : Skill
         Gizmos.color = Color.red;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity))
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Gizmos.DrawWireSphere(transform.position + hit.point.normalized, 0.5f);
+            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized.normalized, 0.5f);
         }
     }
 

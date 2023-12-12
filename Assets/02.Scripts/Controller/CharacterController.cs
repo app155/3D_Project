@@ -42,9 +42,9 @@ namespace Project3D.Controller
             set => _hpMax = value;
         }
 
-        public LayerMask enemyMask { get => _enemyMask; }
+        public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
-
+        public LayerMask groundMask => _groundMask;
         public float HpMin => _hpMin;
 
         private CharacterState _state;
@@ -91,7 +91,7 @@ namespace Project3D.Controller
             // Temp
             if (Input.GetMouseButtonDown(0))
             {
-                _skills[0].GetComponent<Skill>().Execute();
+                _skills[0].Execute();
             }
 
             if (Input.GetMouseButtonDown(1))
