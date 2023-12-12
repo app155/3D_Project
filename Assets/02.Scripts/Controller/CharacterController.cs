@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Project3D.GameElements.Skill;
 
 namespace Project3D.Controller
 {
@@ -41,14 +42,21 @@ namespace Project3D.Controller
             set => _hpMax = value;
         }
 
+        public LayerMask enemyMask { get => _enemyMask; }
+        public LayerMask ballMask => _ballMask;
+
         public float HpMin => _hpMin;
 
         private CharacterState _state;
         private float _hpValue;
         private float _hpMax;
         private float _hpMin = 0.0f;
+        [SerializeField] private GameObject[] _skillList;
+        [SerializeField] private Skill[] _skills;
         [SerializeField] private float _speed;
-        [SerializeField] LayerMask _groundMask;
+        [SerializeField] private LayerMask _enemyMask;
+        [SerializeField] private LayerMask _ballMask;
+        [SerializeField] private LayerMask _groundMask;
         private Rigidbody _rigid;
 
         public override void OnNetworkSpawn()
@@ -61,6 +69,16 @@ namespace Project3D.Controller
             base.OnNetworkSpawn();
 
             _rigid = GetComponent<Rigidbody>();
+
+            _skills = new Skill[_skillList.Length];
+
+            for (int i = 0; i < _skillList.Length; i++)
+            {
+                GameObject go = Instantiate(_skillList[i], transform);
+                Skill skill = go.GetComponent<Skill>();
+                skill.Init(this);
+                _skills[i] = skill;
+            }
         }
 
         private void Update()
@@ -71,9 +89,15 @@ namespace Project3D.Controller
             }
 
             // Temp
+            if (Input.GetMouseButtonDown(0))
+            {
+                _skills[0].GetComponent<Skill>().Execute();
+            }
+
             if (Input.GetMouseButtonDown(1))
             {
                 Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Knockback(pos.normalized, Vector3.Distance(pos, transform.position));
             }
         }
 
@@ -122,7 +146,7 @@ namespace Project3D.Controller
 
         public void Knockback(Vector3 pushDir, float pushPower)
         {
-
+            _rigid.MovePosition(pushDir * pushPower);
         }
     }
 }

@@ -5,20 +5,20 @@ using UnityEngine;
 
 namespace Project3D.Controller
 {
-    public class BallController : NetworkBehaviour
+    public class BallController : NetworkBehaviour, IKnockback
     {
         [SerializeField] private Vector3 _moveDir;
         [SerializeField] private LayerMask _characterMask;
         [SerializeField] private LayerMask _wallMask;
         [SerializeField] private Vector3 _pushDir;
         [SerializeField] private float _pushPower;
-        private Rigidbody rigid;
+        private Rigidbody _rigid;
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Vector3 _moveStartPos;
 
         private void Awake()
         {
-            rigid = GetComponent<Rigidbody>();
+            _rigid = GetComponent<Rigidbody>();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -37,6 +37,18 @@ namespace Project3D.Controller
                 _moveSpeed = _pushPower;
 
                 _moveStartPos = transform.position;
+            }
+
+            else if ((1 << other.gameObject.layer & _wallMask) > 0)
+            {
+                Debug.Log($"{other.gameObject.name} triggered");
+
+                Vector3 tempPos = other.ClosestPointOnBounds(transform.position);
+                Vector3 normalVec = (transform.position - tempPos).normalized;
+
+                Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec);
+
+                _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
             }
         }
 
@@ -58,11 +70,20 @@ namespace Project3D.Controller
         {
             if (_moveSpeed > 0.0f)
                 _moveSpeed -= Time.deltaTime;
+
+            else if (_moveSpeed < 0.0f)
+                _moveSpeed = 0.0f;
         }
 
         private void FixedUpdate()
         {
-            rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
+            _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
+        }
+
+        public void Knockback(Vector3 pushDir, float pushPower)
+        {
+            _moveDir = pushDir;
+            _moveSpeed = pushPower;
         }
     }
 }
