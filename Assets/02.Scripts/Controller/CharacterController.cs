@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using System;
+using Unity.PlasticSCM.Editor.WebApi;
 
 namespace Project3D.Controller
 {
@@ -31,7 +33,13 @@ namespace Project3D.Controller
                 if (_hpValue == value)
                     return;
 
-                _hpValue = Mathf.Clamp(value, _hpMin, _hpMax);
+                value = Mathf.Clamp(value, _hpMin, _hpMax);
+                _hpValue = value;
+
+                if (value == HpMax)
+                    onHpMax?.Invoke();
+                else if(value == HpMin)
+                    onHpMin?.Invoke();
             }
         }
 
@@ -45,11 +53,22 @@ namespace Project3D.Controller
 
         private CharacterState _state;
         private float _hpValue;
-        private float _hpMax;
+        [SerializeField] private float _hpMax;
         private float _hpMin = 0.0f;
         [SerializeField] private float _speed;
         [SerializeField] LayerMask _groundMask;
         private Rigidbody _rigid;
+        private Animator _animator;
+
+        public event Action<float> onHpChanged;
+        public event Action<float> onHpRecovered;
+        public event Action<float> onHpDepleted;
+        public event Action onHpMax;
+        public event Action onHpMin;
+
+        private Vector3 oldPosition;
+        private Vector3 currentPosition;
+        private double _velocity;
 
         public override void OnNetworkSpawn()
         {
@@ -63,6 +82,12 @@ namespace Project3D.Controller
             _rigid = GetComponent<Rigidbody>();
         }
 
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+            _rigid = GetComponent<Rigidbody>();
+            oldPosition = transform.position;
+        }
         private void Update()
         {
             if (IsGrounded())
@@ -88,7 +113,14 @@ namespace Project3D.Controller
 
         private void MovePosition()
         {
-            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
+            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime * speed;
+            currentPosition = transform.position;
+            Vector3 dis = (currentPosition - oldPosition);
+            var distance = Math.Sqrt(Math.Pow(dis.x, 2) + Math.Pow(dis.y, 2) + Math.Pow(dis.z, 2));
+            _velocity = distance / Time.deltaTime;
+            oldPosition = currentPosition;
+            _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
+
         }
 
         private void ChangeRotation()
@@ -96,11 +128,12 @@ namespace Project3D.Controller
             transform.LookAt(transform.position + new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")));
         }
 
-        public bool ChangeState(CharacterState state)
+        public bool ChangeState(CharacterState newState)
         {
-            _state = state;
-
-            return false;
+            _animator.SetInteger("state", (int)newState);
+            _animator.SetBool("isDirty", true);
+            _state = newState;
+            return true;
         }
 
         private bool IsGrounded()
