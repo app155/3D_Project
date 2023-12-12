@@ -1,46 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Unity.Netcode;
+//using System.Collections;
+//using System.Collections.Generic;
+//using UnityEngine;
+//using Unity.Netcode;
 
-public class Test_CharacterController : NetworkBehaviour
-{
-    public float speed
-    {
-        get => _speed;
-    }
+//public class CharacterController : NetworkBehaviour
+//{
+//    public float speed
+//    {
+//        get => _speed;
+//    }
 
-    [SerializeField] private float _speed;
-    [SerializeField] LayerMask _groundMask;
-    private Rigidbody _rigid;
+//    [SerializeField] private float _speed;
+//    [SerializeField] LayerMask _groundMask;
+//    private Rigidbody _rigid;
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+//    public override void OnNetworkSpawn()
+//    {
+//        if (IsOwner == false)
+//        {
+//            enabled = false;
+//        }
 
-        _rigid = GetComponent<Rigidbody>();
-    }
+//        base.OnNetworkSpawn();
 
-    private void Update()
-    {
-        if (IsGrounded())
-        {
-            transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
-        }
-    }
+//        _rigid = GetComponent<Rigidbody>();
+//    }
 
-    private void FixedUpdate()
-    {
-        if (IsOwner == false)
-            return;
+//    private void Update()
+//    {
+//        if (IsGrounded())
+//        {
+//            transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
+//        }
+//    }
 
-        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
-    }
+//    private void FixedUpdate()
+//    {
+//        if (IsOwner == false)
+//            return;
 
-    private bool IsGrounded()
-    {
-        Collider[] cols = Physics.OverlapSphere(transform.position, 0.15f, _groundMask);
+//        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
+//    }
 
-        return cols.Length > 0;
-    }
-}
+//    private bool IsGrounded()
+//    {
+//        Collider[] cols = Physics.OverlapSphere(transform.position, 0.15f, _groundMask);
+
+//        return cols.Length > 0;
+//    }
+//}
