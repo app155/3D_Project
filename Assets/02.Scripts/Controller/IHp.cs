@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Project3D.Controller
 {
-    public interface IHp
+    public interface IHp : IKnockback
     {
         public float HpValue { get; set; }
         public float HpMax { get; set; }

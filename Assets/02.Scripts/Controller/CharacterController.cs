@@ -6,7 +6,7 @@ using Project3D.GameElements.Skill;
 
 namespace Project3D.Controller
 {
-    public class CharacterController : NetworkBehaviour, IHp, IKnockback
+    public class CharacterController : NetworkBehaviour, IHp
     {
         public enum CharacterState
         {
@@ -17,6 +17,18 @@ namespace Project3D.Controller
             Hit,
             Ceremony,
             Die,
+        }
+
+        public CharacterState state
+        {
+            get => _state;
+            set
+            {
+                if (_state == value)
+                    return;
+
+                _state = value;
+            }
         }
 
         public float speed
@@ -72,6 +84,9 @@ namespace Project3D.Controller
         [SerializeField] private LayerMask _wallMask;
         private float _xAxis;
         private float _zAxis;
+        private bool _isStiffed;
+        [SerializeField] private float _stiffTime = 0.2f;
+        private float _stiffTimer;
         private Rigidbody _rigid;
 
         public override void OnNetworkSpawn()
@@ -84,6 +99,8 @@ namespace Project3D.Controller
             base.OnNetworkSpawn();
 
             _rigid = GetComponent<Rigidbody>();
+
+            _state = CharacterState.Locomotive;
 
             _skills = new Skill[_skillList.Length];
 
@@ -101,23 +118,42 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
-            _xAxis = Input.GetAxisRaw("Horizontal");
-            _zAxis = Input.GetAxisRaw("Vertical");
-
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
             }
 
-            // Temp
-            if (Input.GetMouseButtonDown(0))
+            // 경직 아닐 시
+            if (_isStiffed == false)
             {
-                _skills[0].Execute();
+                _xAxis = Input.GetAxisRaw("Horizontal");
+                _zAxis = Input.GetAxisRaw("Vertical");
+
+                // Temp SkillACtion Input
+                if (Input.GetMouseButtonDown(0))
+                {
+                    _skills[0].Execute();
+                }
+
+                if (Input.GetMouseButtonDown(1))
+                {
+                    _skills[1].Execute();
+                }
             }
 
-            if (Input.GetMouseButtonDown(1))
+            // 경직 시
+            else
             {
-                _skills[1].Execute();
+                if (_stiffTimer < _stiffTime)
+                {
+                    _stiffTimer += Time.deltaTime;
+                }
+
+                else
+                {
+                    _stiffTimer = 0;
+                    _isStiffed = false;
+                }
             }
         }
 
@@ -126,8 +162,13 @@ namespace Project3D.Controller
             if (IsOwner == false)
                 return;
 
+
+            if (_isStiffed == false)
+            {
+                ChangeRotation();
+            }
+
             MovePosition(_xAxis, _zAxis);
-            ChangeRotation();
         }
 
         private void MovePosition(float xAxis, float zAxis)
@@ -175,8 +216,7 @@ namespace Project3D.Controller
         public bool ChangeState(CharacterState state)
         {
             _state = state;
-
-            return false;
+            return true;
         }
 
         private bool IsGrounded()
@@ -199,7 +239,9 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
         {
-            _rigid.MovePosition(pushDir * pushPower);
+            _isStiffed = true;
+            _xAxis = pushDir.x * pushPower;
+            _zAxis = pushDir.z * pushPower;
         }
 
         private void OnDrawGizmos()

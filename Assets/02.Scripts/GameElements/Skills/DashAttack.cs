@@ -15,6 +15,7 @@ namespace Project3D.GameElements.Skill
         private float _dashSpeed = 4.0f;
         private bool _isExecuting;
         private Vector3 _executeDir;
+        private HashSet<GameObject> _hits;
 
         public override void Init(Controller.CharacterController owner)
         {
@@ -26,6 +27,8 @@ namespace Project3D.GameElements.Skill
             coolTime = 2.0f;
             castTime = 0.3f;
             _isExecuting = false;
+
+            _hits = new HashSet<GameObject>();
         }
 
         private void Update()
@@ -41,13 +44,29 @@ namespace Project3D.GameElements.Skill
         {
             if ((1 << other.gameObject.layer & owner.ballMask) > 0)
             {
-                other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower);
+                if (_hits.Contains(other.gameObject) == false)
+                {
+                    other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower);
+                    _hits.Add(other.gameObject);
+                }
+                    
             }
 
             else if ((1 << other.gameObject.layer & owner.enemyMask) > 0)
             {
-                other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower);
-                Attack(other.GetComponent<IHp>());
+                if (_hits.Contains(other.gameObject) == false)
+                {
+                    if (other.TryGetComponent(out IHp target))
+                    {
+                        target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower);
+                        Attack(target);
+                        _hits.Add(other.gameObject);
+                    }
+
+                    //other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower);
+                    //Attack(other.GetComponent<IHp>());
+                    
+                }
             }
         }
 
@@ -63,6 +82,8 @@ namespace Project3D.GameElements.Skill
                 Debug.Log("[DashAttack] - Cooltime");
                 return;
             }
+
+            _hits.Clear();
 
             coolTimer = coolTime;
 
