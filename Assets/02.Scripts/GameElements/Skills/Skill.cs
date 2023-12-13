@@ -16,7 +16,7 @@ namespace Project3D.GameElements.Skill
         protected float castTimer;
         protected float castTime;
 
-        public void Init(CharacterController owner)
+        public virtual void Init(CharacterController owner)
         {
             this.owner = owner;
         }

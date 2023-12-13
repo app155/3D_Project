@@ -7,7 +7,7 @@ namespace Project3D.Network
 {
     public class BallNetwork : NetworkBehaviour
     {
-        NetworkVariable<BallNetworkData> _netState = new NetworkVariable<BallNetworkData>(writePerm: NetworkVariableWritePermission.Owner);
+        NetworkVariable<BallNetworkData> _netState = new NetworkVariable<BallNetworkData>();
         private Vector3 _vel;
         [SerializeField] private float _interpolationTime = 0.1f;
 

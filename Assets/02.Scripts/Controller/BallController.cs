@@ -16,30 +16,35 @@ namespace Project3D.Controller
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Vector3 _moveStartPos;
 
-        private void Awake()
+        public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
             _rigid = GetComponent<Rigidbody>();
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if ((1 << other.gameObject.layer & _characterMask) > 0)
-            {
-                Debug.Log($"{other.gameObject.name} triggered");
+            if (!IsOwner)
+                return;
 
-                Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
+            // Ä³¸¯ÅÍ Á¢ÃË ½Ã Æ¨±â±â - ¾È¾¸
+            //if ((1 << other.gameObject.layer & _characterMask) > 0)
+            //{
+            //    Debug.Log($"{other.gameObject.name} triggered");
 
-                Vector3 tempDir = transform.position - otherPos;
-                tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
+            //    Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
 
-                _moveDir = tempDir.normalized;
+            //    Vector3 tempDir = transform.position - otherPos;
+            //    tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
 
-                _moveSpeed = _pushPower;
+            //    _moveDir = tempDir.normalized;
 
-                _moveStartPos = transform.position;
-            }
+            //    _moveSpeed = _pushPower;
 
-            else if ((1 << other.gameObject.layer & _wallMask) > 0)
+            //    _moveStartPos = transform.position;
+            //}
+
+            if ((1 << other.gameObject.layer & _wallMask) > 0)
             {
                 Debug.Log($"{other.gameObject.name} triggered");
 
@@ -52,22 +57,11 @@ namespace Project3D.Controller
             }
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            if ((1 << collision.gameObject.layer & _wallMask) > 0)
-            {
-                Vector3 tempVec = collision.contacts[0].normal;
-                Vector3 normalVec = new Vector3(tempVec.x, 0.0f, tempVec.z);
-
-                Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
-
-                _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-
-            }
-        }
-
         private void Update()
         {
+            if (!IsOwner)
+                return;
+
             if (_moveSpeed > 0.0f)
                 _moveSpeed -= Time.deltaTime;
 
@@ -77,10 +71,14 @@ namespace Project3D.Controller
 
         private void FixedUpdate()
         {
+            if (!IsOwner)
+                return;
+
             _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
         }
 
-        public void Knockback(Vector3 pushDir, float pushPower)
+        [ServerRpc(RequireOwnership = false)]
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;

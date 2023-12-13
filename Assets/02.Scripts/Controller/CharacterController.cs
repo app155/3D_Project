@@ -49,9 +49,9 @@ namespace Project3D.Controller
             set => _hpMax = value;
         }
 
-        public LayerMask enemyMask { get => _enemyMask; }
+        public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
-
+        public LayerMask groundMask => _groundMask;
         public float HpMin => _hpMin;
 
         private CharacterState _state;
@@ -107,6 +107,9 @@ namespace Project3D.Controller
         }
         private void Update()
         {
+            if (!IsOwner)
+                return;
+
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -115,13 +118,13 @@ namespace Project3D.Controller
             // Temp
             if (Input.GetMouseButtonDown(0))
             {
-                _skills[0].GetComponent<Skill>().Execute();
+                _skills[0].Execute();
             }
 
             if (Input.GetMouseButtonDown(1))
             {
                 Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Knockback(pos.normalized, Vector3.Distance(pos, transform.position));
+                KnockbackServerRpc(pos.normalized, Vector3.Distance(pos, transform.position));
             }
         }
 
@@ -136,6 +139,7 @@ namespace Project3D.Controller
 
         private void MovePosition()
         {
+
             transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime * speed;
             currentPosition = transform.position;
             Vector3 dis = (currentPosition - oldPosition);
@@ -143,6 +147,7 @@ namespace Project3D.Controller
             _velocity = distance / Time.deltaTime;
             oldPosition = currentPosition;
             _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
+            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * _speed * Time.fixedDeltaTime;
 
         }
 
@@ -176,7 +181,8 @@ namespace Project3D.Controller
             _hpValue += amount;
         }
 
-        public void Knockback(Vector3 pushDir, float pushPower)
+        [ServerRpc(RequireOwnership = false)]
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
         {
             _rigid.MovePosition(pushDir * pushPower);
         }
