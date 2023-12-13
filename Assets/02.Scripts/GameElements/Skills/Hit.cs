@@ -30,7 +30,11 @@ public class Hit : Skill
             Debug.Log("[Hit] - Cooltime");
             return;
         }
+        GameObject line = new GameObject("line");
+        line.AddComponent<LineRenderer>();
 
+        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
@@ -40,11 +44,14 @@ public class Hit : Skill
             if (cols.Length > 0)
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
-                {
+                { 
+                    lineRenderer.SetPosition(0, transform.position); // 시작점 설정
+                    lineRenderer.SetPosition(1, transform.position + (hit.point - transform.position).normalized); // 끝점 설정
+                    lineRenderer.startWidth = 1.0f; // 시작점 두께 설정
+                    lineRenderer.endWidth = 1.0f; // 끝점 두께 설정
                     //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
                     ball.KnockbackServerRpc((cols[0].transform.position - transform.position).normalized, _pushPower);
                 }
-
                 else
                 {
                     throw new Exception("[Hit] - Target Wrong");
@@ -79,7 +86,7 @@ public class Hit : Skill
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized.normalized, 0.5f);
+            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized, 0.5f);
         }
     }
 
