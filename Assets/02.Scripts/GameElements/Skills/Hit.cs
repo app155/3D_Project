@@ -35,14 +35,14 @@ public class Hit : Skill
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized, 0.5f, owner.ballMask);
+            Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized * 0.5f, 0.5f, owner.ballMask);
 
             if (cols.Length > 0)
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 {
                     //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
-                    ball.KnockbackServerRpc((cols[0].transform.position - transform.position).normalized, _pushPower);
+                    ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower);
                 }
 
                 else
@@ -79,7 +79,7 @@ public class Hit : Skill
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized.normalized, 0.5f);
+            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized.normalized * 0.5f, 0.5f);
         }
     }
 

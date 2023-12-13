@@ -42,6 +42,18 @@ namespace Project3D.Controller
             set => _hpMax = value;
         }
 
+        public float xAxis
+        {
+            get => _xAxis;
+            set => _xAxis = value;
+        }
+
+        public float zAxis
+        {
+            get => _zAxis;
+            set => _zAxis = value;
+        }
+
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
@@ -57,6 +69,9 @@ namespace Project3D.Controller
         [SerializeField] private LayerMask _enemyMask;
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private LayerMask _groundMask;
+        [SerializeField] private LayerMask _wallMask;
+        private float _xAxis;
+        private float _zAxis;
         private Rigidbody _rigid;
 
         public override void OnNetworkSpawn()
@@ -86,6 +101,9 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
+            _xAxis = Input.GetAxisRaw("Horizontal");
+            _zAxis = Input.GetAxisRaw("Vertical");
+
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -99,8 +117,7 @@ namespace Project3D.Controller
 
             if (Input.GetMouseButtonDown(1))
             {
-                Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                KnockbackServerRpc(pos.normalized, Vector3.Distance(pos, transform.position));
+                _skills[1].Execute();
             }
         }
 
@@ -109,18 +126,50 @@ namespace Project3D.Controller
             if (IsOwner == false)
                 return;
 
-            MovePosition();
-            ChangeRotation();            
+            MovePosition(_xAxis, _zAxis);
+            ChangeRotation();
         }
 
-        private void MovePosition()
+        private void MovePosition(float xAxis, float zAxis)
         {
-            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * _speed * Time.fixedDeltaTime;
+            bool horizontalWallDetected = false;
+            bool verticalWallDetected = false;
+
+            if (Physics.Raycast(transform.position, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
+            {
+                horizontalWallDetected = true;
+            }
+
+            if (Physics.Raycast(transform.position, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
+            {
+                verticalWallDetected = true;
+            }
+
+            if (horizontalWallDetected && verticalWallDetected)
+            {
+                transform.position += Vector3.zero;
+            }
+
+            else if (horizontalWallDetected)
+            {
+                transform.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+            }
+
+            else if (verticalWallDetected)
+            {
+                transform.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
+            }
+
+            else
+            {
+                transform.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+            }
+            
         }
 
         private void ChangeRotation()
         {
-            transform.LookAt(transform.position + new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")));
+            transform.LookAt(transform.position + new Vector3(_xAxis, 0.0f, _zAxis));
         }
 
         public bool ChangeState(CharacterState state)
@@ -151,6 +200,14 @@ namespace Project3D.Controller
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
         {
             _rigid.MovePosition(pushDir * pushPower);
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.blue;
+
+            Gizmos.DrawLine(transform.position, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
+            Gizmos.DrawLine(transform.position, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
         }
     }
 }

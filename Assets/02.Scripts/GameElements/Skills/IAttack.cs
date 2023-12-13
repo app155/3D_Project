@@ -7,6 +7,6 @@ namespace Project3D.GameElements.Skill
 {
     public interface IAttack
     {
-        public void Attack();
+        public void Attack(IHp target);
     }
 }
