@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 235289005}
   - component: {fileID: 235289004}
   - component: {fileID: 235289003}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -260,7 +260,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2161522}
@@ -816,7 +816,8 @@ MonoBehaviour:
     PlayerPrefab: {fileID: 7668169904433051268, guid: d39df16f08f3adf42ba796bd6a87142f,
       type: 3}
     Prefabs:
-      NetworkPrefabsLists: []
+      NetworkPrefabsLists:
+      - {fileID: 11400000, guid: 06e64b14a2e631e4abcf634011f6667e, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -1099,7 +1100,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2161522}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &3993953516352289934
+--- !u!1001 &1923318421
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1162,11 +1163,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6586875532316970316, guid: cb53aa93a3eb67345b4bd850b6a8b4ef,
-        type: 3}
-      propertyPath: _pushPower
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 7271257852869598152, guid: cb53aa93a3eb67345b4bd850b6a8b4ef,
         type: 3}
       propertyPath: m_Name
@@ -1175,7 +1171,7 @@ PrefabInstance:
     - target: {fileID: 7637758471317643268, guid: cb53aa93a3eb67345b4bd850b6a8b4ef,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 2818636908
+      value: 245112979
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1190,5 +1186,5 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 2161522}
-  - {fileID: 3993953516352289934}
+  - {fileID: 1923318421}
   - {fileID: 1164685210}
