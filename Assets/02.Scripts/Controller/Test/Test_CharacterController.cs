@@ -53,6 +53,11 @@ namespace 3Dproject.Controllers
 
     public override void OnNetworkSpawn()
     {
+        if (IsOwner == false)
+        {
+            enabled = false;
+        }
+
         base.OnNetworkSpawn();
         if (IsOwner)
         {
@@ -76,7 +81,7 @@ namespace 3Dproject.Controllers
         if (IsOwner == false)
             return;
 
-        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+        transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
     }
 
     private bool IsGrounded()
