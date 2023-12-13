@@ -1957,7 +1957,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _hpMax: 0
+  _skillList:
+  - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
+  _skills: []
   _speed: 3
+  _enemyMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  _ballMask:
+    serializedVersion: 2
+    m_Bits: 4096
   _groundMask:
     serializedVersion: 2
     m_Bits: 512

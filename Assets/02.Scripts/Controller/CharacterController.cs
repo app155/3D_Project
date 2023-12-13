@@ -3,22 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Project3D.GameElements.Skill;
-
+using System;
 
 namespace Project3D.Controller
 {
+    public enum CharacterState
+    {
+        None,
+        Idle,
+        Move,
+        Attack = 20,
+        Respawned,
+        Hit,
+        Ceremony,
+        Die,
+    }
     public class CharacterController : NetworkBehaviour, IHp, IKnockback
     {
-        public enum CharacterState
-        {
-            None,
-            Locomotive,
-            Respawned,
-            Attack,
-            Hit,
-            Ceremony,
-            Die,
-        }
+
 
         public float speed
         {
@@ -118,6 +120,8 @@ namespace Project3D.Controller
             // Temp
             if (Input.GetMouseButtonDown(0))
             {
+                GetComponent<CharacterController>().ChangeState(CharacterState.Attack);
+
                 _skills[0].Execute();
             }
 
@@ -147,7 +151,7 @@ namespace Project3D.Controller
             _velocity = distance / Time.deltaTime;
             oldPosition = currentPosition;
             _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
-            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * _speed * Time.fixedDeltaTime;
+            //transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * _speed * Time.fixedDeltaTime;
 
         }
 
