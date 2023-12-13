@@ -16,13 +16,17 @@ namespace Project3D.Controller
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Vector3 _moveStartPos;
 
-        private void Awake()
+        public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
             _rigid = GetComponent<Rigidbody>();
         }
 
         private void OnTriggerEnter(Collider other)
         {
+            if (!IsOwner)
+                return;
+
             // Ä³¸¯ÅÍ Á¢ÃË ½Ã Æ¨±â±â - ¾È¾¸
             //if ((1 << other.gameObject.layer & _characterMask) > 0)
             //{
@@ -55,6 +59,9 @@ namespace Project3D.Controller
 
         private void Update()
         {
+            if (!IsOwner)
+                return;
+
             if (_moveSpeed > 0.0f)
                 _moveSpeed -= Time.deltaTime;
 
@@ -64,10 +71,14 @@ namespace Project3D.Controller
 
         private void FixedUpdate()
         {
+            if (!IsOwner)
+                return;
+
             _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
         }
 
-        public void Knockback(Vector3 pushDir, float pushPower)
+        [ServerRpc(RequireOwnership = false)]
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;

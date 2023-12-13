@@ -10,6 +10,13 @@ public class Hit : Skill
     private float _pushPower = 10.0f;
     [SerializeField] GameObject _prefab;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        Debug.Log("!!@#!#@!3");
+    }
+
     public override void Init(CharacterController owner)
     {
         base.Init(owner);
@@ -28,14 +35,14 @@ public class Hit : Skill
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Instantiate(_prefab, hit.point, Quaternion.identity);
             Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized, 0.5f, owner.ballMask);
 
             if (cols.Length > 0)
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 {
-                    ball.Knockback((cols[0].transform.position - transform.position).normalized, _pushPower);
+                    //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
+                    ball.KnockbackServerRpc((cols[0].transform.position - transform.position).normalized, _pushPower);
                 }
 
                 else
