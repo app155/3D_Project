@@ -96,6 +96,10 @@ namespace Project3D.Controller
             {
                 _skills[0].Execute();
             }
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                _skills[1].Execute();
+            }
 
             if (Input.GetMouseButtonDown(1))
             {
