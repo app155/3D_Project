@@ -49,7 +49,6 @@ namespace Project3D.GameElements.Skill
                     other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower);
                     _hits.Add(other.gameObject);
                 }
-                    
             }
 
             else if ((1 << other.gameObject.layer & owner.enemyMask) > 0)
@@ -62,10 +61,6 @@ namespace Project3D.GameElements.Skill
                         Attack(target);
                         _hits.Add(other.gameObject);
                     }
-
-                    //other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower);
-                    //Attack(other.GetComponent<IHp>());
-                    
                 }
             }
         }

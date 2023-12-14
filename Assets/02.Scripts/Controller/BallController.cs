@@ -78,7 +78,7 @@ namespace Project3D.Controller
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;

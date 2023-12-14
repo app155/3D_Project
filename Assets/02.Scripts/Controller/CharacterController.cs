@@ -71,9 +71,11 @@ namespace Project3D.Controller
         public LayerMask groundMask => _groundMask;
         public float HpMin => _hpMin;
 
+        public int clientID;
+
         private CharacterState _state;
         private float _hpValue;
-        private float _hpMax;
+        private float _hpMax = 100.0f;
         private float _hpMin = 0.0f;
         [SerializeField] private GameObject[] _skillList;
         [SerializeField] private Skill[] _skills;
@@ -91,16 +93,11 @@ namespace Project3D.Controller
 
         public override void OnNetworkSpawn()
         {
-            if (IsOwner == false)
-            {
-                enabled = false;
-            }
-
             base.OnNetworkSpawn();
 
             _rigid = GetComponent<Rigidbody>();
-
             _state = CharacterState.Locomotive;
+            _hpValue = _hpMax;
 
             _skills = new Skill[_skillList.Length];
 
@@ -162,17 +159,20 @@ namespace Project3D.Controller
             if (IsOwner == false)
                 return;
 
+            MovePosition(_xAxis, _zAxis);
 
             if (_isStiffed == false)
             {
                 ChangeRotation();
             }
 
-            MovePosition(_xAxis, _zAxis);
         }
 
         private void MovePosition(float xAxis, float zAxis)
         {
+            if (IsOwner == false)
+                return;
+
             bool horizontalWallDetected = false;
             bool verticalWallDetected = false;
 
@@ -186,7 +186,12 @@ namespace Project3D.Controller
                 verticalWallDetected = true;
             }
 
-            if (horizontalWallDetected && verticalWallDetected)
+            if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
+            {
+                transform.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+            }
+
+            else if (horizontalWallDetected && verticalWallDetected)
             {
                 transform.position += Vector3.zero;
             }
@@ -200,12 +205,6 @@ namespace Project3D.Controller
             {
                 transform.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
             }
-
-            else
-            {
-                transform.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
-            }
-            
         }
 
         private void ChangeRotation()
@@ -237,11 +236,22 @@ namespace Project3D.Controller
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
         {
             _isStiffed = true;
-            _xAxis = pushDir.x * pushPower;
-            _zAxis = pushDir.z * pushPower;
+            xAxis = pushDir.x * pushPower;
+            zAxis = pushDir.z * pushPower;
+
+            ulong clientID = rpcParams.Receive.SenderClientId;
+            KnockbackClientRpc(pushDir, pushPower, clientID);
+        }
+
+        [ClientRpc]
+        public void KnockbackClientRpc(Vector3 pushDir, float pushPower, ulong clientID, ClientRpcParams rpcParams = default)
+        {
+            _isStiffed = true;
+            xAxis = pushDir.x * pushPower;
+            zAxis = pushDir.z * pushPower;
         }
 
         private void OnDrawGizmos()

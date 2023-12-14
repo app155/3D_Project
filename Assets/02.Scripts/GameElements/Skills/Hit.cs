@@ -13,8 +13,6 @@ public class Hit : Skill
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        Debug.Log("!!@#!#@!3");
     }
 
     public override void Init(CharacterController owner)

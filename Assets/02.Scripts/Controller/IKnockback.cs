@@ -8,6 +8,6 @@ namespace Project3D.Controller
     public interface IKnockback
     {
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower);
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default);
     }
 }
