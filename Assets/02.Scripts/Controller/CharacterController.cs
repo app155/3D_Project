@@ -4,18 +4,19 @@ using UnityEngine;
 using Unity.Netcode;
 using Project3D.GameElements.Skill;
 using System;
-using Project3D.Animations;
+
 namespace Project3D.Controller
 {
     public enum CharacterState
     {
         None,
-        Locomotion,
+        Idle,
+        Move,
+        Attack = 20,
         Respawned,
         Hit,
         Ceremony,
         Die,
-        Attack = 20,
     }
     public class CharacterController : NetworkBehaviour, IHp, IKnockback
     {
@@ -55,7 +56,7 @@ namespace Project3D.Controller
         public LayerMask groundMask => _groundMask;
         public float HpMin => _hpMin;
 
-        public CharacterState _state;
+        private CharacterState _state;
         private float _hpValue;
         [SerializeField] private float _hpMax;
         private float _hpMin = 0.0f;
@@ -105,11 +106,6 @@ namespace Project3D.Controller
             _animator = GetComponent<Animator>();
             _rigid = GetComponent<Rigidbody>();
             oldPosition = transform.position;
-            AnimState[] animStates = _animator.GetBehaviours<AnimState>();
-            for(int i = 0; i < animStates.Length; i++)
-            {
-                animStates[i].Init(this);
-            }
         }
         private void Update()
         {
@@ -125,12 +121,12 @@ namespace Project3D.Controller
             if (Input.GetMouseButtonDown(0))
             {
                 GetComponent<CharacterController>().ChangeState(CharacterState.Attack);
+
                 _skills[0].Execute();
             }
 
             if (Input.GetMouseButtonDown(1))
             {
-
                 Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 KnockbackServerRpc(pos.normalized, Vector3.Distance(pos, transform.position));
             }
