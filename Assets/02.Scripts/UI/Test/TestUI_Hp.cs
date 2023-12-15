@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterControllers = Project3D.Controller.CharacterControllers;
 
 public class TestUI_Hp : MonoBehaviour
 {
     public static TestUI_Hp testHp;
-    public CharacterController chara;
+    public CharacterControllers chara;
     public TMP_Text text;
 
     private void Awake()

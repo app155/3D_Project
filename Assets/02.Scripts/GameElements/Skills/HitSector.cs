@@ -1,4 +1,4 @@
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterControllers = Project3D.Controller.CharacterControllers;
 using Project3D.GameElements.Skill;
 using UnityEngine;
 using Project3D.Controller;
@@ -22,7 +22,7 @@ public class HitSector : Skill
         Debug.Log("!!@#!#@!3");
     }
 
-    public override void Init(CharacterController owner)
+    public override void Init(CharacterControllers owner)
     {
         base.Init(owner);
         coolTime = 1.0f;

@@ -1,7 +1,8 @@
 using Project3D.Controller;
+using Project3D.Stat;
 using Unity.Netcode;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.GameElements.Items
 {
@@ -23,14 +24,16 @@ namespace Project3D.GameElements.Items
         [ServerRpc(RequireOwnership = false)]
         public void AffectServerRpc(ServerRpcParams rpcParams = default)
         {
-            gameObject.SetActive(false);
-            AffectClientRpc();
+            //targetHp.DepleteHp(amount);
+            //gameObject.SetActive(false);
+            //AffectClientRpc(targetHp);
         }
 
         [ClientRpc]
         public void AffectClientRpc(ClientRpcParams rpcParams = default)
         {
-            gameObject.SetActive(false);
+            //targetHp.DepleteHp(amount);
+            //gameObject.SetActive(false);
         }
     }
 }

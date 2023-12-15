@@ -17,7 +17,7 @@ namespace Project3D.GameElements.Skill
         private Vector3 _executeDir;
         private HashSet<GameObject> _hits;
 
-        public override void Init(Controller.CharacterController owner)
+        public override void Init(Controller.CharacterControllers owner)
         {
             base.Init(owner);
             _col = GetComponent<BoxCollider>();

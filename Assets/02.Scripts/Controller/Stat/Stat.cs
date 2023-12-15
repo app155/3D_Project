@@ -5,9 +5,9 @@ using Unity.Netcode;
 using Project3D.GameElements.Skill;
 using System;
 using TMPro;
-using Teamproject.Stat.ID;
+using Project3D.Stat.ID;
 
-namespace Teamproject.Stat
+namespace Project3D.Stat
 {
     public class Stat
     {

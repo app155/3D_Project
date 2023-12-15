@@ -1,8 +1,8 @@
 ﻿using System;
 using Unity.VisualScripting;
-using Teamproject.Stat.ID;
+using Project3D.Stat.ID;
 
-namespace Teamproject.Stat
+namespace Project3D.Stat
 {
 	public enum StatModType
 	{

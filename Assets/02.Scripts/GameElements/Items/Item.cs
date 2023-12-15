@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.GameElements.Items
 {

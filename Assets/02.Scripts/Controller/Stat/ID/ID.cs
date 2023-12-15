@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Teamproject.Stat.ID
+namespace Project3D.Stat.ID
     
 {
     public class ID : ScriptableObject

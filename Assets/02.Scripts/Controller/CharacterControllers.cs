@@ -12,7 +12,7 @@ namespace Project3D.Controller
 {
     public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
     {
-        static Dictionary<ulong, CharacterController> _spawned = new Dictionary<ulong, CharacterController>();
+        static Dictionary<ulong, CharacterControllers> _spawned = new Dictionary<ulong, CharacterControllers>();
 
         public enum CharacterState
         {
@@ -45,18 +45,18 @@ namespace Project3D.Controller
 
         public float HpValue
         {
-            get => _hpValue;
+            get => _hpValue.Value;
             set
             {
-                if (_hpValue == value)
+                if (_hpValue.Value == value)
                     return;
 
-                _hpValue = Mathf.Clamp(value, _hpMin, _hpMax);
+                _hpValue.Value = Mathf.Clamp(value, _hpMin.Value, _hpMax.Value);
                 onHpChanged?.Invoke(value);
 
-                if (value == _hpMax)
+                if (value == _hpMax.Value)
                     onHpMax?.Invoke();
-                else if (value == _hpMin)
+                else if (value == _hpMin.Value)
                     onHpMin?.Invoke();
                 onDirectionChanged?.Invoke(value);
             }
@@ -64,8 +64,8 @@ namespace Project3D.Controller
 
         public float HpMax
         {
-            get => _hpMax;
-            set => _hpMax = value;
+            get => _hpMax.Value;
+            set => _hpMax.Value = value;
 
         }
 
@@ -84,7 +84,7 @@ namespace Project3D.Controller
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
-        public float HpMin => _hpMin;
+        public float HpMin => _hpMin.Value;
 
         public int clientID;
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -100,9 +100,9 @@ namespace Project3D.Controller
         NetworkVariable<float> _exp;
         NetworkVariable<int> _level;
         private CharacterState _state;
-        [SerializeField] private float _hpValue;
-        private float _hpMax;
-        private float _hpMin = 0.0f;
+        private NetworkVariable<float> _hpValue = new NetworkVariable<float>(readPerm: NetworkVariableReadPermission.Everyone, writePerm: NetworkVariableWritePermission.Server);
+        private NetworkVariable<float> _hpMax = new NetworkVariable<float>(readPerm: NetworkVariableReadPermission.Everyone, writePerm: NetworkVariableWritePermission.Server);
+        private NetworkVariable<float> _hpMin = new NetworkVariable<float>(readPerm: NetworkVariableReadPermission.Everyone, writePerm: NetworkVariableWritePermission.Server);
         private float _damage;
         [SerializeField] private GameObject[] _skillList;
         [SerializeField] private Skill[] _skills;
@@ -127,9 +127,9 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
             _state = CharacterState.Locomotive;
-            _hpMax = 100;
-            _hpMin = 0;
-            _hpValue = 80; // temp
+            _hpMax.Value = 100;
+            _hpMin.Value = 0;
+            _hpValue.Value = 80; // temp
 
             _skills = new Skill[_skillList.Length];
 
@@ -145,6 +145,7 @@ namespace Project3D.Controller
             if (IsOwner == false)
                 return;
             TestUI_Hp.testHp.chara = this;
+
             if (IsServer)
             {
                 _exp.OnValueChanged += (prev, current) =>
@@ -153,7 +154,7 @@ namespace Project3D.Controller
                     {
                         _exp.Value = current - 100.0f;
                         _level.Value++;
-                        _hpMax += 500.0f;
+                        _hpMax.Value += 500.0f;
                         _damage += 15.0f;
                     }
                 };
@@ -177,7 +178,6 @@ namespace Project3D.Controller
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
             }
 
-            // ���� �ƴ� ��
             if (_isStiffed == false)
             {
                 _xAxis = Input.GetAxisRaw("Horizontal");
@@ -199,7 +199,7 @@ namespace Project3D.Controller
                 _skills[1].Execute();
             }
 
-            // ���� ��
+
             else
             {
                 if (_stiffTimer < _stiffTime)
@@ -294,14 +294,14 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            _hpValue -= amount;
+            _hpValue.Value -= amount;
             onHpDepleted?.Invoke(amount);
 
         }
 
         public void RecoverHp(float amount)
         {
-            _hpValue += amount;
+            _hpValue.Value += amount;
             onHpRecovered?.Invoke(amount);
         }
 
