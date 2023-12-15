@@ -27,13 +27,10 @@ namespace Project3D.GameElements.Items
 
         private void OnTriggerEnter(Collider other)
         {
-            if (IsOwner == false)
-                return;
-
             if ((1 << other.gameObject.layer & _playersMask.value) > 0)
             {
                 Debug.Log("Entered");
-                Affect(other.transform);
+                Affect(other.GetComponent<NetworkBehaviour>());
             }
         }
 
@@ -54,6 +51,6 @@ namespace Project3D.GameElements.Items
             }
         }
 
-        public abstract void Affect(Transform target);
+        public abstract void Affect(NetworkBehaviour target);
     }
 }

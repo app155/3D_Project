@@ -7,6 +7,7 @@ using System;
 using static UnityEditor.PlayerSettings;
 using System.Security.Cryptography;
 using UnityEngine.UIElements;
+using Project3D.GameSystem;
 
 namespace Project3D.Controller
 {
@@ -45,18 +46,18 @@ namespace Project3D.Controller
 
         public float HpValue
         {
-            get => _hpValue.Value;
+            get => _hpValue;
             set
             {
-                if (_hpValue.Value == value)
+                if (_hpValue == value)
                     return;
 
-                _hpValue.Value = Mathf.Clamp(value, _hpMin.Value, _hpMax.Value);
+                _hpValue = Mathf.Clamp(value, _hpMin, _hpMax);
                 onHpChanged?.Invoke(value);
 
-                if (value == _hpMax.Value)
+                if (value == _hpMax)
                     onHpMax?.Invoke();
-                else if (value == _hpMin.Value)
+                else if (value == _hpMin)
                     onHpMin?.Invoke();
                 onDirectionChanged?.Invoke(value);
             }
@@ -64,10 +65,14 @@ namespace Project3D.Controller
 
         public float HpMax
         {
-            get => _hpMax.Value;
-            set => _hpMax.Value = value;
-
+            get => _hpMax;
+            set
+            {
+                _hpMax = value;
+            }
         }
+            
+        public float HpMin => _hpMin;
 
         public float xAxis
         {
@@ -84,9 +89,8 @@ namespace Project3D.Controller
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
-        public float HpMin => _hpMin.Value;
 
-        public int clientID;
+        public ulong clientID => OwnerClientId;
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public event Action<float> onHpChanged;
@@ -100,9 +104,9 @@ namespace Project3D.Controller
         NetworkVariable<float> _exp;
         NetworkVariable<int> _level;
         private CharacterState _state;
-        private NetworkVariable<float> _hpValue = new NetworkVariable<float>(readPerm: NetworkVariableReadPermission.Everyone, writePerm: NetworkVariableWritePermission.Server);
-        private NetworkVariable<float> _hpMax = new NetworkVariable<float>(readPerm: NetworkVariableReadPermission.Everyone, writePerm: NetworkVariableWritePermission.Server);
-        private NetworkVariable<float> _hpMin = new NetworkVariable<float>(readPerm: NetworkVariableReadPermission.Everyone, writePerm: NetworkVariableWritePermission.Server);
+        private float _hpValue;
+        private float _hpMax;
+        private float _hpMin;
         private float _damage;
         [SerializeField] private GameObject[] _skillList;
         [SerializeField] private Skill[] _skills;
@@ -127,9 +131,9 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
             _state = CharacterState.Locomotive;
-            _hpMax.Value = 100;
-            _hpMin.Value = 0;
-            _hpValue.Value = 80; // temp
+            _hpMax = 100;
+            _hpMin = 0;
+            _hpValue = 80; // temp
 
             _skills = new Skill[_skillList.Length];
 
@@ -141,9 +145,11 @@ namespace Project3D.Controller
                 _skills[i] = skill;
             }
 
+            InGameManager.instance.RegisterPlayer(GetComponent<NetworkBehaviour>());
             // Temp
             if (IsOwner == false)
                 return;
+
             TestUI_Hp.testHp.chara = this;
 
             if (IsServer)
@@ -154,12 +160,11 @@ namespace Project3D.Controller
                     {
                         _exp.Value = current - 100.0f;
                         _level.Value++;
-                        _hpMax.Value += 500.0f;
+                        _hpMax += 500.0f;
                         _damage += 15.0f;
                     }
                 };
             }
-
         }
 
         private void Awake()
@@ -294,14 +299,14 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            _hpValue.Value -= amount;
+            _hpValue -= amount;
             onHpDepleted?.Invoke(amount);
 
         }
 
         public void RecoverHp(float amount)
         {
-            _hpValue.Value += amount;
+            _hpValue += amount;
             onHpRecovered?.Invoke(amount);
         }
 

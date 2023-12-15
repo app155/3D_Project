@@ -1,39 +1,45 @@
 using Project3D.Controller;
+using Project3D.GameSystem;
 using Project3D.Stat;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.GameElements.Items
 {
-    public class RecoverItem : Item, IItem
+    public class RecoverItem : Item
     {
         [SerializeField] float amount;
 
-        public override void Affect(Transform target)
+        public override void Affect(NetworkBehaviour target)
         {
-            if (target.TryGetComponent(out IHp targetHp))
-            {
-                Debug.Log($"target HP Before {targetHp.HpValue}");
-                targetHp.RecoverHp(amount);
-                Debug.Log($"target Hp After {targetHp.HpValue}");
-                AffectServerRpc();
-            }
+            ulong clientID = target.OwnerClientId;
+            // temp
+            IHp targetHp = InGameManager.instance.player[clientID].GetComponent<IHp>();
+            Debug.Log($"target HP Before {targetHp.HpValue}");
+            AffectServerRpc(clientID);
+            Debug.Log($"target Hp After {targetHp.HpValue}");
         }
         
         [ServerRpc(RequireOwnership = false)]
-        public void AffectServerRpc(ServerRpcParams rpcParams = default)
+        public void AffectServerRpc(ulong targetID, ServerRpcParams rpcParams = default)
         {
-            //targetHp.DepleteHp(amount);
-            //gameObject.SetActive(false);
-            //AffectClientRpc(targetHp);
+            IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
+            targetHp.RecoverHp(amount);
+            gameObject.SetActive(false);
+            AffectClientRpc(targetID);
         }
 
         [ClientRpc]
-        public void AffectClientRpc(ClientRpcParams rpcParams = default)
+        public void AffectClientRpc(ulong targetID, ClientRpcParams rpcParams = default)
         {
-            //targetHp.DepleteHp(amount);
-            //gameObject.SetActive(false);
+            if (IsClient)
+            {
+                IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
+                targetHp.RecoverHp(amount);
+                gameObject.SetActive(false);
+            }
         }
     }
 }
