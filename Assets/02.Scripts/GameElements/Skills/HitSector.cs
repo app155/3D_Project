@@ -1,4 +1,4 @@
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterController = Project3D.Controller.CharacterControllers;
 using Project3D.GameElements.Skill;
 using UnityEngine;
 using Project3D.Controller;
