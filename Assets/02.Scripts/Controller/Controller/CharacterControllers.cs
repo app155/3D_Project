@@ -4,7 +4,6 @@ using UnityEngine;
 using Unity.Netcode;
 using Project3D.GameElements.Skill;
 using System;
-using static UnityEditor.PlayerSettings;
 using System.Security.Cryptography;
 using UnityEngine.UIElements;
 using Project3D.GameSystem;

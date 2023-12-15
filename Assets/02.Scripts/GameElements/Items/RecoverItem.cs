@@ -14,6 +14,9 @@ namespace Project3D.GameElements.Items
 
         public override void Affect(NetworkBehaviour target)
         {
+            if (IsServer == false)
+                return;
+
             ulong clientID = target.OwnerClientId;
             // temp
             IHp targetHp = InGameManager.instance.player[clientID].GetComponent<IHp>();
@@ -36,9 +39,12 @@ namespace Project3D.GameElements.Items
         {
             if (IsClient)
             {
-                IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
-                targetHp.RecoverHp(amount);
-                gameObject.SetActive(false);
+                if (targetID == OwnerClientId)
+                {
+                    IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
+                    targetHp.RecoverHp(amount);
+                    gameObject.SetActive(false);
+                }
             }
         }
     }

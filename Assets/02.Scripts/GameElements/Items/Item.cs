@@ -27,6 +27,9 @@ namespace Project3D.GameElements.Items
 
         private void OnTriggerEnter(Collider other)
         {
+            if (IsOwner == false)
+                return;
+
             if ((1 << other.gameObject.layer & _playersMask.value) > 0)
             {
                 Debug.Log("Entered");
