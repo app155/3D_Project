@@ -42,11 +42,10 @@ public class Hit : Skill
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 { 
-                    lineRenderer.SetPosition(0, transform.position); // ������ ����
-                    lineRenderer.SetPosition(1, transform.position + (hit.point - transform.position).normalized); // ���� ����
-                    lineRenderer.startWidth = 1.0f; // ������ �β� ����
-                    lineRenderer.endWidth = 1.0f; // ���� �β� ����
-                    //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
+                    lineRenderer.SetPosition(0, transform.position); 
+                    lineRenderer.SetPosition(1, transform.position + (hit.point - transform.position).normalized); 
+                    lineRenderer.startWidth = 1.0f; 
+                    lineRenderer.endWidth = 1.0f; 
                     ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower);
                 }
                 else

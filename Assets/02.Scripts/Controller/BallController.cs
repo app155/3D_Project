@@ -27,22 +27,6 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
-            // ĳ���� ���� �� ƨ��� - �Ⱦ�
-            //if ((1 << other.gameObject.layer & _characterMask) > 0)
-            //{
-            //    Debug.Log($"{other.gameObject.name} triggered");
-
-            //    Vector3 otherPos = new Vector3(other.transform.position.x, 0.0f, other.transform.position.z);
-
-            //    Vector3 tempDir = transform.position - otherPos;
-            //    tempDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-
-            //    _moveDir = tempDir.normalized;
-
-            //    _moveSpeed = _pushPower;
-
-            //    _moveStartPos = transform.position;
-            //}
 
             if ((1 << other.gameObject.layer & _wallMask) > 0)
             {
@@ -50,16 +34,27 @@ namespace Project3D.Controller
                 
                 Vector3 tempPos = other.ClosestPointOnBounds(transform.position);
 
-                Instantiate(new GameObject()).transform.position = tempPos;
+
+                // Temp Reflect -> Need to Modify with Wall
+                Vector3 wallsurfaceDirRight = other.transform.TransformDirection(Vector3.right);
+                Vector3 wallsurfaceDirFoward = other.transform.TransformDirection(Vector3.forward);
 
                 Vector3 normalVec = (transform.position - tempPos).normalized;
-                Vector3 normalVec2 = other.transform.rotation * Vector3.up;
+                Debug.Log($"normalVec = {normalVec}");
 
-                float angle = Vector3.Angle(normalVec2, _moveDir);
-                Vector3 tempDir = new Vector3();
+                Vector3 normalVec2 = (other.transform.rotation * Vector3.up);
+                Debug.Log($"normalVec2 = {normalVec2}");
+                Vector3 normalVec3 = normalVec + normalVec2;
+                Debug.Log($"normalVec3 = {normalVec3}");
 
-                if (angle <= 45.0f)
-                    tempDir = Vector3.Reflect(_moveDir, normalVec);
+                Vector3 tempDir;
+
+                if (other.transform.rotation.y != 0)
+                    tempDir = Vector3.Reflect(_moveDir, wallsurfaceDirRight).normalized;
+
+                else
+                    tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
+
 
                 _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
             }
@@ -84,6 +79,8 @@ namespace Project3D.Controller
 
             _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
         }
+
+
 
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
