@@ -33,7 +33,7 @@ namespace Project3D.GameElements.Items
             if ((1 << other.gameObject.layer & _playersMask.value) > 0)
             {
                 Debug.Log("Entered");
-                Affect(other.GetComponent<CharacterController>().clientID);
+                Affect(other.transform);
             }
         }
 
@@ -54,6 +54,6 @@ namespace Project3D.GameElements.Items
             }
         }
 
-        public abstract void Affect(int targetID);
+        public abstract void Affect(Transform target);
     }
 }

@@ -6,6 +6,6 @@ namespace Project3D.GameElements.Items
     public interface IItem
     {
         [ServerRpc(RequireOwnership = false)]
-        public void AffectServerRpc(int targetID, ServerRpcParams rpcParams = default);
+        public void AffectServerRpc(ServerRpcParams rpcParams = default);
     }
 }

@@ -9,31 +9,28 @@ namespace Project3D.GameElements.Items
     {
         [SerializeField] float amount;
 
-        public override void Affect(int targetID)
+        public override void Affect(Transform target)
         {
-            AffectServerRpc(targetID);
+            if (target.TryGetComponent(out IHp targetHp))
+            {
+                Debug.Log($"target HP Before {targetHp.HpValue}");
+                targetHp.RecoverHp(amount);
+                Debug.Log($"target Hp After {targetHp.HpValue}");
+                AffectServerRpc();
+            }
         }
-
+        
         [ServerRpc(RequireOwnership = false)]
-        public void AffectServerRpc(int targetID, ServerRpcParams rpcParams = default)
+        public void AffectServerRpc(ServerRpcParams rpcParams = default)
         {
-            CharacterController targetChara = NetworkManager.Singleton.ConnectedClientsList[targetID].PlayerObject.GetComponent<CharacterController>();
-            IHp target = targetChara.GetComponent<IHp>();
-            Debug.Log($"target HP Before {target.HpValue}");
-            target.RecoverHp(amount);
             gameObject.SetActive(false);
-            Debug.Log($"target Hp After {target.HpValue}");
+            AffectClientRpc();
         }
 
         [ClientRpc]
-        public void AffectClientRpc(int targetID, ClientRpcParams rpcParams = default)
+        public void AffectClientRpc(ClientRpcParams rpcParams = default)
         {
-            CharacterController targetChara = NetworkManager.Singleton.ConnectedClientsList[targetID].PlayerObject.GetComponent<CharacterController>();
-            IHp target = targetChara.GetComponent<IHp>();
-            Debug.Log($"target HP Before {target.HpValue}");
-            target.RecoverHp(amount);
             gameObject.SetActive(false);
-            Debug.Log($"target Hp After {target.HpValue}");
         }
     }
 }

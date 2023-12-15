@@ -123,7 +123,7 @@ MonoBehaviour:
   _playersMask:
     serializedVersion: 2
     m_Bits: 2048
-  _appearTime: 5
+  _appearTime: 15
   _appearTimer: 0
   amount: 10
 --- !u!114 &6593115870621613466

@@ -8,6 +8,8 @@ namespace Project3D.Controller
 {
     public class CharacterController : NetworkBehaviour, IHp
     {
+        static Dictionary<ulong, CharacterController> _spawned = new Dictionary<ulong, CharacterController>();
+
         public enum CharacterState
         {
             None,
@@ -74,9 +76,9 @@ namespace Project3D.Controller
         public int clientID;
 
         private CharacterState _state;
-        private float _hpValue;
-        private float _hpMax = 100.0f;
-        private float _hpMin = 0.0f;
+        [SerializeField] private float _hpValue;
+        private float _hpMax;
+        private float _hpMin;
         [SerializeField] private GameObject[] _skillList;
         [SerializeField] private Skill[] _skills;
         [SerializeField] private float _speed;
@@ -97,7 +99,9 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
             _state = CharacterState.Locomotive;
-            _hpValue = _hpMax;
+            _hpMax = 100;
+            _hpMin = 0;
+            _hpValue = 80; // temp
 
             _skills = new Skill[_skillList.Length];
 
@@ -108,6 +112,11 @@ namespace Project3D.Controller
                 skill.Init(this);
                 _skills[i] = skill;
             }
+
+            // Temp
+            if (IsOwner == false)
+                return;
+            TestUI_Hp.testHp.chara = this;
         }
 
         private void Update()
