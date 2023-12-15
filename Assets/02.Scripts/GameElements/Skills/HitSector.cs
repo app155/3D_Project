@@ -93,7 +93,7 @@ public class HitSector : Skill
             Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, angle / 2, 2f);
             Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
         }
-        // DrawSolidArc(½ÃÀÛÁ¡, ³ë¸Öº¤ÅÍ(¹ý¼±º¤ÅÍ), ±×·ÁÁÙ ¹æÇâ º¤ÅÍ, °¢µµ, ¹ÝÁö¸§)
+        // DrawSolidArc(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½Öºï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½), ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
         
     }
     /*private void OnDrawGizmos()

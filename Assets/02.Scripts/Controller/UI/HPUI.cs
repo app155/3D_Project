@@ -1,7 +1,7 @@
 using System.Collections;
+using CharacterController = Project3D.Controller.CharacterControllers;
 using System.Collections.Generic;
 using UnityEngine;
-using CharacterControllers = Project3D.Controller.CharacterControllers;
 using Project3D.Controller;
 using UnityEngine.UI;
 using Unity.Netcode;
