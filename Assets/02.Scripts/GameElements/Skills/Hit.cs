@@ -1,4 +1,4 @@
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterController = Project3D.Controller.CharacterControllers;
 using Project3D.GameElements.Skill;
 using UnityEngine;
 using Project3D.Controller;
@@ -8,13 +8,10 @@ using System;
 public class Hit : Skill
 {
     private float _pushPower = 10.0f;
-    [SerializeField] GameObject _prefab;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        Debug.Log("!!@#!#@!3");
     }
 
     public override void Init(CharacterController owner)
@@ -30,21 +27,28 @@ public class Hit : Skill
             Debug.Log("[Hit] - Cooltime");
             return;
         }
+        GameObject line = new GameObject("line");
+        line.AddComponent<LineRenderer>();
 
+        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized, 0.5f, owner.ballMask);
+            Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized * 0.5f, 0.5f, owner.ballMask);
 
             if (cols.Length > 0)
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
-                {
+                { 
+                    lineRenderer.SetPosition(0, transform.position); // ������ ����
+                    lineRenderer.SetPosition(1, transform.position + (hit.point - transform.position).normalized); // ���� ����
+                    lineRenderer.startWidth = 1.0f; // ������ �β� ����
+                    lineRenderer.endWidth = 1.0f; // ���� �β� ����
                     //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
-                    ball.KnockbackServerRpc((cols[0].transform.position - transform.position).normalized, _pushPower);
+                    ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower);
                 }
-
                 else
                 {
                     throw new Exception("[Hit] - Target Wrong");
@@ -79,7 +83,7 @@ public class Hit : Skill
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized.normalized, 0.5f);
+            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized, 0.5f);
         }
     }
 
