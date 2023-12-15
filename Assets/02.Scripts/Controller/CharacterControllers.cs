@@ -55,9 +55,9 @@ namespace Project3D.Controller
 
         }
 
-        public LayerMask enemyMask { get => _enemyMask; }
+        public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
-
+        public LayerMask groundMask => _groundMask;
         public float HpMin => _hpMin;
 
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -134,6 +134,9 @@ namespace Project3D.Controller
 
         private void Update()
         {
+            if (!IsOwner)
+                return;
+
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -142,13 +145,13 @@ namespace Project3D.Controller
             // Temp
             if (Input.GetMouseButtonDown(0))
             {
-                _skills[0].GetComponent<Skill>().Execute();
+                _skills[0].Execute();
             }
 
             if (Input.GetMouseButtonDown(1))
             {
                 Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Knockback(pos.normalized, Vector3.Distance(pos, transform.position));
+                KnockbackServerRpc(pos.normalized, Vector3.Distance(pos, transform.position));
             }
         }
 
@@ -168,7 +171,7 @@ namespace Project3D.Controller
         }
         private void MovePosition()
         {
-            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * Time.fixedDeltaTime;
+            transform.position += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical")) * _speed * Time.fixedDeltaTime;
         }
 
         private void ChangeRotation()
@@ -203,7 +206,8 @@ namespace Project3D.Controller
             onHpRecovered?.Invoke(amount);
         }
 
-        public void Knockback(Vector3 pushDir, float pushPower)
+        [ServerRpc(RequireOwnership = false)]
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower)
         {
             _rigid.MovePosition(pushDir * pushPower);
         }
