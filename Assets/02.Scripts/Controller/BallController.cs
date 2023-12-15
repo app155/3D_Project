@@ -27,7 +27,7 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
-            // Ä³¸¯ÅÍ Á¢ÃË ½Ã Æ¨±â±â - ¾È¾¸
+            // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Æ¨ï¿½ï¿½ï¿½ - ï¿½È¾ï¿½
             //if ((1 << other.gameObject.layer & _characterMask) > 0)
             //{
             //    Debug.Log($"{other.gameObject.name} triggered");
@@ -46,9 +46,12 @@ namespace Project3D.Controller
 
             if ((1 << other.gameObject.layer & _wallMask) > 0)
             {
-                Debug.Log($"{other.gameObject.name} triggered");
+                Debug.Log($"{other.gameObject.name} triggered pos {other.ClosestPointOnBounds(transform.position)}");
 
                 Vector3 tempPos = other.ClosestPointOnBounds(transform.position);
+
+                Instantiate(new GameObject()).transform.position = tempPos;
+
                 Vector3 normalVec = (transform.position - tempPos).normalized;
 
                 Vector3 tempDir = Vector3.Reflect(_moveDir, normalVec);
