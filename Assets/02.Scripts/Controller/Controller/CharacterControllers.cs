@@ -193,17 +193,16 @@ namespace Project3D.Controller
                     _skills[0].Execute();
                 }
 
-                if (Input.GetMouseButtonDown(1))
+                if (Input.GetKeyDown(KeyCode.Q))
                 {
                     _skills[1].Execute();
                 }
-            }
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                _skills[1].Execute();
-            }
 
-
+                if (Input.GetMouseButtonDown(1))
+                {
+                    _skills[2].Execute();
+                }
+            }
             else
             {
                 if (_stiffTimer < _stiffTime)
@@ -230,7 +229,6 @@ namespace Project3D.Controller
             {
                 ChangeRotation();
             }
-
         }
 
         
@@ -300,7 +298,6 @@ namespace Project3D.Controller
         {
             _hpValue -= amount;
             onHpDepleted?.Invoke(amount);
-
         }
 
         public void RecoverHp(float amount)

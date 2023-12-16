@@ -8,29 +8,19 @@ using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.GameElements.Items
 {
-    public class RecoverItem : Item
+    public class RecoverItem : Item, IItem
     {
         [SerializeField] float amount;
 
         public override void Affect(NetworkBehaviour target)
         {
-            if (IsServer == false)
-                return;
-
             ulong clientID = target.OwnerClientId;
-            // temp
-            IHp targetHp = InGameManager.instance.player[clientID].GetComponent<IHp>();
-            Debug.Log($"target HP Before {targetHp.HpValue}");
             AffectServerRpc(clientID);
-            Debug.Log($"target Hp After {targetHp.HpValue}");
         }
         
         [ServerRpc(RequireOwnership = false)]
         public void AffectServerRpc(ulong targetID, ServerRpcParams rpcParams = default)
         {
-            IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
-            targetHp.RecoverHp(amount);
-            gameObject.SetActive(false);
             AffectClientRpc(targetID);
         }
 
@@ -39,13 +29,29 @@ namespace Project3D.GameElements.Items
         {
             if (IsClient)
             {
-                if (targetID == OwnerClientId)
-                {
-                    IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
-                    targetHp.RecoverHp(amount);
-                    gameObject.SetActive(false);
-                }
+                IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
+                Debug.Log($"target Hp Before {targetHp.HpValue}");
+                targetHp.RecoverHp(amount);
+                Debug.Log($"target Hp After {targetHp.HpValue}");
+                gameObject.SetActive(false);
             }
+        }
+
+        public override void Disappear()
+        {
+            DisappearServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DisappearServerRpc(ServerRpcParams rpcParams = default)
+        {
+            DisappearClientRpc();
+        }
+
+        [ClientRpc]
+        public void DisappearClientRpc(ClientRpcParams rpcParams = default)
+        {
+            gameObject.SetActive(false);
         }
     }
 }

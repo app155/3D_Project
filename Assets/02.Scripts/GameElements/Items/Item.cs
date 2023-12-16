@@ -50,10 +50,11 @@ namespace Project3D.GameElements.Items
 
             else
             {
-                gameObject.SetActive(false);
+                Disappear();
             }
         }
 
         public abstract void Affect(NetworkBehaviour target);
+        public abstract void Disappear();
     }
 }

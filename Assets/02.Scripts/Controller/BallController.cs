@@ -42,11 +42,6 @@ namespace Project3D.Controller
                 Vector3 normalVec = (transform.position - tempPos).normalized;
                 Debug.Log($"normalVec = {normalVec}");
 
-                Vector3 normalVec2 = (other.transform.rotation * Vector3.up);
-                Debug.Log($"normalVec2 = {normalVec2}");
-                Vector3 normalVec3 = normalVec + normalVec2;
-                Debug.Log($"normalVec3 = {normalVec3}");
-
                 Vector3 tempDir;
 
                 if (other.transform.rotation.y != 0)
