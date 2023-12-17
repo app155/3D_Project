@@ -26,10 +26,10 @@ namespace Project3D.UI
         private Dictionary<Type, IUI> _uis = new Dictionary<Type, IUI>();
         private Stack<IUI> _showns = new Stack<IUI>();
 
-        public T Get<T>(Type type)
+        public T Get<T>()
             where T : IUI
         {
-            if (_uis.TryGetValue(type, out IUI ui) == false)
+            if (_uis.TryGetValue(typeof(T), out IUI ui) == false)
             {
                 throw new Exception("[UIManager] - Get");
             }
