@@ -144,7 +144,11 @@ namespace Project3D.Controller
                 _skills[i] = skill;
             }
 
-            InGameManager.instance.RegisterPlayer(GetComponent<NetworkBehaviour>());
+            if (TryGetComponent(out NetworkBehaviour player))
+            {
+                InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
+            }
+            
             // Temp
             if (IsOwner == false)
                 return;

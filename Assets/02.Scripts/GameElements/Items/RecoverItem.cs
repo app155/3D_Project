@@ -2,7 +2,6 @@ using Project3D.Controller;
 using Project3D.GameSystem;
 using Project3D.Stat;
 using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using CharacterController = Project3D.Controller.CharacterControllers;
 
