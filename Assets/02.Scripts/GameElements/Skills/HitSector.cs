@@ -58,7 +58,6 @@ public class HitSector : Skill
 
                         if (degree <= angle / 2.0f)
                         {
-                            //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
                             ball.KnockbackServerRpc((Cnormal).normalized, _pushPower);
                         }
                     }
