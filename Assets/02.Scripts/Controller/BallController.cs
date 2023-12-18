@@ -49,11 +49,17 @@ namespace Project3D.Controller
                 Vector3 tempDir;
 
                 if (other.transform.rotation.y != 0)
+                {
                     tempDir = Vector3.Reflect(_moveDir, wallsurfaceDirRight).normalized;
+                    Debug.Log(tempDir);
+                }
+
 
                 else
+                {
                     tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
-
+                    Debug.Log(tempDir);
+                }
 
                 _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
             }

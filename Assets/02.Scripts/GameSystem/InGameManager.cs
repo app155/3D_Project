@@ -84,6 +84,7 @@ namespace Project3D.GameSystem
 
             onScoreState += () =>
             {
+                Debug.Log($"{OwnerClientId} call onscoreState");
                 StartCoroutine(C_Scored());
             };
         }
