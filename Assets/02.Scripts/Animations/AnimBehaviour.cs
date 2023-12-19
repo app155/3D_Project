@@ -4,7 +4,7 @@ using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.Animations
 {
-    public class Behavior : StateMachineBase
+    public class AnimBehaviour : StateMachineBase
     {
         [SerializeField] private CharacterState state;
         protected CharacterController controller;
@@ -14,11 +14,11 @@ namespace Project3D.Animations
             this.controller = controller;
         }
 
-        public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            base.OnStateEnter(animator, stateInfo, layerIndex);
+            base.OnStateUpdate(animator, stateInfo, layerIndex);
 
-            if (stateInfo.normalizedTime > 1.0f)
+            if (stateInfo.normalizedTime >= 1.0f)
             {
                 controller.ChangeState(state);
             }

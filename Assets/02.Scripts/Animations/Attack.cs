@@ -4,7 +4,7 @@ using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.Animations
 {
-    public class Attack : Behavior
+    public class Attack : AnimBehaviour
     {
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {

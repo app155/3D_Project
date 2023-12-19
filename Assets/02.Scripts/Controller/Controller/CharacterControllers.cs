@@ -8,6 +8,7 @@ using static UnityEditor.PlayerSettings;
 using System.Security.Cryptography;
 using UnityEngine.UIElements;
 using Project3D.GameSystem;
+using Project3D.Animations;
 
 namespace Project3D.Controller
 {
@@ -105,7 +106,7 @@ namespace Project3D.Controller
 
         NetworkVariable<float> _exp;
         NetworkVariable<int> _level;
-        private CharacterState _state;
+        [SerializeField] private CharacterState _state;
         private float _hpValue;
         private float _hpMax;
         private float _hpMin;
@@ -133,8 +134,7 @@ namespace Project3D.Controller
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            _animator = GetComponent<Animator>();
-            _rigid = GetComponent<Rigidbody>();
+          
             _state = CharacterState.Locomotion;
             _hpMax = 100;
             _hpMin = 0;
@@ -177,6 +177,13 @@ namespace Project3D.Controller
         {
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+            _animator = GetComponent<Animator>();
+            _rigid = GetComponent<Rigidbody>();
+            AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
+            for (int i = 0; i < animBehaviours.Length; i++)
+            {
+                animBehaviours[i].Init(this);
+            }
         }
 
         private void Update()

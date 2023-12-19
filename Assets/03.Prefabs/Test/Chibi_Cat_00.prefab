@@ -1956,7 +1956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3078f404df87548a1ea18e3f1db5e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hpMax: 0
+  _state: 0
   _skillList:
   - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
   _skills: []
@@ -1970,6 +1970,10 @@ MonoBehaviour:
   _groundMask:
     serializedVersion: 2
     m_Bits: 512
+  _wallMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  _stiffTime: 0.2
 --- !u!1 &5444589513123619510
 GameObject:
   m_ObjectHideFlags: 0
