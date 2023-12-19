@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6586875532316970316}
   - component: {fileID: -3718036566438580924}
   m_Layer: 12
-  m_Name: Test_Ball
+  m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,7 +137,7 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 84
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
 --- !u!114 &7637758471317643268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,8 +180,6 @@ MonoBehaviour:
   _lockerMask:
     serializedVersion: 2
     m_Bits: 256
-  _pushDir: {x: 0, y: 0, z: 0}
-  _pushPower: 10
   _moveSpeed: 0
   _moveStartPos: {x: 0, y: 0, z: 0}
 --- !u!114 &-3718036566438580924

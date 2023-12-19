@@ -27,9 +27,6 @@ namespace Project3D.GameSystem
             get => _gameState;
             set
             {
-                if (IsOwner == false)
-                    return;
-
                 if (_gameState == value)
                     return;
 

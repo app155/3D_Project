@@ -1959,6 +1959,7 @@ MonoBehaviour:
   _state: 0
   _skillList:
   - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
+  - {fileID: 6790195878885899931, guid: 1403a9a1a995b1846b6aecfffb046afe, type: 3}
   _skills: []
   _speed: 3
   _enemyMask:

@@ -5,7 +5,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-public class TestUI_CountDown : MonoBehaviour
+public class TestUI_CountDown : NetworkBehaviour
 {
     [SerializeField] private TMP_Text _countdownText;
 

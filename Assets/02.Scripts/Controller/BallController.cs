@@ -60,7 +60,6 @@ namespace Project3D.Controller
                                                        _wallMask);
 
 
-
             if (bounces.Length > 0)
             {
                 Collider wall = bounces[0];
