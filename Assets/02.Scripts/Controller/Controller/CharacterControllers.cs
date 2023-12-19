@@ -11,20 +11,22 @@ using Project3D.GameSystem;
 
 namespace Project3D.Controller
 {
+    public enum CharacterState
+    {
+        None,
+        Locomotion,
+        Respawned,
+        Hit,
+        Ceremony,
+        Attack = 20,
+        Die,
+    }
     public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
     {
+
         static Dictionary<ulong, CharacterControllers> _spawned = new Dictionary<ulong, CharacterControllers>();
 
-        public enum CharacterState
-        {
-            None,
-            Locomotive,
-            Respawned,
-            Attack,
-            Hit,
-            Ceremony,
-            Die,
-        }
+
 
         public CharacterState state
         {
@@ -121,19 +123,23 @@ namespace Project3D.Controller
         [SerializeField] private float _stiffTime = 0.2f;
         private float _stiffTimer;
         private Rigidbody _rigid;
+        private Animator _animator;
         int getdamaged;
-        
+        private Vector3 oldPosition;
+        private Vector3 currentPosition;
+        private double _velocity;
 
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-
+            _animator = GetComponent<Animator>();
             _rigid = GetComponent<Rigidbody>();
-            _state = CharacterState.Locomotive;
+            _state = CharacterState.Locomotion;
             _hpMax = 100;
             _hpMin = 0;
             _hpValue = 80; // temp
+            oldPosition = transform.position;
 
             _skills = new Skill[_skillList.Length];
 
@@ -191,6 +197,7 @@ namespace Project3D.Controller
                 // Temp SkillACtion Input
                 if (Input.GetMouseButtonDown(0))
                 {
+                    GetComponent<CharacterControllers>().ChangeState(CharacterState.Attack);
                     _skills[0].Execute();
                 }
 
@@ -226,6 +233,7 @@ namespace Project3D.Controller
                 return;
 
             MovePosition(_xAxis, _zAxis);
+            GetVelocity();
 
             if (_isStiffed == false)
             {
@@ -284,9 +292,20 @@ namespace Project3D.Controller
             transform.LookAt(transform.position + new Vector3(_xAxis, 0.0f, _zAxis));
         }
 
-        public bool ChangeState(CharacterState state)
+        private void GetVelocity()
         {
-            _state = state;
+            currentPosition = transform.position;
+            Vector3 dis = (currentPosition - oldPosition);
+            var distance = Math.Sqrt(Math.Pow(dis.x, 2) + Math.Pow(dis.y, 2) + Math.Pow(dis.z, 2));
+            _velocity = distance / Time.deltaTime;
+            oldPosition = currentPosition;
+            _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
+        }
+        public bool ChangeState(CharacterState newState)
+        {
+            _animator.SetInteger("state", (int)newState);
+            _animator.SetBool("isDirty", true);
+            _state = newState;
             return true;
         }
 

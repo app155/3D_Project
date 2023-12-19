@@ -1,6 +1,6 @@
 using Project3D.Controller;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.Animations
 {
