@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5874271235725952745}
   - component: {fileID: 5530138625102256411}
   - component: {fileID: 7948643255290562819}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -276,11 +276,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3078f404df87548a1ea18e3f1db5e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clientID: 0
-  _hpValue: 0
   _skillList:
   - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
   - {fileID: 9098332041373076186, guid: 71c33465148f3e54db1f2cb22d19d1d0, type: 3}
+  - {fileID: 6790195878885899931, guid: 1403a9a1a995b1846b6aecfffb046afe, type: 3}
   _skills: []
   _speed: 3
   _enemyMask:

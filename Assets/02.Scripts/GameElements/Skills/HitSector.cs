@@ -6,8 +6,10 @@ using Unity.Netcode;
 using System;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.Rendering.DebugUI;
+#if UNITY_EDITOR
 using UnityEditor;
 using System.Drawing;
+#endif
 
 public class HitSector : Skill
 {
@@ -58,7 +60,6 @@ public class HitSector : Skill
 
                         if (degree <= angle / 2.0f)
                         {
-                            //Instantiate(_prefab, transform.position + (hit.point - transform.position).normalized, Quaternion.identity);
                             ball.KnockbackServerRpc((Cnormal).normalized, _pushPower);
                         }
                     }
@@ -86,6 +87,7 @@ public class HitSector : Skill
 
     private void OnDrawGizmos()
     {
+#if UNITY_EDITOR
         Handles.color = new UnityEngine.Color(1f,0f,0f);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
@@ -94,7 +96,7 @@ public class HitSector : Skill
             Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
         }
         // DrawSolidArc(������, ��ֺ���(��������), �׷��� ���� ����, ����, ������)
-        
+#endif
     }
     /*private void OnDrawGizmos()
     {

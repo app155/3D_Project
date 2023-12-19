@@ -27,10 +27,17 @@ namespace Project3D.GameElements.Items
 
         private void OnTriggerEnter(Collider other)
         {
+            if (IsServer == false)
+                return;
+
             if ((1 << other.gameObject.layer & _playersMask.value) > 0)
             {
-                Debug.Log("Entered");
-                Affect(other.GetComponent<NetworkBehaviour>());
+                Debug.Log($"Entered {other.gameObject.name}");
+
+                if (other.TryGetComponent(out NetworkBehaviour target))
+                {
+                    Affect(target);
+                }
             }
         }
 
@@ -47,10 +54,11 @@ namespace Project3D.GameElements.Items
 
             else
             {
-                gameObject.SetActive(false);
+                Disappear();
             }
         }
 
         public abstract void Affect(NetworkBehaviour target);
+        public abstract void Disappear();
     }
 }

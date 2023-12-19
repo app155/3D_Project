@@ -1,3 +1,4 @@
+using CharacterControllers = Project3D.Controller.CharacterControllers;
 using Project3D.Controller;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Project3D.GameElements.Skill
         private Vector3 _executeDir;
         private HashSet<GameObject> _hits;
 
-        public override void Init(Controller.CharacterControllers owner)
+        public override void Init(CharacterControllers owner)
         {
             base.Init(owner);
             _col = GetComponent<BoxCollider>();

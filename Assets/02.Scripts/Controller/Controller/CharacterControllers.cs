@@ -4,7 +4,6 @@ using UnityEngine;
 using Unity.Netcode;
 using Project3D.GameElements.Skill;
 using System;
-using static UnityEditor.PlayerSettings;
 using System.Security.Cryptography;
 using UnityEngine.UIElements;
 using Project3D.GameSystem;
@@ -151,7 +150,11 @@ namespace Project3D.Controller
                 _skills[i] = skill;
             }
 
-            InGameManager.instance.RegisterPlayer(GetComponent<NetworkBehaviour>());
+            if (TryGetComponent(out NetworkBehaviour player))
+            {
+                InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
+            }
+            
             // Temp
             if (IsOwner == false)
                 return;
@@ -208,17 +211,16 @@ namespace Project3D.Controller
                     _skills[0].Execute();
                 }
 
-                if (Input.GetMouseButtonDown(1))
+                if (Input.GetKeyDown(KeyCode.Q))
                 {
                     _skills[1].Execute();
                 }
-            }
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                _skills[1].Execute();
-            }
 
-
+                if (Input.GetMouseButtonDown(1))
+                {
+                    _skills[2].Execute();
+                }
+            }
             else
             {
                 if (_stiffTimer < _stiffTime)
@@ -246,7 +248,6 @@ namespace Project3D.Controller
             {
                 ChangeRotation();
             }
-
         }
 
         
@@ -327,7 +328,6 @@ namespace Project3D.Controller
         {
             _hpValue -= amount;
             onHpDepleted?.Invoke(amount);
-
         }
 
         public void RecoverHp(float amount)
