@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Project3D.Controller
 {
-    public class GoalLocker : NetworkBehaviour
+    public class GoalLocker : NetworkBehaviour, IBounce
     {
         public int knockCount
         {
@@ -37,6 +37,7 @@ namespace Project3D.Controller
         public void ResetGoalLockerClientRpc()
         {
             knockCount = _knockCountOffset;
+            gameObject.SetActive(true);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -49,7 +50,12 @@ namespace Project3D.Controller
         public void DisapearClientRpc()
         {
             gameObject.SetActive(false);
+            Debug.Log("disapear");
         }
 
+        public void Execute()
+        {
+            knockCount--;
+        }
     }
 }

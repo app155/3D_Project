@@ -27,7 +27,7 @@ namespace Project3D.GameSystem
             get => _gameState;
             set
             {
-                if (IsServer == false)
+                if (IsOwner == false)
                     return;
 
                 if (_gameState == value)
@@ -68,6 +68,8 @@ namespace Project3D.GameSystem
         public event Action onScoreState;
         public event Action onEndState;
 
+        public event Action<float> onCountdownChanged;
+
         private static InGameManager _instance;
 
         [SerializeField] private GameState _gameState;
@@ -82,23 +84,36 @@ namespace Project3D.GameSystem
 
             _players = new Dictionary<ulong, NetworkBehaviour>();
 
+            onStandbyState += () =>
+            {
+                StartCountDownServerRpc(5.0f);
+            };
+
             onScoreState += () =>
             {
-                Debug.Log($"{OwnerClientId} call onscoreState");
                 StartCoroutine(C_Scored());
             };
+        }
+
+        private void Start()
+        {
+
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            Debug.Log("Ingamemanager spawned");
+
+            ChangeGameStateServerRpc(GameState.Standby);
         }
 
         IEnumerator C_Scored()
         {
             yield return new WaitForSeconds(1.0f);
 
-            gameState = GameState.Standby;
+            ChangeGameStateServerRpc(GameState.Standby);
         }
 
         public void RegisterPlayer(ulong clientID, NetworkBehaviour player)
@@ -107,6 +122,55 @@ namespace Project3D.GameSystem
             {
                 throw new Exception("[InGameManager] - Register");
             }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void StartCountDownServerRpc(float countTimer)
+        {
+            StartCountDownClientRpc(countTimer);
+        }
+
+        [ClientRpc]
+        public void StartCountDownClientRpc(float countTimer)
+        {
+            StartCoroutine(C_StartCountDown(countTimer));
+        }
+
+        IEnumerator C_StartCountDown(float countTimer)
+        {
+            onCountdownChanged?.Invoke(countTimer);
+            Debug.Log(countTimer);
+            float start = Time.time;
+
+            while (countTimer > 0f)
+            {
+                float now = Time.time;
+
+                if (now - start > 1.0f)
+                {
+                    countTimer -= 1.0f;
+                    start = now;
+                    onCountdownChanged?.Invoke(countTimer);
+                    Debug.Log(countTimer);
+                }
+
+                yield return null;
+            }
+
+            Debug.Log("End startcountdown coroutine");
+            ChangeGameStateServerRpc(GameState.Playing);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ChangeGameStateServerRpc(GameState state)
+        {
+            ChangeGameStateClientRpc(state);
+        }
+
+        [ClientRpc]
+        public void ChangeGameStateClientRpc(GameState state)
+        {
+            gameState = state;
         }
     }
 }
