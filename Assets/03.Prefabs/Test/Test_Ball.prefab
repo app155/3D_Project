@@ -177,6 +177,9 @@ MonoBehaviour:
   _wallMask:
     serializedVersion: 2
     m_Bits: 1024
+  _lockerMask:
+    serializedVersion: 2
+    m_Bits: 256
   _pushDir: {x: 0, y: 0, z: 0}
   _pushPower: 10
   _moveSpeed: 0
