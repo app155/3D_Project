@@ -24,6 +24,10 @@ public class TestUI_CountDown : NetworkBehaviour
     [ClientRpc]
     public void RefreshClientRpc(float value)
     {
+        if (value <= -1f)
+            _countdownText.text = string.Empty;
+
+        else
         _countdownText.text = value.ToString();
     }
 }

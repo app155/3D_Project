@@ -95,6 +95,7 @@ namespace Project3D.Controller
         public ulong clientID => OwnerClientId;
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
         public event Action<float> onHpDepleted;
@@ -142,6 +143,8 @@ namespace Project3D.Controller
 
             _skills = new Skill[_skillList.Length];
 
+            Debug.Log($"chara spawned : {OwnerClientId}");
+
             for (int i = 0; i < _skillList.Length; i++)
             {
                 GameObject go = Instantiate(_skillList[i], transform);
@@ -160,6 +163,7 @@ namespace Project3D.Controller
                 return;
 
             TestUI_Hp.testHp.chara = this;
+            team = InGameManager.instance.blueTeam;
 
             if (IsServer)
             {
@@ -268,12 +272,12 @@ namespace Project3D.Controller
             bool horizontalWallDetected = false;
             bool verticalWallDetected = false;
 
-            if (Physics.Raycast(transform.position, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
+            if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
             {
                 horizontalWallDetected = true;
             }
 
-            if (Physics.Raycast(transform.position, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
+            if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
             {
                 verticalWallDetected = true;
             }
@@ -363,8 +367,8 @@ namespace Project3D.Controller
         {
             Gizmos.color = Color.blue;
 
-            Gizmos.DrawLine(transform.position, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
-            Gizmos.DrawLine(transform.position, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
+            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
+            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
         }
 
         public void Attack(float amount)

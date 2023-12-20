@@ -1,4 +1,5 @@
 using Project3D.Controller;
+using Project3D.GameSystem;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -9,13 +10,34 @@ namespace Project3D.Controller
     public class GoalChecker : NetworkBehaviour
     {
         [SerializeField] private LayerMask _ballMask;
+        [SerializeField] private Teams _teamEnum;
+        public Team team => _teamEnum == Teams.Blue ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+        }
 
         private void OnTriggerEnter(Collider other)
         {
             if ((1 << other.gameObject.layer & _ballMask) > 0)
             {
-                other.GetComponent<BallController>().ScoreServerRpc();
+                other.GetComponent<BallController>().ScoreServerRpc(team.id);
+                ScoreServerRpc();
             }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ScoreServerRpc()
+        {
+            ScoreClientRpc();
+        }
+
+        [ClientRpc]
+        public void ScoreClientRpc()
+        {
+            team.score++;
+            InGameManager.instance.gameState = GameState.Score;
         }
     }
 }
