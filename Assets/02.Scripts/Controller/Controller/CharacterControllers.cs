@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using UnityEngine.UIElements;
 using Project3D.GameSystem;
 using Project3D.Animations;
+using Unity.Netcode.Components;
 
 namespace Project3D.Controller
 {
@@ -19,6 +20,7 @@ namespace Project3D.Controller
         Hit,
         Ceremony,
         Attack = 20,
+        DashAttack = 21,
         Die,
     }
     public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
@@ -124,6 +126,7 @@ namespace Project3D.Controller
         private float _stiffTimer;
         private Rigidbody _rigid;
         private Animator _animator;
+        private NetworkAnimator _networkAnimator;
         int getdamaged;
         private Vector3 oldPosition;
         private Vector3 currentPosition;
@@ -182,6 +185,7 @@ namespace Project3D.Controller
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
             _rigid = GetComponent<Rigidbody>();
+            _networkAnimator = GetComponent<NetworkAnimator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -213,6 +217,7 @@ namespace Project3D.Controller
 
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
+                    GetComponent<CharacterControllers>().ChangeState(CharacterState.DashAttack);
                     _skills[1].Execute();
                 }
 

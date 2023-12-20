@@ -1816,6 +1816,7 @@ GameObject:
   - component: {fileID: -177757419261772099}
   - component: {fileID: -2253927672516989856}
   - component: {fileID: 5656327521426676647}
+  - component: {fileID: -3900022193533573687}
   m_Layer: 11
   m_Name: Chibi_Cat_00
   m_TagString: Untagged
@@ -1959,6 +1960,7 @@ MonoBehaviour:
   _state: 0
   _skillList:
   - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
+  - {fileID: 6790195878885899931, guid: 1403a9a1a995b1846b6aecfffb046afe, type: 3}
   _skills: []
   _speed: 3
   _enemyMask:
@@ -1974,6 +1976,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   _stiffTime: 0.2
+--- !u!114 &-3900022193533573687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5423310324255315445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 639c752b503623440b134b98d2a7d23a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 5644869602344051516}
 --- !u!1 &5444589513123619510
 GameObject:
   m_ObjectHideFlags: 0
