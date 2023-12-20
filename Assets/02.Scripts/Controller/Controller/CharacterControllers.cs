@@ -261,6 +261,10 @@ namespace Project3D.Controller
             if (IsOwner == false)
                 return;
 
+            if (InGameManager.instance.gameState != GameState.Playing &&
+                InGameManager.instance.gameState != GameState.Score)
+                return;
+
             bool horizontalWallDetected = false;
             bool verticalWallDetected = false;
 
