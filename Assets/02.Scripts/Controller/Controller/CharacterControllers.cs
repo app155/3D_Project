@@ -345,13 +345,13 @@ namespace Project3D.Controller
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
             _isStiffed = true;
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
 
-            ulong clientID = rpcParams.Receive.SenderClientId;
+            ulong clientID2 = rpcParams.Receive.SenderClientId;
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 

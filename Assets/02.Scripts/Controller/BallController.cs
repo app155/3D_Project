@@ -97,10 +97,11 @@ namespace Project3D.Controller
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;
+            _recoder.Add(clientID);
         }
 
         [ServerRpc(RequireOwnership = false)]
