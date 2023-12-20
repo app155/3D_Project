@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,6 +8,11 @@ namespace Project3D.Lobbies
 {
     public class GameLobbyManager : MonoBehaviour
     {
+        public string GetLobbyCode()
+        {
+            return LobbyManager.instance.GetLobbyCode();
+        }
+
         public static GameLobbyManager instance
         {
             get
@@ -32,6 +38,19 @@ namespace Project3D.Lobbies
             };
 
             bool succeeded = await LobbyManager.instance.CreateLobby(4, true, playerData);
+
+            return succeeded;
+        }
+
+
+        public async Task<bool> JoinLobby(string code)
+        {
+            Dictionary<string, string> playerData = new Dictionary<string, string>()
+            {
+                { "GamerTag", "JoinPlayer" }
+            };
+
+            bool succeeded = await LobbyManager.instance.JoinLobby(code, playerData);
 
             return succeeded;
         }

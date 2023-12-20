@@ -25,12 +25,17 @@ namespace Project3D.Lobbies
                 return _instance;
             }
         }
-
+        
         private static LobbyManager _instance;
         private Lobby _lobby;
         private Coroutine _heartbeatCoroutine;
         private Coroutine _refreshLobbyCoroutine;
 
+        public string GetLobbyCode()
+        {
+            return _lobby?.LobbyCode;
+            
+        }
         public async Task<bool> CreateLobby(int maxPlayers, bool isPrivate, Dictionary<string, string> data)
         {
             Dictionary<string, PlayerDataObject> playerData = SerializePlayerData(data);
@@ -110,6 +115,27 @@ namespace Project3D.Lobbies
             {
                 LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
             }
+        }
+
+        internal async Task<bool> JoinLobby(string code, Dictionary<string, string> playerData)
+        {
+            JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions();
+            Player player = new Player(AuthenticationService.Instance.PlayerId, null, SerializePlayerData(playerData));
+
+            options.Player = player;
+
+            try
+            {
+                _lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code, options);
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            _refreshLobbyCoroutine = StartCoroutine(C_RefreshLobby(_lobby.Id, 1.0f));
+            return true;
         }
     }
 }
