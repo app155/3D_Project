@@ -109,5 +109,10 @@ namespace Project3D.GameElements.Skill
             castTimer = castTime;
             _col.enabled = false;
         }
+
+        public override void Casting()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

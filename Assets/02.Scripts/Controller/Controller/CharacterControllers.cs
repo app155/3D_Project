@@ -217,6 +217,15 @@ namespace Project3D.Controller
                     _skills[0].Execute();
                 }
 
+                if (Input.GetMouseButton(0))
+                {
+                    _skills[1].Casting();
+                }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    _skills[1].Execute();
+                }
+
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
                     _skills[1].Execute();

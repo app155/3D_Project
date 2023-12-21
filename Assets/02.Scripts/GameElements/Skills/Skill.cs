@@ -24,5 +24,6 @@ namespace Project3D.GameElements.Skill
         }
 
         public abstract void Execute();
+        public abstract void Casting();
     }
 }
