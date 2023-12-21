@@ -139,7 +139,7 @@ MonoBehaviour:
   coolTime: 0
   castTimer: 0
   castTime: 0
-  angle: 30
+  angle: 45
   Range: {fileID: 7446665695730228060}
 --- !u!114 &2012082791430117472
 MonoBehaviour:

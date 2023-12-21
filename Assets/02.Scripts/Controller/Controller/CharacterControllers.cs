@@ -110,8 +110,8 @@ namespace Project3D.Controller
         private float _hpMax;
         private float _hpMin;
         private float _damage;
-        [SerializeField] private GameObject[] _skillList;
-        [SerializeField] private Skill[] _skills;
+        [SerializeField] private int[] _skillIDs;
+        public Dictionary<int, float> _skillCoolDownTimeMarks;
         [SerializeField] private float _speed;
         [SerializeField] private LayerMask _enemyMask;
         [SerializeField] private LayerMask _ballMask;
@@ -140,16 +140,6 @@ namespace Project3D.Controller
             _hpValue = 80; // temp
             oldPosition = transform.position;
 
-            _skills = new Skill[_skillList.Length];
-
-            for (int i = 0; i < _skillList.Length; i++)
-            {
-                GameObject go = Instantiate(_skillList[i], transform);
-                Skill skill = go.GetComponent<Skill>();
-                skill.Init(this);
-                _skills[i] = skill;
-            }
-
             if (TryGetComponent(out NetworkBehaviour player))
             {
                 InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
@@ -176,6 +166,17 @@ namespace Project3D.Controller
             }
         }
 
+        public void UseSkill(int skillID)
+        {
+            if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
+                return;
+
+            _skillCoolDownTimeMarks[skillID] = Time.time;
+            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill);
+            skill.Init(this);
+            skill.Execute();
+        }
+
         private void Awake()
         {
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -186,6 +187,12 @@ namespace Project3D.Controller
             for (int i = 0; i < animBehaviours.Length; i++)
             {
                 animBehaviours[i].Init(this);
+            }
+
+            _skillCoolDownTimeMarks = new Dictionary<int, float>();
+            foreach (var skillID in _skillIDs)
+            {
+                _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
 
@@ -204,31 +211,6 @@ namespace Project3D.Controller
                 _xAxis = Input.GetAxisRaw("Horizontal");
                 _zAxis = Input.GetAxisRaw("Vertical");
 
-                // Temp SkillACtion Input
-                if (Input.GetMouseButtonDown(0))
-                {
-                    GetComponent<CharacterControllers>().ChangeState(CharacterState.Attack);
-                    _skills[0].Execute();
-                }
-
-                if (Input.GetMouseButton(0))
-                {
-                    _skills[1].Casting();
-                }
-                if (Input.GetMouseButtonUp(0))
-                {
-                    _skills[1].Execute();
-                }
-
-                if (Input.GetKeyDown(KeyCode.Q))
-                {
-                    _skills[1].Execute();
-                }
-
-                if (Input.GetMouseButtonDown(1))
-                {
-                    _skills[2].Execute();
-                }
             }
             else
             {

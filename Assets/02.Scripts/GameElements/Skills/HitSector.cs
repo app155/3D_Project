@@ -26,6 +26,11 @@ public class HitSector : Skill
 
     public override void Casting()
     {
+        if (coolTimer > 0)
+        {
+            Debug.Log("Cooltime");
+            return;
+        }
         Range.SetActive(true);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -37,6 +42,7 @@ public class HitSector : Skill
     }
     public override void Execute()
     {
+        Range.SetActive(false);
         if (coolTimer > 0)
         {
             Debug.Log("[Hit] - Cooltime");
@@ -51,7 +57,6 @@ public class HitSector : Skill
 
             if (cols.Length > 0)
             {
-                Range.SetActive(false);
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 {
                     Vector3 normal = cols[0].transform.position - transform.position;

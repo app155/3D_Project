@@ -1958,7 +1958,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _state: 0
   _skillList:
-  - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
+  - {fileID: 6790195878885899931, guid: 1403a9a1a995b1846b6aecfffb046afe, type: 3}
   - {fileID: 9098332041373076186, guid: 71c33465148f3e54db1f2cb22d19d1d0, type: 3}
   _skills: []
   _speed: 3

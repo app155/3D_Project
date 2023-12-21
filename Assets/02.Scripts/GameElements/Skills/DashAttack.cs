@@ -17,6 +17,7 @@ namespace Project3D.GameElements.Skill
         private bool _isExecuting;
         private Vector3 _executeDir;
         private HashSet<GameObject> _hits;
+        public GameObject Range;
 
         public override void Init(CharacterControllers owner)
         {
@@ -28,7 +29,7 @@ namespace Project3D.GameElements.Skill
             coolTime = 2.0f;
             castTime = 0.3f;
             _isExecuting = false;
-
+            Range.SetActive(false);
             _hits = new HashSet<GameObject>();
         }
 
@@ -112,7 +113,19 @@ namespace Project3D.GameElements.Skill
 
         public override void Casting()
         {
-            throw new System.NotImplementedException();
+            if (coolTimer > 0)
+            {
+                Debug.Log("Cooltime");
+                return;
+            }
+            Range.SetActive(true);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
+            {
+                Range.transform.forward = (hit.point - transform.position).normalized;
+            }
+
         }
     }
 }
