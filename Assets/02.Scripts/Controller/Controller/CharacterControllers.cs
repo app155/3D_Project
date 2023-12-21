@@ -295,22 +295,22 @@ namespace Project3D.Controller
 
             if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
             {
-                transform.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                _rigid.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
             }
 
             else if (horizontalWallDetected && verticalWallDetected)
             {
-                transform.position += Vector3.zero;
+                _rigid.position += Vector3.zero;
             }
 
             else if (horizontalWallDetected)
             {
-                transform.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                _rigid.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
             }
 
             else if (verticalWallDetected)
             {
-                transform.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
+                _rigid.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
             }
         }
 
@@ -362,7 +362,6 @@ namespace Project3D.Controller
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
 
-            ulong clientID2 = rpcParams.Receive.SenderClientId;
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
