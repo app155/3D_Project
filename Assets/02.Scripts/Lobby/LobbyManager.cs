@@ -137,5 +137,17 @@ namespace Project3D.Lobbies
             _refreshLobbyCoroutine = StartCoroutine(C_RefreshLobby(_lobby.Id, 1.0f));
             return true;
         }
+
+        public List<Dictionary<string, PlayerDataObject>> GetPlayerData()
+        {
+            List<Dictionary<string, PlayerDataObject>> data = new List<Dictionary<string, PlayerDataObject>> ();
+
+            foreach(Player player in _lobby.Players)
+            {
+                data.Add(player.Data);
+
+            }
+            return data;
+        }
     }
 }
