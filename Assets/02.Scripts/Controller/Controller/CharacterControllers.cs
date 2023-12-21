@@ -211,6 +211,15 @@ namespace Project3D.Controller
                     _skills[0].Execute();
                 }
 
+                if (Input.GetMouseButton(0))
+                {
+                    _skills[1].Casting();
+                }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    _skills[1].Execute();
+                }
+
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
                     _skills[1].Execute();
@@ -259,6 +268,10 @@ namespace Project3D.Controller
         private void MovePosition(float xAxis, float zAxis)
         {
             if (IsOwner == false)
+                return;
+
+            if (InGameManager.instance.gameState != GameState.Playing &&
+                InGameManager.instance.gameState != GameState.Score)
                 return;
 
             bool horizontalWallDetected = false;
