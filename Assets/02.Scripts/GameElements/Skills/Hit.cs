@@ -94,4 +94,8 @@ public class Hit : Skill
 
         Gizmos.DrawRay(ray.origin, ray.direction * 30.0f);
     }
+
+    public override void Casting()
+    {
+    }
 }
