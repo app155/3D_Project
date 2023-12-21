@@ -35,7 +35,7 @@ namespace Project3D.Controller
             _col = GetComponent<CapsuleCollider>();
             InGameManager.instance.onStandbyState += ResetServerRpc;
             Debug.Log("ball spawned");
-            _recoder = GetComponent<Recoder>();
+            _recoder = GetComponentInChildren<Recoder>();
         }
 
 
@@ -101,23 +101,27 @@ namespace Project3D.Controller
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;
+            Debug.Log(clientID);
             _recoder.Add(clientID);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void ScoreServerRpc(int teamID)
+        public void ScoreServerRpc(int teamID, ServerRpcParams rpcParams = default)
         {
-            ScoreClientRpc(teamID);
+            ulong scorerID = _recoder.GetScorer(teamID);
+
+            ScoreClientRpc(teamID, scorerID);
         }
 
         [ClientRpc]
-        public void ScoreClientRpc(int teamID)
+        public void ScoreClientRpc(int teamID, ulong scorerID, ClientRpcParams rpcParams = default)
         {
             gameObject.SetActive(false);
             _moveDir = Vector3.zero;
             _moveSpeed = 0.0f;
             transform.position = Vector3.zero + Vector3.up * 0.1f;
-            Debug.Log($"scorer = {_recoder.GetScorer(teamID)}");
+            Debug.Log($"scorer = {scorerID}");
+            InGameManager.instance.scorerID = scorerID;
         }
 
         [ServerRpc(RequireOwnership = false)]

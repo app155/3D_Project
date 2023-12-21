@@ -1,3 +1,4 @@
+using Project3D.GameSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Project3D.Controller
             _hits = new Queue<ulong>(30);
         }
 
-        public void Add(ulong hit = 0)
+        public void Add(ulong hit = 1111)
         {
             _hits.Enqueue(hit);
         }
@@ -30,9 +31,17 @@ namespace Project3D.Controller
             {
                 ulong hit = _hits.Dequeue();
 
-                if (NetworkManager.Singleton.ConnectedClients[hit].PlayerObject.GetComponent<CharacterControllers>().team.id == scoreTeamID)
+                if (InGameManager.instance.player[hit].TryGetComponent(out CharacterControllers scoreChara))
                 {
-                    scorer = hit;
+                    if (scoreChara.team.id == scoreTeamID)
+                    {
+                        scorer = hit;
+                    }
+                }
+
+                else
+                {
+                    Debug.Log("Cannot find Scorer");
                 }
             }
 

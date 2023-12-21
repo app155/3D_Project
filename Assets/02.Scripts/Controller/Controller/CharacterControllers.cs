@@ -134,12 +134,21 @@ namespace Project3D.Controller
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-          
+
+            if (IsOwner)
+            {
+                // temp
+                TestUI_Hp.testHp.chara = this;
+            }
+
             _state = CharacterState.Locomotion;
             _hpMax = 100;
             _hpMin = 0;
             _hpValue = 80; // temp
             oldPosition = transform.position;
+
+            // temp
+            team = InGameManager.instance.blueTeam;
 
             _skills = new Skill[_skillList.Length];
 
@@ -157,13 +166,6 @@ namespace Project3D.Controller
             {
                 InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
             }
-            
-            // Temp
-            if (IsOwner == false)
-                return;
-
-            TestUI_Hp.testHp.chara = this;
-            team = InGameManager.instance.blueTeam;
 
             if (IsServer)
             {

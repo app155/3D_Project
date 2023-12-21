@@ -67,11 +67,12 @@ namespace Project3D.GameSystem
         public event Action onPlayingState;
         public event Action onScoreState;
         public event Action onEndState;
-
         public event Action<float> onCountdownChanged;
 
         public Team blueTeam => _blueTeam;
         public Team redTeam => _redTeam;
+
+        public ulong scorerID;
 
         private static InGameManager _instance;
 

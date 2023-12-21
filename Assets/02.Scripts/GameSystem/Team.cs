@@ -20,7 +20,7 @@ public class Team
         }
     }
 
-    public int id { get; set; }
+    public int id => _id;
 
     private List<ulong> _playersInTeam = new List<ulong>();
     private int _score;
@@ -28,7 +28,7 @@ public class Team
 
     public Team(int id)
     {
-        this.id = id;
+        _id = id;
     }
 
     public void Register(ulong clientID)
