@@ -1,3 +1,4 @@
+using Project3D.GameSystem;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -25,6 +26,11 @@ namespace Project3D.Controller
         {
             (_upDoor, _downDoor) = _doors[0].transform.position.z > _doors[1].transform.position.z ? (_doors[0], _doors[1]) : (_doors[1], _doors[0]);
             (_upLocker, _downLocker) = _lockers[0].transform.position.z > _lockers[1].transform.position.z ? (_lockers[0], _lockers[1]) : (_lockers[1], _lockers[0]);
+        }
+
+        private void Start()
+        {
+            InGameManager.instance.onStandbyState += ResetObject;
         }
 
         private void OnEnable()
@@ -79,6 +85,8 @@ namespace Project3D.Controller
             foreach (GoalLocker locker in _lockers)
                 locker.ResetGoalLockerServerRpc();
 
+            AppearDoorServerRpc();
+
             _isDoorOpening = false;
             _doorMoveSpeed = 0.0f;
             _upDoor.transform.position = _upDoorOriginPos;
@@ -89,6 +97,19 @@ namespace Project3D.Controller
         public void ChangeDoorMoveSpeedServerRpc(float speed)
         {
             _doorMoveSpeed = speed;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void AppearDoorServerRpc()
+        {
+            AppearDoorClientRpc();
+        }
+
+        [ClientRpc]
+        public void AppearDoorClientRpc()
+        {
+            _upDoor.SetActive(true);
+            _downDoor.SetActive(true);
         }
 
         [ServerRpc(RequireOwnership = false)]

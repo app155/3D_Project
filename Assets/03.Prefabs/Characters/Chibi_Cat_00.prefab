@@ -1974,7 +1974,7 @@ MonoBehaviour:
     m_Bits: 512
   _wallMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1280
   _stiffTime: 0.2
 --- !u!114 &-3900022193533573687
 MonoBehaviour:

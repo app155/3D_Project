@@ -8,13 +8,19 @@ namespace Project3D.Controller
 {
     public class BallController : NetworkBehaviour, IKnockback
     {
+        public float moveSpeed => _moveSpeed;
+        public Vector3 moveDir => _moveDir;
+
         [SerializeField] private Vector3 _moveDir;
         [SerializeField] private LayerMask _characterMask;
         [SerializeField] private LayerMask _wallMask;
         [SerializeField] private LayerMask _lockerMask;
         private Rigidbody _rigid;
+        private CapsuleCollider _col;
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Vector3 _moveStartPos;
+
+        private Recoder _recoder;
 
         private void Start()
         {
@@ -26,53 +32,12 @@ namespace Project3D.Controller
             base.OnNetworkSpawn();
 
             _rigid = GetComponent<Rigidbody>();
+            _col = GetComponent<CapsuleCollider>();
             InGameManager.instance.onStandbyState += ResetServerRpc;
+            Debug.Log("ball spawned");
+            _recoder = GetComponentInChildren<Recoder>();
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
-            if (!IsOwner)
-                return;
-
-            if ((1 << other.gameObject.layer & _wallMask) > 0)
-            {
-                Debug.Log($"{other.gameObject.name} triggered");
-                
-                Vector3 tempPos = other.ClosestPointOnBounds(transform.position);
-
-                Vector3 wallsurfaceDirRight = other.transform.TransformDirection(Vector3.right);
-                Vector3 wallsurfaceDirFoward = other.transform.TransformDirection(Vector3.forward);
-
-                Vector3 normalVec = (transform.position - tempPos).normalized;
-                Debug.Log($"normalVec = {normalVec}");
-
-                Vector3 tempDir;
-
-                if (other.transform.rotation.y != 0)
-                    tempDir = Vector3.Reflect(_moveDir, wallsurfaceDirRight).normalized;
-
-                else
-                    tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
-
-
-                _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-            }
-
-            if ((1 << other.gameObject.layer & _lockerMask) > 0)
-            {
-                Debug.Log($"{other.gameObject.name} triggered");
-
-                Vector3 tempPos = other.ClosestPointOnBounds(transform.position);
-
-                Vector3 normalVec = (transform.position - tempPos).normalized;
-
-                Vector3 tempDir = tempDir = Vector3.Reflect(_moveDir, normalVec).normalized;
-
-                _moveDir = new Vector3(tempDir.x, 0.0f, tempDir.z);
-
-                other.GetComponent<GoalLocker>().knockCount--;
-            }
-        }
 
         private void Update()
         {
@@ -92,45 +57,82 @@ namespace Project3D.Controller
                 return;
 
             _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
+
+            Collider[] bounces = Physics.OverlapSphere(transform.position + _moveDir * _moveSpeed * Time.fixedDeltaTime,
+                                                       _col.radius,
+                                                       _wallMask);
+
+
+            if (bounces.Length > 0)
+            {
+                Collider wall = bounces[0];
+
+                for (int i = 1; i < bounces.Length; i++)
+                {
+                    if (Vector3.Distance(bounces[i].transform.position, transform.position) < Vector3.Distance(wall.transform.position, transform.position))
+                    {
+                        wall = bounces[i];
+                    }
+                }
+
+                Vector3 normalVecWithRight = wall.transform.TransformDirection(Vector3.right);
+                Vector3 normalVecWithForward = wall.transform.TransformDirection(Vector3.forward);
+
+                Debug.Log($"bounceBefore = {_moveDir}");
+
+                Vector3 reflectVecWithRight = Vector3.Reflect(_moveDir, normalVecWithRight).normalized;
+                Vector3 reflectVecWithForward = Vector3.Reflect(_moveDir, normalVecWithForward).normalized;
+
+                Collider[] afterReflect = Physics.OverlapSphere(transform.position + reflectVecWithRight * _moveSpeed * Time.fixedDeltaTime, _col.radius, _wallMask);
+
+                _moveDir = afterReflect.Length > 0 ? reflectVecWithForward : reflectVecWithRight;
+
+                Debug.Log($"bounceAfter = {_moveDir}");
+
+                if (wall.TryGetComponent(out IBounce executer))
+                {
+                    executer.Execute();
+                }
+            }
         }
 
-
-
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;
+            Debug.Log(clientID);
+            _recoder.Add(clientID);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void ScoreServerRpc()
+        public void ScoreServerRpc(int teamID, ServerRpcParams rpcParams = default)
         {
-            ScoreClientRpc();
+            ulong scorerID = _recoder.GetScorer(teamID);
+
+            ScoreClientRpc(teamID, scorerID);
         }
 
         [ClientRpc]
-        public void ScoreClientRpc()
+        public void ScoreClientRpc(int teamID, ulong scorerID, ClientRpcParams rpcParams = default)
         {
             gameObject.SetActive(false);
-            InGameManager.instance.gameState = GameState.Score;
+            _moveDir = Vector3.zero;
+            _moveSpeed = 0.0f;
+            transform.position = Vector3.zero + Vector3.up * 0.1f;
+            Debug.Log($"scorer = {scorerID}");
+            InGameManager.instance.scorerID = scorerID;
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void ResetServerRpc()
         {
-            _moveDir = Vector3.zero;
-            _moveSpeed = 0.0f;
-            transform.position = Vector3.zero + Vector3.up * 0.1f;
-            gameObject.SetActive(true);
+            ResetClientRpc();
         }
 
         [ClientRpc]
         public void ResetClientRpc()
         {
-            _moveDir = Vector3.zero;
-            _moveSpeed = 0.0f;
-            transform.position = Vector3.zero + Vector3.up * 0.1f;
             gameObject.SetActive(true);
         }
     }
