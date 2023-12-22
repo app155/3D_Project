@@ -37,7 +37,7 @@ public class Hit : Skill
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 {  
-                    ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower);
+                    ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower, owner.clientID);
                 }
                 else
                 {
