@@ -52,7 +52,7 @@ namespace Project3D.GameElements.Skill
                 }
             }
 
-            else if ((1 << other.gameObject.layer & owner.enemyMask) > 0)
+            else if ((1 << other.gameObject.layer & owner.enemyMask) > 0 && other.GetComponent<CharacterControllers>().team.id != owner.team.id)
             {
                 if (_hits.Contains(other.gameObject) == false)
                 {

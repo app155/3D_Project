@@ -14,8 +14,6 @@ namespace Project3D.Controller
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private Teams _teamEnum;
 
-        [SerializeField] private int _winningScore;
-
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();

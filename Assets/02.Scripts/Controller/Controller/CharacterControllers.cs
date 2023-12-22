@@ -119,13 +119,10 @@ namespace Project3D.Controller
         private float _xAxis;
         private float _zAxis;
         private bool _isStiffed;
-        private bool _ismovable;
         [SerializeField] private float _stiffTime = 0.2f;
         private float _stiffTimer;
         private Rigidbody _rigid;
         private Animator _animator;
-        private NetworkAnimator _networkAnimator;
-        int getdamaged;
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
@@ -188,7 +185,6 @@ namespace Project3D.Controller
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
             _rigid = GetComponent<Rigidbody>();
-            _networkAnimator = GetComponent<NetworkAnimator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -226,16 +222,17 @@ namespace Project3D.Controller
                         _skills[1].Execute();
                     }
 
-                if (Input.GetKeyDown(KeyCode.Q))
-                {
-                    GetComponent<CharacterControllers>().ChangeState(CharacterState.DashAttack);
-                    _skills[1].Execute();
-                }
+                    if (Input.GetKeyDown(KeyCode.Q))
+                    {
+                        ChangeState(CharacterState.DashAttack);
+                        _skills[1].Execute();
+                    }
 
                     if (Input.GetMouseButtonDown(1))
                     {
                         _skills[2].Execute();
                     }
+
                 }
 
                 else
@@ -305,9 +302,17 @@ namespace Project3D.Controller
                 verticalWallDetected = true;
             }
 
-            if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
+            if ((horizontalWallDetected == false && verticalWallDetected == false))
             {
-                _rigid.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
+                Debug.Log($".normalized{moveDir.normalized}");
+                Debug.Log($"nomalize {Vector3.Normalize(moveDir)}");
+
+                if (_isStiffed)
+                    _rigid.position += moveDir * _speed * Time.fixedDeltaTime;
+
+                else
+                    _rigid.position += moveDir.normalized * _speed * Time.fixedDeltaTime;
             }
 
             else if (horizontalWallDetected && verticalWallDetected)
@@ -333,10 +338,10 @@ namespace Project3D.Controller
 
         private void GetVelocity()
         {
-            currentPosition = transform.position;
+            currentPosition = _rigid.position;
             Vector3 dis = (currentPosition - oldPosition);
             var distance = Math.Sqrt(Math.Pow(dis.x, 2) + Math.Pow(dis.y, 2) + Math.Pow(dis.z, 2));
-            _velocity = distance / Time.deltaTime;
+            _velocity = distance / Time.fixedDeltaTime;
             oldPosition = currentPosition;
             _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
         }
@@ -346,9 +351,7 @@ namespace Project3D.Controller
             if (state == newState)
                 return false;
 
-            _animator.SetInteger("state", (int)newState);
-            _animator.SetBool("isDirty", true);
-            _state = newState;
+            ChangeStateServerRpc(newState);
             return true;
         }
 
@@ -361,7 +364,9 @@ namespace Project3D.Controller
         [ClientRpc]
         public void ChangeStateClientRpc(CharacterState newState, ClientRpcParams rpcParams = default)
         {
-            
+            _animator.SetInteger("state", (int)newState);
+            _animator.SetBool("isDirty", true);
+            _state = newState;
         }
 
         private bool IsGrounded()
