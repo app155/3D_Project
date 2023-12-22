@@ -370,6 +370,7 @@ namespace Project3D.Controller
         public void DepleteHp(float amount)
         {
             _hpValue.Value -= amount;  
+
         }
 
         public void RecoverHp(float amount)

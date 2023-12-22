@@ -39,7 +39,7 @@ namespace Project3D.UI
             if (hp is CharacterControllers)
             {
                 Vector3 originScale = transform.localScale;
-                ((CharacterControllers)hp).onDirectionChanged += (value) =>
+                ((CharacterController)hp).onDirectionChanged += (value) =>
                 {
                     transform.localScale = value < 0 ?
                         new Vector3(-originScale.x, originScale.y, originScale.z) :
