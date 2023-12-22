@@ -47,7 +47,7 @@ namespace Project3D.GameElements.Skill
             {
                 if (_hits.Contains(other.gameObject) == false)
                 {
-                    other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower, OwnerClientId);
+                    other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower, owner.clientID);
                     _hits.Add(other.gameObject);
                 }
             }
@@ -58,7 +58,7 @@ namespace Project3D.GameElements.Skill
                 {
                     if (other.TryGetComponent(out IHp target))
                     {
-                        target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, OwnerClientId);
+                        target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, owner.clientID);
                         Attack(target);
                         _hits.Add(other.gameObject);
                     }
@@ -112,7 +112,7 @@ namespace Project3D.GameElements.Skill
 
         public override void Casting()
         {
-            throw new System.NotImplementedException();
+
         }
     }
 }

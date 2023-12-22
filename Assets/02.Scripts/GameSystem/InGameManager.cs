@@ -160,7 +160,6 @@ namespace Project3D.GameSystem
         IEnumerator C_StartCountDown(float countTimer)
         {
             onCountdownChanged?.Invoke(countTimer);
-            Debug.Log(countTimer);
             float start = Time.time;
 
             while (countTimer > -1f)

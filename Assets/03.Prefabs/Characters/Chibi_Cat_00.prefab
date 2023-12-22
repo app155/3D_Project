@@ -1832,7 +1832,7 @@ Transform:
   m_GameObject: {fileID: 5423310324255315445}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.6482315, y: -0.00000047683716, z: 0.7017946}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1943,7 +1943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cfeb34c1c6ecb247beb5c0f2a76f998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationTime: 0.5
+  _interpolationTime: 0.05
 --- !u!114 &5656327521426676647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1960,6 +1960,7 @@ MonoBehaviour:
   _skillList:
   - {fileID: 5069627390856778233, guid: 291f59063d592e04d8a8de9df14eceba, type: 3}
   - {fileID: 9098332041373076186, guid: 71c33465148f3e54db1f2cb22d19d1d0, type: 3}
+  - {fileID: 6790195878885899931, guid: 1403a9a1a995b1846b6aecfffb046afe, type: 3}
   _skills: []
   _speed: 3
   _enemyMask:
