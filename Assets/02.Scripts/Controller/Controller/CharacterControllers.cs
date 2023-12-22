@@ -48,13 +48,13 @@ namespace Project3D.Controller
 
         public float HpValue
         {
-            get => _hpValue;
+            get => _hpValue.Value;
             set
             {
-                if (_hpValue == value)
+                if (_hpValue.Value == value)
                     return;
 
-                _hpValue = Mathf.Clamp(value, _hpMin, _hpMax);
+                _hpValue.Value = Mathf.Clamp(value, _hpMin, _hpMax);
                 onHpChanged?.Invoke(value);
 
                 if (value == _hpMax)
@@ -106,7 +106,7 @@ namespace Project3D.Controller
         NetworkVariable<float> _exp;
         NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
-        private float _hpValue;
+        private NetworkVariable<float> _hpValue;
         private float _hpMax;
         private float _hpMin;
         private float _damage;
@@ -137,7 +137,7 @@ namespace Project3D.Controller
             _state = CharacterState.Locomotion;
             _hpMax = 100;
             _hpMin = 0;
-            _hpValue = 80; // temp
+            _hpValue.Value = 80; // temp
             oldPosition = transform.position;
 
             _skills = new Skill[_skillList.Length];
@@ -182,7 +182,31 @@ namespace Project3D.Controller
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
             _rigid = GetComponent<Rigidbody>();
+            _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+            _hpValue.OnValueChanged += (prev, current) =>
+            {
+                onHpChanged?.Invoke(current);
+                if(prev < current)
+                {
+                    onHpRecovered?.Invoke(current - prev);
+                }
+                else if(prev > current)
+                {
+                    onHpDepleted?.Invoke(prev - current);
+                }
+                if(current == _hpMax)
+                {
+                    onHpMax?.Invoke();
+                }
+                else if (current == _hpMin)
+                {
+                    onHpMin?.Invoke();
+                }
+
+
+            };
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
+
             for (int i = 0; i < animBehaviours.Length; i++)
             {
                 animBehaviours[i].Init(this);
@@ -262,7 +286,7 @@ namespace Project3D.Controller
         
         public virtual void SetUp()
         {
-            _hpValue = _hpMax;
+            _hpValue.Value = _hpMax;
             
         }
         private void MovePosition(float xAxis, float zAxis)
@@ -339,14 +363,12 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            _hpValue -= amount;
-            onHpDepleted?.Invoke(amount);
+            _hpValue.Value -= amount;  
         }
 
         public void RecoverHp(float amount)
         {
-            _hpValue += amount;
-            onHpRecovered?.Invoke(amount);
+            _hpValue.Value += amount;
         }
 
         [ServerRpc(RequireOwnership = false)]

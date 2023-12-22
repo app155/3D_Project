@@ -17,17 +17,25 @@ namespace Project3D.UI
 
         private void Start()
         {
+            
+           
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
             IHp hp = transform.root.GetComponent<IHp>();
             _hpBar.minValue = hp.HpMin;
             _hpBar.maxValue = hp.HpMax;
             _hpBar.value = hp.HpValue;
-            _Lv.text = _Lv.ToString();
+            _Lv.text = "";
+            Debug.Log($"Initialized UI values: min={_hpBar.minValue}, max={_hpBar.maxValue}, value={_hpBar.value}");
 
 
             hp.onHpChanged += (value) => _hpBar.value = value;
 
-            // is 키워드 r55e
-            // 객체가 어떤 타입으로 참조할 수 있는지 확인하고 bool 결과를 반환하는 키워드
+
             if (hp is CharacterControllers)
             {
                 Vector3 originScale = transform.localScale;
@@ -43,5 +51,5 @@ namespace Project3D.UI
     }
 }
 
-// is as 예시
+
 
