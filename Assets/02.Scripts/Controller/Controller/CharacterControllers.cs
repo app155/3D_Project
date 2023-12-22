@@ -93,7 +93,6 @@ namespace Project3D.Controller
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
-
         public ulong clientID => OwnerClientId;
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -122,6 +121,7 @@ namespace Project3D.Controller
         private float _xAxis;
         private float _zAxis;
         private bool _isStiffed;
+        private bool _ismovable;
         [SerializeField] private float _stiffTime = 0.2f;
         private float _stiffTimer;
         private Rigidbody _rigid;

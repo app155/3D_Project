@@ -18,6 +18,8 @@ namespace Project3D.UI
         [SerializeField] private Button _submitCodeButton;
 
         [SerializeField] private TextMeshProUGUI _codeText;
+        [SerializeField] private TextMeshProUGUI _NickNameText;
+
         private void OnEnable()
         {
             _hostButton.onClick.AddListener(OnHostClicked);
@@ -32,14 +34,25 @@ namespace Project3D.UI
         }
         private async void OnHostClicked()
         {
-            bool succeeded = await GameLobbyManager.instance.CreateLobby();
-
-            if (succeeded)
+            if (_NickNameText.text != null)
             {
-                // open LobbyUI
-                IUI ui = UIManager.instance.Get<UI_LobbyPanel>();
-                ui.Show();
+                _mainScreen.SetActive(false);
+                bool succeeded = await GameLobbyManager.instance.CreateLobby(_NickNameText.text);
+
+                if (succeeded)
+                {
+                    // open LobbyUI
+                    IUI ui = UIManager.instance.Get<UI_LobbyPanel>();
+                    ui.Show();
+                }
             }
+            else
+            {
+
+            }
+
+            
+
         }
 
         private void OnJoinClicked()

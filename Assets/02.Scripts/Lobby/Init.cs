@@ -20,7 +20,7 @@ namespace Project3D.Lobbies
                 AuthenticationService.Instance.SignedIn += OnSignedIn;
 
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
-                    
+
                 if (AuthenticationService.Instance.IsSignedIn)
                 {
                     string userName = AuthenticationService.Instance.PlayerId;

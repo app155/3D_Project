@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using UnityEngine;
 using Unity.Services.Lobbies.Models;
-using System.Collections.Specialized;
+
+
 
 namespace Project3D.Lobbies
 {
@@ -17,13 +18,13 @@ namespace Project3D.Lobbies
 
         private void OnEnable()
         {
-            LobbyEvent.OnLobbyUpdated += OnLobbyUpdated;    
+            GameFramework.LobbyEvent.OnLobbyUpdated += OnLobbyUpdated;    
         }
 
 
         private void OnDisable()
         {
-            LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
+            GameFramework.LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
         }
 
         public string GetLobbyCode()
@@ -48,10 +49,10 @@ namespace Project3D.Lobbies
 
         private static GameLobbyManager _instance;
 
-        public async Task<bool> CreateLobby()
+        public async Task<bool> CreateLobby(string nickName)
         {
             LobbyPlayerData playerData = new LobbyPlayerData();
-            playerData.Initialize(AuthenticationService.Instance.PlayerId, "HostPlayer");
+            playerData.Initialize(AuthenticationService.Instance.PlayerId, nickName);
             bool succeeded = await LobbyManager.instance.CreateLobby(4, true, playerData.Serialize());
 
             return succeeded;
@@ -85,7 +86,12 @@ namespace Project3D.Lobbies
 
                 _lobbyPlayerDatas.Add(lobbyPlayerData);
             }
+            //LobbyEvent.OnLobbyUpdated.Invoke();
+        }
 
+        public List<LobbyPlayerData> Getplayers()
+        {
+            return _lobbyPlayerDatas;
         }
     }
 }

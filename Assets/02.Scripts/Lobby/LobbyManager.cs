@@ -90,6 +90,7 @@ namespace Project3D.Lobbies
                 if (newLobby.LastUpdated > _lobby.LastUpdated)
                 {
                     _lobby = newLobby;
+                    GameFramework.LobbyEvent.OnLobbyUpdated.Invoke(_lobby);
                 }
 
                 yield return new WaitForSecondsRealtime(waitSeconds);
