@@ -46,6 +46,8 @@ public class Hit : Skill
 
                 Debug.Log("Hit Ball");
             }
+
+            owner.transform.LookAt(hit.point);
         }
 
         coolTimer = coolTime;

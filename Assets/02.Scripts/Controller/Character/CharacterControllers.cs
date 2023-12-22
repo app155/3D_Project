@@ -333,6 +333,9 @@ namespace Project3D.Controller
 
         private void ChangeRotation()
         {
+            if (state != CharacterState.Locomotion)
+                return;
+
             transform.LookAt(transform.position + new Vector3(_xAxis, 0.0f, _zAxis));
         }
 
