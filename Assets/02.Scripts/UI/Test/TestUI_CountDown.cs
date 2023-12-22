@@ -5,7 +5,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-public class TestUI_CountDown : MonoBehaviour
+public class TestUI_CountDown : NetworkBehaviour
 {
     [SerializeField] private TMP_Text _countdownText;
 
@@ -24,6 +24,10 @@ public class TestUI_CountDown : MonoBehaviour
     [ClientRpc]
     public void RefreshClientRpc(float value)
     {
+        if (value <= -1f)
+            _countdownText.text = string.Empty;
+
+        else
         _countdownText.text = value.ToString();
     }
 }

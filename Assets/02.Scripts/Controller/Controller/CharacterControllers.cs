@@ -95,6 +95,7 @@ namespace Project3D.Controller
         public ulong clientID => OwnerClientId;
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
         public event Action<float> onHpDepleted;
@@ -133,14 +134,25 @@ namespace Project3D.Controller
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-          
+
+            if (IsOwner)
+            {
+                // temp
+                TestUI_Hp.testHp.chara = this;
+            }
+
             _state = CharacterState.Locomotion;
             _hpMax = 100;
             _hpMin = 0;
             _hpValue = 80; // temp
             oldPosition = transform.position;
 
+            // temp
+            team = InGameManager.instance.blueTeam;
+
             _skills = new Skill[_skillList.Length];
+
+            Debug.Log($"chara spawned : {OwnerClientId}");
 
             for (int i = 0; i < _skillList.Length; i++)
             {
@@ -154,12 +166,6 @@ namespace Project3D.Controller
             {
                 InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
             }
-            
-            // Temp
-            if (IsOwner == false)
-                return;
-
-            TestUI_Hp.testHp.chara = this;
 
             if (IsServer)
             {
@@ -209,6 +215,15 @@ namespace Project3D.Controller
                 {
                     GetComponent<CharacterControllers>().ChangeState(CharacterState.Attack);
                     _skills[0].Execute();
+                }
+
+                if (Input.GetMouseButton(0))
+                {
+                    _skills[1].Casting();
+                }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    _skills[1].Execute();
                 }
 
                 if (Input.GetKeyDown(KeyCode.Q))
@@ -268,12 +283,12 @@ namespace Project3D.Controller
             bool horizontalWallDetected = false;
             bool verticalWallDetected = false;
 
-            if (Physics.Raycast(transform.position, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
+            if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
             {
                 horizontalWallDetected = true;
             }
 
-            if (Physics.Raycast(transform.position, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
+            if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
             {
                 verticalWallDetected = true;
             }
@@ -341,13 +356,13 @@ namespace Project3D.Controller
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
             _isStiffed = true;
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
 
-            ulong clientID = rpcParams.Receive.SenderClientId;
+            ulong clientID2 = rpcParams.Receive.SenderClientId;
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
@@ -363,8 +378,8 @@ namespace Project3D.Controller
         {
             Gizmos.color = Color.blue;
 
-            Gizmos.DrawLine(transform.position, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
-            Gizmos.DrawLine(transform.position, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
+            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
+            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
         }
 
         public void Attack(float amount)

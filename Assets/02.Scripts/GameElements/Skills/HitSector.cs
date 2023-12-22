@@ -4,32 +4,37 @@ using UnityEngine;
 using Project3D.Controller;
 using Unity.Netcode;
 using System;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.Rendering.DebugUI;
-#if UNITY_EDITOR
 using UnityEditor;
-using System.Drawing;
-#endif
 
 public class HitSector : Skill
 {
     private float _pushPower = 10.0f;
     public float angle;
-    [SerializeField] GameObject _prefab;
+    public GameObject Range;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        Debug.Log("!!@#!#@!3");
     }
 
     public override void Init(CharacterControllers owner)
     {
         base.Init(owner);
+        Range.SetActive(false);
         coolTime = 1.0f;
     }
 
+    public override void Casting()
+    {
+        Range.SetActive(true);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
+        {
+            Range.transform.forward = (hit.point-transform.position).normalized;
+        }
+            
+    }
     public override void Execute()
     {
         if (coolTimer > 0)
@@ -46,6 +51,7 @@ public class HitSector : Skill
 
             if (cols.Length > 0)
             {
+                Range.SetActive(false);
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 {
                     Vector3 normal = cols[0].transform.position - transform.position;
@@ -60,7 +66,7 @@ public class HitSector : Skill
 
                         if (degree <= angle / 2.0f)
                         {
-                            ball.KnockbackServerRpc((Cnormal).normalized, _pushPower);
+                            ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, OwnerClientId);
                         }
                     }
                 }

@@ -27,11 +27,6 @@ public class Hit : Skill
             Debug.Log("[Hit] - Cooltime");
             return;
         }
-        GameObject line = new GameObject("line");
-        line.AddComponent<LineRenderer>();
-
-        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
-        lineRenderer.positionCount = 2;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
@@ -41,11 +36,7 @@ public class Hit : Skill
             if (cols.Length > 0)
             {
                 if (cols[0].TryGetComponent(out IKnockback ball))
-                { 
-                    lineRenderer.SetPosition(0, transform.position); 
-                    lineRenderer.SetPosition(1, transform.position + (hit.point - transform.position).normalized); 
-                    lineRenderer.startWidth = 1.0f; 
-                    lineRenderer.endWidth = 1.0f; 
+                {  
                     ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower);
                 }
                 else
@@ -93,5 +84,9 @@ public class Hit : Skill
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         Gizmos.DrawRay(ray.origin, ray.direction * 30.0f);
+    }
+
+    public override void Casting()
+    {
     }
 }

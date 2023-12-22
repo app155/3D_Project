@@ -15,12 +15,15 @@ namespace Project3D.GameElements.Skill
         [SerializeField] protected float coolTime;
         [SerializeField] protected float castTimer;
         [SerializeField] protected float castTime;
+        protected ulong clientID;
 
         public virtual void Init(CharacterController owner)
         {
             this.owner = owner;
+            clientID = owner.GetComponent<NetworkBehaviour>().OwnerClientId;
         }
 
         public abstract void Execute();
+        public abstract void Casting();
     }
 }

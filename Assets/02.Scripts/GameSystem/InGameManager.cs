@@ -27,36 +27,36 @@ namespace Project3D.GameSystem
             get => _gameState;
             set
             {
-                if (IsOwner == false)
-                    return;
-
                 if (_gameState == value)
                     return;
 
-                switch (value)
+                if (IsOwner)
                 {
-                    case GameState.None:
-                        break;
-                    case GameState.Standby:
-                        {
-                            onStandbyState?.Invoke();
-                        }
-                        break;
-                    case GameState.Playing:
-                        {
-                            onPlayingState?.Invoke();
-                        }
-                        break;
-                    case GameState.Score:
-                        {
-                            onScoreState?.Invoke();
-                        }
-                        break;
-                    case GameState.End:
-                        {
-                            onEndState?.Invoke();
-                        }
-                        break;
+                    switch (value)
+                    {
+                        case GameState.None:
+                            break;
+                        case GameState.Standby:
+                            {
+                                onStandbyState?.Invoke();
+                            }
+                            break;
+                        case GameState.Playing:
+                            {
+                                onPlayingState?.Invoke();
+                            }
+                            break;
+                        case GameState.Score:
+                            {
+                                onScoreState?.Invoke();
+                            }
+                            break;
+                        case GameState.End:
+                            {
+                                onEndState?.Invoke();
+                            }
+                            break;
+                    }
                 }
 
                 _gameState = value;
@@ -67,16 +67,20 @@ namespace Project3D.GameSystem
         public event Action onPlayingState;
         public event Action onScoreState;
         public event Action onEndState;
-
         public event Action<float> onCountdownChanged;
+
+        public Team blueTeam => _blueTeam;
+        public Team redTeam => _redTeam;
+
+        public ulong scorerID;
 
         private static InGameManager _instance;
 
         [SerializeField] private GameState _gameState;
 
         private Dictionary<ulong, NetworkBehaviour> _players;
-        private Team _blueTeam;
-        private Team _redTeam;
+        private Team _blueTeam = new Team(0);
+        private Team _redTeam = new Team(1);
 
         private void Awake()
         {
@@ -104,14 +108,22 @@ namespace Project3D.GameSystem
         {
             base.OnNetworkSpawn();
 
-            Debug.Log("Ingamemanager spawned");
+            if (IsOwner == false)
+            {
+                RequestCurrentGameStateServerRpc();
+            }
 
-            ChangeGameStateServerRpc(GameState.Standby);
+            else
+            {
+                ChangeGameStateServerRpc(GameState.Standby);
+
+                Debug.Log("Ingamemanager spawned");
+            }
         }
 
         IEnumerator C_Scored()
         {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(3.0f);
 
             ChangeGameStateServerRpc(GameState.Standby);
         }
@@ -142,7 +154,7 @@ namespace Project3D.GameSystem
             Debug.Log(countTimer);
             float start = Time.time;
 
-            while (countTimer > 0f)
+            while (countTimer > -1f)
             {
                 float now = Time.time;
 
@@ -159,6 +171,21 @@ namespace Project3D.GameSystem
 
             Debug.Log("End startcountdown coroutine");
             ChangeGameStateServerRpc(GameState.Playing);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestCurrentGameStateServerRpc()
+        {
+            RespondCurrentGameStateClientRpc(gameState);
+        }
+
+        [ClientRpc]
+        public void RespondCurrentGameStateClientRpc(GameState curState)
+        {
+            if (IsServer)
+                return;
+
+            this.gameState = curState;
         }
 
         [ServerRpc(RequireOwnership = false)]
