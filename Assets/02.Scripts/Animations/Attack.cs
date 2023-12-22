@@ -11,7 +11,6 @@ namespace Project3D.Animations
             base.OnStateEnter(animator, stateInfo, layerIndex);
             Debug.Log("hi");
             animator.Play("Attack");
-
         }
     }
 }

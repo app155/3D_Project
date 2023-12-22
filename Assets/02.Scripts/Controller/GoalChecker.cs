@@ -9,9 +9,12 @@ namespace Project3D.Controller
 {
     public class GoalChecker : NetworkBehaviour
     {
+        public Team team => _teamEnum == Teams.Blue ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private Teams _teamEnum;
-        public Team team => _teamEnum == Teams.Blue ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+
+        [SerializeField] private int _winningScore;
 
         public override void OnNetworkSpawn()
         {
@@ -37,7 +40,8 @@ namespace Project3D.Controller
         public void ScoreClientRpc()
         {
             team.score++;
-            InGameManager.instance.gameState = GameState.Score;
+
+            InGameManager.instance.ChangeGameStateClientRpc(GameState.Score);
         }
     }
 }

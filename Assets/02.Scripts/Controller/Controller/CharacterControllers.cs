@@ -25,10 +25,7 @@ namespace Project3D.Controller
     }
     public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
     {
-
         static Dictionary<ulong, CharacterControllers> _spawned = new Dictionary<ulong, CharacterControllers>();
-
-
 
         public CharacterState state
         {
@@ -144,7 +141,7 @@ namespace Project3D.Controller
                 TestUI_Hp.testHp.chara = this;
             }
 
-            _state = CharacterState.Locomotion;
+            ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
             _hpValue = 80; // temp
@@ -207,28 +204,27 @@ namespace Project3D.Controller
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
-            }
 
-            if (_isStiffed == false)
-            {
-                _xAxis = Input.GetAxisRaw("Horizontal");
-                _zAxis = Input.GetAxisRaw("Vertical");
+                if (_isStiffed == false)
+                {
+                    _xAxis = Input.GetAxisRaw("Horizontal");
+                    _zAxis = Input.GetAxisRaw("Vertical");
 
-                // Temp SkillACtion Input
-                if (Input.GetMouseButtonDown(0))
-                {
-                    GetComponent<CharacterControllers>().ChangeState(CharacterState.Attack);
-                    _skills[0].Execute();
-                }
+                    // Temp SkillACtion Input
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        ChangeState(CharacterState.Attack);
+                        _skills[0].Execute();
+                    }
 
-                if (Input.GetMouseButton(0))
-                {
-                    _skills[1].Casting();
-                }
-                if (Input.GetMouseButtonUp(0))
-                {
-                    _skills[1].Execute();
-                }
+                    if (Input.GetMouseButton(0))
+                    {
+                        _skills[1].Casting();
+                    }
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        _skills[1].Execute();
+                    }
 
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
@@ -236,29 +232,39 @@ namespace Project3D.Controller
                     _skills[1].Execute();
                 }
 
-                if (Input.GetMouseButtonDown(1))
-                {
-                    _skills[2].Execute();
-                }
-            }
-            else
-            {
-                if (_stiffTimer < _stiffTime)
-                {
-                    _stiffTimer += Time.deltaTime;
+                    if (Input.GetMouseButtonDown(1))
+                    {
+                        _skills[2].Execute();
+                    }
                 }
 
                 else
                 {
-                    _stiffTimer = 0;
-                    _isStiffed = false;
+                    if (_stiffTimer < _stiffTime)
+                    {
+                        _stiffTimer += Time.deltaTime;
+                    }
+
+                    else
+                    {
+                        _stiffTimer = 0;
+                        _isStiffed = false;
+                    }
                 }
+            }
+
+            else
+            {
+                ChangeState(CharacterState.Die);
             }
         }
 
         private void FixedUpdate()
         {
             if (IsOwner == false)
+                return;
+
+            if (state == CharacterState.Die)
                 return;
 
             MovePosition(_xAxis, _zAxis);
@@ -276,6 +282,7 @@ namespace Project3D.Controller
             _hpValue = _hpMax;
             
         }
+
         private void MovePosition(float xAxis, float zAxis)
         {
             if (IsOwner == false)
@@ -300,22 +307,22 @@ namespace Project3D.Controller
 
             if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
             {
-                transform.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                _rigid.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
             }
 
             else if (horizontalWallDetected && verticalWallDetected)
             {
-                transform.position += Vector3.zero;
+                _rigid.position += Vector3.zero;
             }
 
             else if (horizontalWallDetected)
             {
-                transform.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                _rigid.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
             }
 
             else if (verticalWallDetected)
             {
-                transform.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
+                _rigid.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
             }
         }
 
@@ -333,12 +340,28 @@ namespace Project3D.Controller
             oldPosition = currentPosition;
             _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
         }
+
         public bool ChangeState(CharacterState newState)
         {
+            if (state == newState)
+                return false;
+
             _animator.SetInteger("state", (int)newState);
             _animator.SetBool("isDirty", true);
             _state = newState;
             return true;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ChangeStateServerRpc(CharacterState newState, ServerRpcParams rpcParams = default)
+        {
+            ChangeStateClientRpc(newState);
+        }
+
+        [ClientRpc]
+        public void ChangeStateClientRpc(CharacterState newState, ClientRpcParams rpcParams = default)
+        {
+            
         }
 
         private bool IsGrounded()
@@ -367,7 +390,6 @@ namespace Project3D.Controller
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
 
-            ulong clientID2 = rpcParams.Receive.SenderClientId;
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
