@@ -1973,7 +1973,7 @@ MonoBehaviour:
     m_Bits: 512
   _wallMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1280
   _stiffTime: 0.2
 --- !u!1 &5444589513123619510
 GameObject:

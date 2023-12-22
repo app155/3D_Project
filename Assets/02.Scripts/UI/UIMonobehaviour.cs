@@ -1,10 +1,11 @@
 using Project3D.GameSystem;
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Project3D.UI
 {
-    public abstract class UIMonobehaviour : MonoBehaviour, IUI, IInitializable
+    public abstract class UIMonobehaviour : NetworkBehaviour, IUI, IInitializable
     {
         public int sortingOrder
         {

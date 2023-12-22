@@ -20,6 +20,8 @@ namespace Project3D.Controller
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Vector3 _moveStartPos;
 
+        private Recoder _recoder;
+
         private void Start()
         {
             
@@ -33,6 +35,7 @@ namespace Project3D.Controller
             _col = GetComponent<CapsuleCollider>();
             InGameManager.instance.onStandbyState += ResetServerRpc;
             Debug.Log("ball spawned");
+            _recoder = GetComponentInChildren<Recoder>();
         }
 
 
@@ -60,7 +63,6 @@ namespace Project3D.Controller
                                                        _wallMask);
 
 
-
             if (bounces.Length > 0)
             {
                 Collider wall = bounces[0];
@@ -73,22 +75,11 @@ namespace Project3D.Controller
                     }
                 }
 
-                Vector3 normalVec;
                 Vector3 normalVecWithRight = wall.transform.TransformDirection(Vector3.right);
                 Vector3 normalVecWithForward = wall.transform.TransformDirection(Vector3.forward);
 
-                //if (wall.transform.rotation.eulerAngles.y == 0)
-                //{
-                //    Vector3 contactPos = wall.ClosestPointOnBounds(transform.position);
-                //    normalVec = (transform.position - contactPos).normalized;
-                //}
-
-                //else
-                //{
-                //    normalVec = wall.transform.TransformDirection(Vector3.right);
-                //}
-
                 Debug.Log($"bounceBefore = {_moveDir}");
+
                 Vector3 reflectVecWithRight = Vector3.Reflect(_moveDir, normalVecWithRight).normalized;
                 Vector3 reflectVecWithForward = Vector3.Reflect(_moveDir, normalVecWithForward).normalized;
 
@@ -105,30 +96,32 @@ namespace Project3D.Controller
             }
         }
 
-
-
-
         [ServerRpc(RequireOwnership = false)]
-        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ServerRpcParams rpcParams = default)
+        public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;
+            Debug.Log(clientID);
+            _recoder.Add(clientID);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void ScoreServerRpc()
+        public void ScoreServerRpc(int teamID, ServerRpcParams rpcParams = default)
         {
-            InGameManager.instance.gameState = GameState.Score;
-            ScoreClientRpc();
+            ulong scorerID = _recoder.GetScorer(teamID);
+
+            ScoreClientRpc(teamID, scorerID);
         }
 
         [ClientRpc]
-        public void ScoreClientRpc()
+        public void ScoreClientRpc(int teamID, ulong scorerID, ClientRpcParams rpcParams = default)
         {
             gameObject.SetActive(false);
             _moveDir = Vector3.zero;
             _moveSpeed = 0.0f;
             transform.position = Vector3.zero + Vector3.up * 0.1f;
+            Debug.Log($"scorer = {scorerID}");
+            InGameManager.instance.scorerID = scorerID;
         }
 
         [ServerRpc(RequireOwnership = false)]
