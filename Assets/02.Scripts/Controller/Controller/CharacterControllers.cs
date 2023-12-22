@@ -169,10 +169,10 @@ namespace Project3D.Controller
         public void UseSkill(int skillID)
         {
             if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
-                return;
+               return;
 
             _skillCoolDownTimeMarks[skillID] = Time.time;
-            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill);
+            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill,this.transform);
             skill.Init(this);
             skill.Execute();
         }
@@ -201,6 +201,11 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
+
+            if (Input.GetKey(KeyCode.Q))
+            {
+                UseSkill(1);
+            }
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);

@@ -5,7 +5,9 @@ using UnityEngine;
 public class SkillData : ScriptableObject
 {
     public int id;
+    public int coolDownTime;
     public string description;
-    public float coolDownTime;
     public Skill skill;
+    public float skillRatio;
+    public GameObject Range;
 }

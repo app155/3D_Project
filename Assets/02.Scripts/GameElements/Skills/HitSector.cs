@@ -5,12 +5,16 @@ using Project3D.Controller;
 using Unity.Netcode;
 using System;
 using UnityEditor;
+using System.Collections;
+using DG.Tweening;
+using TreeEditor;
 
 public class HitSector : Skill
 {
     private float _pushPower = 10.0f;
     public float angle;
-    public GameObject Range;
+    private SkillData _skillData;
+    GameObject Range;
 
     public override void OnNetworkSpawn()
     {
@@ -20,35 +24,24 @@ public class HitSector : Skill
     public override void Init(CharacterControllers owner)
     {
         base.Init(owner);
-        Range.SetActive(false);
-        coolTime = 1.0f;
+        _skillData = SkillDataAssets.instance.skillDatum[1];
     }
 
     public override void Casting()
     {
-        if (coolTimer > 0)
-        {
-            Debug.Log("Cooltime");
-            return;
-        }
-        Range.SetActive(true);
+        Range = Instantiate(_skillData.Range);
+        Range.transform.position =new Vector3(this.transform.position.x,Range.transform.position.y,transform.position.z);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            Range.transform.forward = (hit.point-transform.position).normalized;
+            Range.transform.forward = (hit.point - transform.position).normalized;
         }
             
     }
     public override void Execute()
     {
-        Range.SetActive(false);
-        if (coolTimer > 0)
-        {
-            Debug.Log("[Hit] - Cooltime");
-            return;
-        }
-        
+        StartCoroutine("SkillRange");
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
@@ -71,7 +64,7 @@ public class HitSector : Skill
 
                         if (degree <= angle / 2.0f)
                         {
-                            ball.KnockbackServerRpc((Cnormal).normalized, _pushPower);
+                            ball.KnockbackServerRpc((Cnormal).normalized, _skillData.skillRatio);
                         }
                     }
                 }
@@ -83,18 +76,8 @@ public class HitSector : Skill
                 Debug.Log("Hit Ball");
             }
         }
-
-        coolTimer = coolTime;
     }
 
-    private void Update()
-    {
-        if (coolTimer > 0)
-            coolTimer -= Time.deltaTime;
-
-        else if (coolTimer < 0)
-            coolTimer = 0;
-    }
 
     private void OnDrawGizmos()
     {
@@ -106,34 +89,14 @@ public class HitSector : Skill
             Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, angle / 2, 2f);
             Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
         }
-        // DrawSolidArc(������, ��ֺ���(��������), �׷��� ���� ����, ����, ������)
 #endif
     }
-    /*private void OnDrawGizmos()
+
+    IEnumerator SkillRange()
     {
-        DrawCube();
-        DrawRay();
+        Casting();
+        yield return new WaitForSeconds(1.0f);
+        Destroy(this.gameObject);
+        Destroy(Range);
     }
-   
-
-    void DrawCube()
-    {
-        Gizmos.color = Color.red;
-
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
-        {
-            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized, 0.5f);
-        }
-    }
-
-    void DrawRay()
-    {
-        Gizmos.color = Color.yellow;
-
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        Gizmos.DrawRay(ray.origin, ray.direction * 30.0f);
-    }
-     */
 }
