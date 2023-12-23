@@ -25,8 +25,6 @@ namespace Project3D.Controller
     }
     public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
     {
-        static Dictionary<ulong, CharacterControllers> _spawned = new Dictionary<ulong, CharacterControllers>();
-
         public CharacterState state
         {
             get => _state;
@@ -45,7 +43,7 @@ namespace Project3D.Controller
 
         }
 
-        public float HpValue
+        public float hpValue
         {
             get => _hpValue;
             set
@@ -58,13 +56,15 @@ namespace Project3D.Controller
 
                 if (value == _hpMax)
                     onHpMax?.Invoke();
+
                 else if (value == _hpMin)
                     onHpMin?.Invoke();
+
                 onDirectionChanged?.Invoke(value);
             }
         }
 
-        public float HpMax
+        public float hpMax
         {
             get => _hpMax;
             set
@@ -73,7 +73,7 @@ namespace Project3D.Controller
             }
         }
             
-        public float HpMin => _hpMin;
+        public float hpMin => _hpMin;
 
         public float xAxis
         {
@@ -91,7 +91,7 @@ namespace Project3D.Controller
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
         public ulong clientID => OwnerClientId;
-        public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int Lv { get => _level.Value; set => _level.Value = value; }
 
         public Team team;
         public event Action<float> onHpChanged;
@@ -102,8 +102,8 @@ namespace Project3D.Controller
         public event Action<float> onDirectionChanged;
         public event Action<int> onLvChanged;
 
-        NetworkVariable<float> _exp;
-        NetworkVariable<int> _level;
+        private NetworkVariable<float> _exp;
+        private NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
         private float _hpValue;
         private float _hpMax;
@@ -119,6 +119,7 @@ namespace Project3D.Controller
         private float _xAxis;
         private float _zAxis;
         private bool _isStiffed;
+        private bool _isWeaked;
         [SerializeField] private float _stiffTime = 0.2f;
         private float _stiffTimer;
         private Rigidbody _rigid;
@@ -134,14 +135,14 @@ namespace Project3D.Controller
 
             if (IsOwner)
             {
-                // temp
-                TestUI_Hp.testHp.chara = this;
+                PrivateInit();
             }
 
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
             _hpValue = 80; // temp
+            onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
             // temp
@@ -184,7 +185,7 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
-            _rigid = GetComponent<Rigidbody>();
+            
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -199,7 +200,7 @@ namespace Project3D.Controller
 
             if (IsGrounded())
             {
-                transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
+                _rigid.position = new Vector3(_rigid.position.x, 0.0f, _rigid.position.z);
 
                 if (_isStiffed == false)
                 {
@@ -273,11 +274,17 @@ namespace Project3D.Controller
             }
         }
 
+        public void PrivateInit()
+        {
+            // temp
+            TestUI_Hp.testHp.chara = this;
+
+            _rigid = GetComponent<Rigidbody>();
+        }
         
-        public virtual void SetUp()
+        public virtual void ReSetUp()
         {
             _hpValue = _hpMax;
-            
         }
 
         private void MovePosition(float xAxis, float zAxis)
@@ -295,39 +302,40 @@ namespace Project3D.Controller
             if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
             {
                 horizontalWallDetected = true;
+                Debug.Log("walldetect");
             }
 
             if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
             {
                 verticalWallDetected = true;
+                Debug.Log("walldetect");
             }
 
             if ((horizontalWallDetected == false && verticalWallDetected == false))
             {
                 Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
-                Debug.Log($".normalized{moveDir.normalized}");
-                Debug.Log($"nomalize {Vector3.Normalize(moveDir)}");
 
                 if (_isStiffed)
-                    _rigid.position += moveDir * _speed * Time.fixedDeltaTime;
+                    transform.position += moveDir * (Convert.ToInt32(_isWeaked) + 1) * _speed * Time.fixedDeltaTime;
 
                 else
-                    _rigid.position += moveDir.normalized * _speed * Time.fixedDeltaTime;
+                    transform.position += moveDir.normalized * _speed * Time.fixedDeltaTime;
+                    
             }
 
             else if (horizontalWallDetected && verticalWallDetected)
             {
-                _rigid.position += Vector3.zero;
+                transform.position += Vector3.zero;
             }
 
             else if (horizontalWallDetected)
             {
-                _rigid.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                transform.position += new Vector3(0.0f, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
             }
 
             else if (verticalWallDetected)
             {
-                _rigid.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
+                transform.position += new Vector3(xAxis, 0.0f, 0.0f) * _speed * Time.fixedDeltaTime;
             }
         }
 
@@ -381,22 +389,22 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            _hpValue -= amount;
+            hpValue -= amount;
             onHpDepleted?.Invoke(amount);
         }
 
         public void RecoverHp(float amount)
         {
-            _hpValue += amount;
+            hpValue += amount;
             onHpRecovered?.Invoke(amount);
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
-            _isStiffed = true;
-            xAxis = pushDir.x * pushPower;
-            zAxis = pushDir.z * pushPower;
+            //_isStiffed = true;
+            //xAxis = pushDir.x * pushPower;
+            //zAxis = pushDir.z * pushPower;
 
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
@@ -415,11 +423,6 @@ namespace Project3D.Controller
 
             Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
             Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
-        }
-
-        public void Attack(float amount)
-        {
-
         }
     }
 }

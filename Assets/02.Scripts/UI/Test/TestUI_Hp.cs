@@ -20,7 +20,7 @@ public class TestUI_Hp : MonoBehaviour
     {
         if (chara != null)
         {
-            text.text = chara.HpValue.ToString();
+            text.text = chara.hpValue.ToString();
         }
     }
 }

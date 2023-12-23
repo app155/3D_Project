@@ -29,9 +29,9 @@ namespace Project3D.GameElements.Items
             if (IsClient)
             {
                 IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
-                Debug.Log($"target Hp Before {targetHp.HpValue}");
+                Debug.Log($"target Hp Before {targetHp.hpValue}");
                 targetHp.RecoverHp(amount);
-                Debug.Log($"target Hp After {targetHp.HpValue}");
+                Debug.Log($"target Hp After {targetHp.hpValue}");
                 gameObject.SetActive(false);
             }
         }
