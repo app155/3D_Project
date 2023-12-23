@@ -109,8 +109,8 @@ namespace Project3D.Controller
         private float _hpMax;
         private float _hpMin;
         private float _damage;
-        [SerializeField] private GameObject[] _skillList;
-        [SerializeField] private Skill[] _skills;
+        [SerializeField] private int[] _skillIDs;
+        public Dictionary<int, float> _skillCoolDownTimeMarks;
         [SerializeField] private float _speed;
         [SerializeField] private LayerMask _enemyMask;
         [SerializeField] private LayerMask _ballMask;
@@ -144,6 +144,7 @@ namespace Project3D.Controller
             _hpValue = 80; // temp
             oldPosition = transform.position;
 
+<<<<<<< HEAD:Assets/02.Scripts/Controller/Character/CharacterControllers.cs
             // temp
             team = InGameManager.instance.blueTeam;
 
@@ -159,6 +160,8 @@ namespace Project3D.Controller
                 _skills[i] = skill;
             }
 
+=======
+>>>>>>> SSH:Assets/02.Scripts/Controller/Controller/CharacterControllers.cs
             if (TryGetComponent(out NetworkBehaviour player))
             {
                 InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
@@ -179,6 +182,17 @@ namespace Project3D.Controller
             }
         }
 
+        public void UseSkill(int skillID)
+        {
+            if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
+               return;
+
+            _skillCoolDownTimeMarks[skillID] = Time.time;
+            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill,this.transform);
+            skill.Init(this);
+            skill.Execute();
+        }
+
         private void Awake()
         {
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -190,6 +204,12 @@ namespace Project3D.Controller
             {
                 animBehaviours[i].Init(this);
             }
+
+            _skillCoolDownTimeMarks = new Dictionary<int, float>();
+            foreach (var skillID in _skillIDs)
+            {
+                _skillCoolDownTimeMarks.Add(skillID, 0.0f);
+            }
         }
 
         private void Update()
@@ -197,6 +217,11 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
+
+            if (Input.GetKey(KeyCode.Q))
+            {
+                UseSkill(1);
+            }
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -206,6 +231,7 @@ namespace Project3D.Controller
                     _xAxis = Input.GetAxisRaw("Horizontal");
                     _zAxis = Input.GetAxisRaw("Vertical");
 
+<<<<<<< HEAD:Assets/02.Scripts/Controller/Character/CharacterControllers.cs
                     // Temp SkillACtion Input
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -233,6 +259,14 @@ namespace Project3D.Controller
                         _skills[2].Execute();
                     }
 
+=======
+            }
+            else
+            {
+                if (_stiffTimer < _stiffTime)
+                {
+                    _stiffTimer += Time.deltaTime;
+>>>>>>> SSH:Assets/02.Scripts/Controller/Controller/CharacterControllers.cs
                 }
 
                 else
