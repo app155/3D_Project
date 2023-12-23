@@ -64,11 +64,7 @@ public class HitSector : Skill
 
                         if (degree <= angle / 2.0f)
                         {
-<<<<<<< HEAD
                             ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, OwnerClientId);
-=======
-                            ball.KnockbackServerRpc((Cnormal).normalized, _skillData.skillRatio);
->>>>>>> SSH
                         }
                     }
                 }

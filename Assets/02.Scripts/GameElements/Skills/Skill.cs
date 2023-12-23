@@ -11,13 +11,10 @@ namespace Project3D.GameElements.Skill
         public string description;
 
         protected CharacterController owner;
-        [SerializeField] protected float coolTime;
-<<<<<<< HEAD
         [SerializeField] protected float castTimer;
         [SerializeField] protected float castTime;
         protected ulong clientID;
-=======
->>>>>>> SSH
+
 
         public virtual void Init(CharacterController owner)
         {

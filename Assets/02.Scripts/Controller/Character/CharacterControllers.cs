@@ -144,24 +144,6 @@ namespace Project3D.Controller
             _hpValue = 80; // temp
             oldPosition = transform.position;
 
-<<<<<<< HEAD:Assets/02.Scripts/Controller/Character/CharacterControllers.cs
-            // temp
-            team = InGameManager.instance.blueTeam;
-
-            _skills = new Skill[_skillList.Length];
-
-            Debug.Log($"chara spawned : {OwnerClientId}");
-
-            for (int i = 0; i < _skillList.Length; i++)
-            {
-                GameObject go = Instantiate(_skillList[i], transform);
-                Skill skill = go.GetComponent<Skill>();
-                skill.Init(this);
-                _skills[i] = skill;
-            }
-
-=======
->>>>>>> SSH:Assets/02.Scripts/Controller/Controller/CharacterControllers.cs
             if (TryGetComponent(out NetworkBehaviour player))
             {
                 InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
@@ -222,6 +204,7 @@ namespace Project3D.Controller
             {
                 UseSkill(1);
             }
+
             if (IsGrounded())
             {
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -230,60 +213,28 @@ namespace Project3D.Controller
                 {
                     _xAxis = Input.GetAxisRaw("Horizontal");
                     _zAxis = Input.GetAxisRaw("Vertical");
-
-<<<<<<< HEAD:Assets/02.Scripts/Controller/Character/CharacterControllers.cs
-                    // Temp SkillACtion Input
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        ChangeState(CharacterState.Attack);
-                        _skills[0].Execute();
-                    }
-
-                    if (Input.GetMouseButton(0))
-                    {
-                        _skills[1].Casting();
-                    }
-                    if (Input.GetMouseButtonUp(0))
-                    {
-                        _skills[1].Execute();
-                    }
-
-                    if (Input.GetKeyDown(KeyCode.Q))
-                    {
-                        ChangeState(CharacterState.DashAttack);
-                        _skills[1].Execute();
-                    }
-
-                    if (Input.GetMouseButtonDown(1))
-                    {
-                        _skills[2].Execute();
-                    }
-
-=======
-            }
-            else
-            {
-                if (_stiffTimer < _stiffTime)
-                {
-                    _stiffTimer += Time.deltaTime;
->>>>>>> SSH:Assets/02.Scripts/Controller/Controller/CharacterControllers.cs
                 }
-
                 else
                 {
                     if (_stiffTimer < _stiffTime)
                     {
                         _stiffTimer += Time.deltaTime;
                     }
-
                     else
                     {
-                        _stiffTimer = 0;
-                        _isStiffed = false;
+                        if (_stiffTimer < _stiffTime)
+                        {
+                            _stiffTimer += Time.deltaTime;
+                        }
+
+                        else
+                        {
+                            _stiffTimer = 0;
+                            _isStiffed = false;
+                        }
                     }
                 }
             }
-
             else
             {
                 ChangeState(CharacterState.Die);
