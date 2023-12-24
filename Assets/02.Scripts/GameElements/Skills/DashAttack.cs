@@ -25,21 +25,12 @@ namespace Project3D.GameElements.Skill
             _col.enabled = false;
             _col.size = Vector3.one;
             _col.isTrigger = true;
-            coolTime = 2.0f;
             castTime = 0.3f;
             _isExecuting = false;
 
             _hits = new HashSet<GameObject>();
         }
 
-        private void Update()
-        {
-            if (coolTimer > 0)
-                coolTimer -= Time.deltaTime;
-
-            else if (coolTimer < 0)
-                coolTimer = 0.0f;
-        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -73,15 +64,8 @@ namespace Project3D.GameElements.Skill
 
         public override void Execute()
         {
-            if (coolTimer > 0)
-            {
-                Debug.Log("[DashAttack] - Cooltime");
-                return;
-            }
 
             _hits.Clear();
-
-            coolTimer = coolTime;
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -95,7 +79,6 @@ namespace Project3D.GameElements.Skill
 
         IEnumerator C_Execute(Vector3 direction)
         {
-            coolTimer = coolTime;
             _col.enabled = true;
 
             while (castTimer > 0)
