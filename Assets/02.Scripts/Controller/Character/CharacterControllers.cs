@@ -45,13 +45,13 @@ namespace Project3D.Controller
 
         public float hpValue
         {
-            get => _hpValue;
+            get => _hpValue.Value;
             set
             {
-                if (_hpValue == value)
+                if (_hpValue.Value == value)
                     return;
 
-                _hpValue = Mathf.Clamp(value, _hpMin, _hpMax);
+                _hpValue.Value = Mathf.Clamp(value, _hpMin, _hpMax);
                 onHpChanged?.Invoke(value);
 
                 if (value == _hpMax)
@@ -62,6 +62,11 @@ namespace Project3D.Controller
 
                 onDirectionChanged?.Invoke(value);
             }
+        }
+        public int LvValue
+        {
+            get => _level.Value; 
+            set => _level.Value = value;
         }
 
         public float hpMax
@@ -91,7 +96,7 @@ namespace Project3D.Controller
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
         public ulong clientID => OwnerClientId;
-        public int Lv { get => _level.Value; set => _level.Value = value; }
+
 
         public Team team;
         public event Action<float> onHpChanged;
@@ -105,7 +110,7 @@ namespace Project3D.Controller
         private NetworkVariable<float> _exp;
         private NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
-        private float _hpValue;
+        private NetworkVariable <float> _hpValue;
         private float _hpMax;
         private float _hpMin;
         private float _damage;
@@ -143,7 +148,7 @@ namespace Project3D.Controller
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
-            _hpValue = 80; // temp
+            _hpValue.Value = 80.0f; // temp
             onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
@@ -193,7 +198,30 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
-            
+            _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+            _hpValue.OnValueChanged += (prev, current) =>
+            {
+                onHpChanged?.Invoke(current);
+                if (prev < current)
+                {
+                    onHpRecovered?.Invoke(current - prev);
+                }
+                else if (prev > current)
+                {
+                    onHpDepleted?.Invoke(prev - current);
+                }
+                if (current == _hpMax)
+                {
+                    onHpMax?.Invoke();
+                }
+                else if (current == _hpMin)
+                {
+                    onHpMin?.Invoke();
+                }
+
+
+            };
+
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -286,7 +314,7 @@ namespace Project3D.Controller
         
         public virtual void ReSetUp()
         {
-            _hpValue = _hpMax;
+            _hpValue.Value = _hpMax;
         }
 
         private void MovePosition(float xAxis, float zAxis)
@@ -400,6 +428,11 @@ namespace Project3D.Controller
         {
             hpValue += amount;
             onHpRecovered?.Invoke(amount);
+        }
+        public void LvChange(int amount)
+        {
+            LvValue += amount;
+            onLvChanged?.Invoke(amount);
         }
 
         [ServerRpc(RequireOwnership = false)]
