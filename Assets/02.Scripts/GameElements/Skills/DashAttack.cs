@@ -10,8 +10,8 @@ namespace Project3D.GameElements.Skill
     public class DashAttack : Skill, IAttack
     {
         private BoxCollider _col;
-        private float _ballPushPower = 10.0f;
-        private float _characterPushPower = 5.0f;
+        [SerializeField] private float _ballPushPower = 10.0f;
+        [SerializeField] private float _characterPushPower = 5.0f;
         private float _atkGain;
         private float _dashSpeed = 4.0f;
         private bool _isExecuting;
@@ -23,9 +23,7 @@ namespace Project3D.GameElements.Skill
         {
             base.Init(owner);
             _col = GetComponent<BoxCollider>();
-            _col.enabled = false;
             _col.size = Vector3.one;
-            _col.isTrigger = true;
             castTime = 0.3f;
             _isExecuting = false;
 
@@ -81,8 +79,6 @@ namespace Project3D.GameElements.Skill
 
         IEnumerator C_Execute(Vector3 direction)
         {
-            _col.enabled = true;
-
             Debug.Log("dash coroutine start");
 
             while (castTimer > 0)
@@ -94,10 +90,9 @@ namespace Project3D.GameElements.Skill
             }
 
             castTimer = castTime;
-            _col.enabled = false;
             Debug.Log("dash coroutine end");
-            //owner.ChangeState(CharacterState.Locomotion);
-            //Destroy(gameObject);
+            owner.ChangeState(CharacterState.Locomotion);
+            Destroy(gameObject);
         }
 
         public override void Casting()

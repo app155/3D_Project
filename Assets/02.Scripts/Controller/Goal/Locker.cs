@@ -16,21 +16,23 @@ namespace Project3D.Controller
         [SerializeField] private GoalLocker _upLocker;
         [SerializeField] private GoalLocker _downLocker;
 
-        private Vector3 _upDoorOriginPos;
-        private Vector3 _downDoorOriginPos;
+        [SerializeField] private Vector3 _upDoorOriginPos;
+        [SerializeField] private Vector3 _downDoorOriginPos;
 
-        private bool _isDoorOpening;
+        [SerializeField] private bool _isDoorOpening;
         [SerializeField] private float _doorMoveSpeed;
 
         private void Awake()
         {
-            (_upDoor, _downDoor) = _doors[0].transform.position.z > _doors[1].transform.position.z ? (_doors[0], _doors[1]) : (_doors[1], _doors[0]);
-            (_upLocker, _downLocker) = _lockers[0].transform.position.z > _lockers[1].transform.position.z ? (_lockers[0], _lockers[1]) : (_lockers[1], _lockers[0]);
+            (_upDoor, _downDoor) = (_doors[0], _doors[1]);
+            (_upLocker, _downLocker) = (_lockers[0], _lockers[1]);
         }
 
         private void Start()
         {
             InGameManager.instance.onStandbyState += ResetObject;
+            _upLocker.knockCount = 0;
+            _downLocker.knockCount = 0;
         }
 
         private void OnEnable()
@@ -44,7 +46,7 @@ namespace Project3D.Controller
             if (IsServer == false)
                 return;
 
-            if (_isDoorOpening == false && _upLocker.knockCount == 0 && _downLocker.knockCount == 0)
+            if (_isDoorOpening == false && _upLocker.knockCount == _upLocker.knockCountOffset && _downLocker.knockCount == _upLocker.knockCountOffset)
             {
                 _isDoorOpening = true;
                 ChangeDoorMoveSpeedServerRpc(1.0f);

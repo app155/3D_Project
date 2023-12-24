@@ -77,14 +77,14 @@ namespace Project3D.Controller
 
         public float xAxis
         {
-            get => _xAxis.Value;
-            set => _xAxis.Value = value;
+            get => _xAxis;
+            set => _xAxis = value;
         }
 
         public float zAxis
         {
-            get => _zAxis.Value;
-            set => _zAxis.Value = value;
+            get => _zAxis;
+            set => _zAxis = value;
         }
 
         public LayerMask enemyMask => _enemyMask;
@@ -116,17 +116,21 @@ namespace Project3D.Controller
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private LayerMask _wallMask;
-        private NetworkVariable<float> _xAxis;
-        private NetworkVariable<float> _zAxis;
+        private float _xAxis;
+        private float _zAxis;
         private bool _isStiffed;
         private bool _isWeaked;
         [SerializeField] private float _stiffTime = 0.2f;
         private float _stiffTimer;
         private Rigidbody _rigid;
         private Animator _animator;
+        private NetworkAnimator _networkAnimator;
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
+
+        //Test
+        [SerializeField] GameObject _renderer;
 
 
         public override void OnNetworkSpawn()
@@ -138,8 +142,6 @@ namespace Project3D.Controller
                 PrivateInit();
             }
 
-            
-
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
@@ -148,7 +150,7 @@ namespace Project3D.Controller
             oldPosition = transform.position;
 
             //temp
-            team = InGameManager.instance.blueTeam;
+            team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
@@ -177,7 +179,6 @@ namespace Project3D.Controller
             if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
                return;
 
-            Debug.Log($"{skillID} use");
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
             skill.Init(this);
@@ -188,12 +189,11 @@ namespace Project3D.Controller
 
         private void Awake()
         {
-            _xAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-            _zAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-            _animator = GetComponent<Animator>();
-            
+            _animator = GetComponentInChildren<Animator>();
+            _networkAnimator = GetComponentInChildren<NetworkAnimator>();
+
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -225,13 +225,14 @@ namespace Project3D.Controller
 
             if (IsGrounded())
             {
-                _rigid.position = new Vector3(_rigid.position.x, 0.0f, _rigid.position.z);
+                transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
 
-                if (_isStiffed == false || state == CharacterState.Locomotion)
+                if (_isStiffed == false)
                 {
-                    _xAxis.Value = Input.GetAxisRaw("Horizontal");
-                    _zAxis.Value = Input.GetAxisRaw("Vertical");
+                    _zAxis = Input.GetAxisRaw("Vertical");
+                    _xAxis = Input.GetAxisRaw("Horizontal");
                 }
+
                 else
                 {
                     if (_stiffTimer < _stiffTime)
@@ -267,12 +268,12 @@ namespace Project3D.Controller
             if (state == CharacterState.Die)
                 return;
 
-            MovePosition(_xAxis.Value, _zAxis.Value);
+            MovePosition(_xAxis, _zAxis);
             GetVelocity();
 
             if (_isStiffed == false)
             {
-                ChangeRotation();
+                ChangeRotation(_xAxis, _zAxis);
             }
         }
 
@@ -311,7 +312,7 @@ namespace Project3D.Controller
                 verticalWallDetected = true;
             }
 
-            if ((horizontalWallDetected == false && verticalWallDetected == false))
+            if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
             {
                 Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
 
@@ -342,12 +343,12 @@ namespace Project3D.Controller
             }
         }
 
-        private void ChangeRotation()
+        public void ChangeRotation(float xAixs, float zAxis)
         {
             if (state != CharacterState.Locomotion)
                 return;
 
-            transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
+            _renderer.transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
         }
 
         private void GetVelocity()
@@ -405,10 +406,6 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
-            //_isStiffed = true;
-            //xAxis = pushDir.x * pushPower;
-            //zAxis = pushDir.z * pushPower;
-
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
