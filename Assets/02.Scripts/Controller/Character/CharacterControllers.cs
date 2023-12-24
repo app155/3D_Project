@@ -429,7 +429,7 @@ namespace Project3D.Controller
             hpValue += amount;
             onHpRecovered?.Invoke(amount);
         }
-        public void LvChange(int amount)
+        public void LvUp(int amount)
         {
             LvValue += amount;
             onLvChanged?.Invoke(amount);
