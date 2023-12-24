@@ -17,16 +17,10 @@ public class Hit : Skill
     public override void Init(CharacterController owner)
     {
         base.Init(owner);
-        coolTime = 1.0f;
     }
 
     public override void Execute()
     {
-        if (coolTimer > 0)
-        {
-            Debug.Log("[Hit] - Cooltime");
-            return;
-        }
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
@@ -46,19 +40,11 @@ public class Hit : Skill
 
                 Debug.Log("Hit Ball");
             }
+
+            owner.transform.LookAt(hit.point);
         }
-
-        coolTimer = coolTime;
     }
 
-    private void Update()
-    {
-        if (coolTimer > 0)
-            coolTimer -= Time.deltaTime;
-
-        else if (coolTimer < 0)
-            coolTimer = 0;
-    }
 
     private void OnDrawGizmos()
     {

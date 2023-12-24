@@ -47,6 +47,10 @@ namespace Project3D.Controller
         {
             _scorerZoomCam.Priority = 10;
             _ballFollowCam.Priority = 11;
+
+            Vector3 ballCamPos = _ballFollowCam.transform.position;
+            _ballFollowCam.ForceCameraPosition(new Vector3(0.0f, ballCamPos.y, ballCamPos.z),
+                                               _ballFollowCam.transform.rotation);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -62,6 +66,7 @@ namespace Project3D.Controller
             _ballFollowCam.Priority = 10;
             _scorerZoomCam.Follow = InGameManager.instance.player[InGameManager.instance.scorerID].transform;
             _director.Play();
+            _ballFollowCam.transform.position = new Vector3(0.0f, _ballFollowCam.transform.position.y, _ballFollowCam.transform.position.z);
         }
     }
 }

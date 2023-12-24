@@ -17,6 +17,7 @@ namespace Project3D.GameElements.Skill
         private bool _isExecuting;
         private Vector3 _executeDir;
         private HashSet<GameObject> _hits;
+        private SkillData _skillData;
 
         public override void Init(CharacterControllers owner)
         {
@@ -25,21 +26,13 @@ namespace Project3D.GameElements.Skill
             _col.enabled = false;
             _col.size = Vector3.one;
             _col.isTrigger = true;
-            coolTime = 2.0f;
             castTime = 0.3f;
             _isExecuting = false;
 
             _hits = new HashSet<GameObject>();
+            _skillData = SkillDataAssets.instance.skillDatum[21];
         }
 
-        private void Update()
-        {
-            if (coolTimer > 0)
-                coolTimer -= Time.deltaTime;
-
-            else if (coolTimer < 0)
-                coolTimer = 0.0f;
-        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -47,18 +40,18 @@ namespace Project3D.GameElements.Skill
             {
                 if (_hits.Contains(other.gameObject) == false)
                 {
-                    other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower, OwnerClientId);
+                    other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower, owner.clientID);
                     _hits.Add(other.gameObject);
                 }
             }
 
-            else if ((1 << other.gameObject.layer & owner.enemyMask) > 0)
+            else if ((1 << other.gameObject.layer & owner.enemyMask) > 0 && other.GetComponent<CharacterControllers>().team.id != owner.team.id)
             {
                 if (_hits.Contains(other.gameObject) == false)
                 {
                     if (other.TryGetComponent(out IHp target))
                     {
-                        target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, OwnerClientId);
+                        target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, owner.clientID);
                         Attack(target);
                         _hits.Add(other.gameObject);
                     }
@@ -73,15 +66,7 @@ namespace Project3D.GameElements.Skill
 
         public override void Execute()
         {
-            if (coolTimer > 0)
-            {
-                Debug.Log("[DashAttack] - Cooltime");
-                return;
-            }
-
             _hits.Clear();
-
-            coolTimer = coolTime;
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -89,14 +74,16 @@ namespace Project3D.GameElements.Skill
             {
                 _executeDir = (hit.point - transform.position).normalized;
                 _isExecuting = true;
+                owner.transform.LookAt(hit.point);
                 StartCoroutine(C_Execute(_executeDir));
             }
         }
 
         IEnumerator C_Execute(Vector3 direction)
         {
-            coolTimer = coolTime;
             _col.enabled = true;
+
+            Debug.Log("dash coroutine start");
 
             while (castTimer > 0)
             {
@@ -108,11 +95,14 @@ namespace Project3D.GameElements.Skill
 
             castTimer = castTime;
             _col.enabled = false;
+            Debug.Log("dash coroutine end");
+            //owner.ChangeState(CharacterState.Locomotion);
+            //Destroy(gameObject);
         }
 
         public override void Casting()
         {
-            throw new System.NotImplementedException();
+
         }
     }
 }

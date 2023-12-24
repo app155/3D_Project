@@ -1,7 +1,13 @@
+using Project3D.GameElements.Skill;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Teamproject", menuName = "ScriptableObjects/SkillData")]
 public class SkillData : ScriptableObject
 {
-    public float coolDownTime;
+    public int id;
+    public int coolDownTime;
+    public string description;
+    public Skill skill;
+    public float skillRatio;
+    public GameObject Range;
 }

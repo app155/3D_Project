@@ -81,6 +81,7 @@ namespace Project3D.GameSystem
         private Dictionary<ulong, NetworkBehaviour> _players;
         private Team _blueTeam = new Team(0);
         private Team _redTeam = new Team(1);
+        [SerializeField] private int _winningPoint;
 
         private void Awake()
         {
@@ -123,9 +124,17 @@ namespace Project3D.GameSystem
 
         IEnumerator C_Scored()
         {
-            yield return new WaitForSeconds(3.0f);
+            yield return new WaitForSeconds(5.0f);
 
-            ChangeGameStateServerRpc(GameState.Standby);
+            if (_blueTeam.score >= _winningPoint || _redTeam.score >= _winningPoint)
+            {
+                ChangeGameStateServerRpc(GameState.End);
+            }
+
+            else
+            {
+                ChangeGameStateServerRpc(GameState.Standby);
+            }
         }
 
         public void RegisterPlayer(ulong clientID, NetworkBehaviour player)
@@ -151,7 +160,6 @@ namespace Project3D.GameSystem
         IEnumerator C_StartCountDown(float countTimer)
         {
             onCountdownChanged?.Invoke(countTimer);
-            Debug.Log(countTimer);
             float start = Time.time;
 
             while (countTimer > -1f)
