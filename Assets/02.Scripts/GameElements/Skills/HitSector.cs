@@ -24,7 +24,7 @@ public class HitSector : Skill
     public override void Init(CharacterControllers owner)
     {
         base.Init(owner);
-        _skillData = SkillDataAssets.instance.skillDatum[1];
+        _skillData = SkillDataAssets.instance.skillDatum[20];
     }
 
     public override void Casting()
@@ -64,7 +64,7 @@ public class HitSector : Skill
 
                         if (degree <= angle / 2.0f)
                         {
-                            ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, OwnerClientId);
+                            ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, owner.clientID);
                         }
                     }
                 }
@@ -73,7 +73,7 @@ public class HitSector : Skill
                     throw new Exception("[Hit] - Target Wrong");
                 }
 
-                Debug.Log("Hit Ball");
+                owner.transform.LookAt(hit.point);
             }
         }
     }

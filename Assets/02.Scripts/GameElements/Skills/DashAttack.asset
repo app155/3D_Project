@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e4fab560b5195547a0b145ec7a8c978, type: 3}
-  m_Name: HitSector
+  m_Name: DashAttack
   m_EditorClassIdentifier: 
-  id: 20
-  coolDownTime: 2
+  id: 21
+  coolDownTime: 3
   description: 
-  skill: {fileID: 8001297072544061546, guid: 71c33465148f3e54db1f2cb22d19d1d0, type: 3}
-  skillRatio: 10
+  skill: {fileID: 697719978105097558, guid: 1403a9a1a995b1846b6aecfffb046afe, type: 3}
+  skillRatio: 3
   Range: {fileID: 3487944321762587485, guid: 58c5669341e0a5b46b9f75ddb200c306, type: 3}

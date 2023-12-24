@@ -17,6 +17,7 @@ namespace Project3D.GameElements.Skill
         private bool _isExecuting;
         private Vector3 _executeDir;
         private HashSet<GameObject> _hits;
+        private SkillData _skillData;
 
         public override void Init(CharacterControllers owner)
         {
@@ -29,6 +30,7 @@ namespace Project3D.GameElements.Skill
             _isExecuting = false;
 
             _hits = new HashSet<GameObject>();
+            _skillData = SkillDataAssets.instance.skillDatum[21];
         }
 
 
@@ -64,7 +66,6 @@ namespace Project3D.GameElements.Skill
 
         public override void Execute()
         {
-
             _hits.Clear();
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -73,6 +74,7 @@ namespace Project3D.GameElements.Skill
             {
                 _executeDir = (hit.point - transform.position).normalized;
                 _isExecuting = true;
+                owner.transform.LookAt(hit.point);
                 StartCoroutine(C_Execute(_executeDir));
             }
         }
@@ -80,6 +82,8 @@ namespace Project3D.GameElements.Skill
         IEnumerator C_Execute(Vector3 direction)
         {
             _col.enabled = true;
+
+            Debug.Log("dash coroutine start");
 
             while (castTimer > 0)
             {
@@ -91,6 +95,9 @@ namespace Project3D.GameElements.Skill
 
             castTimer = castTime;
             _col.enabled = false;
+            Debug.Log("dash coroutine end");
+            //owner.ChangeState(CharacterState.Locomotion);
+            //Destroy(gameObject);
         }
 
         public override void Casting()

@@ -132,14 +132,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6790195878885899931}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 669dc9ea2a1b1fe4c86e22b18a87f5e7, type: 3}
+  m_Script: {fileID: 11500000, guid: 5de959b31e2d0984a854f6f4553653cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   description: 
-  coolTimer: 0
-  coolTime: 0
-  castTimer: 0
-  castTime: 0
+  castTimer: 1
+  castTime: 1
 --- !u!114 &723932814758821314
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,7 +173,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

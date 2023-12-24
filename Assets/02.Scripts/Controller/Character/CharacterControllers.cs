@@ -77,14 +77,14 @@ namespace Project3D.Controller
 
         public float xAxis
         {
-            get => _xAxis;
-            set => _xAxis = value;
+            get => _xAxis.Value;
+            set => _xAxis.Value = value;
         }
 
         public float zAxis
         {
-            get => _zAxis;
-            set => _zAxis = value;
+            get => _zAxis.Value;
+            set => _zAxis.Value = value;
         }
 
         public LayerMask enemyMask => _enemyMask;
@@ -116,8 +116,8 @@ namespace Project3D.Controller
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private LayerMask _wallMask;
-        private float _xAxis;
-        private float _zAxis;
+        private NetworkVariable<float> _xAxis;
+        private NetworkVariable<float> _zAxis;
         private bool _isStiffed;
         private bool _isWeaked;
         [SerializeField] private float _stiffTime = 0.2f;
@@ -138,6 +138,8 @@ namespace Project3D.Controller
                 PrivateInit();
             }
 
+            
+
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
@@ -145,10 +147,15 @@ namespace Project3D.Controller
             onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
+            //temp
+            team = InGameManager.instance.blueTeam;
+
             if (TryGetComponent(out NetworkBehaviour player))
             {
-                InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
+                InGameManager.instance.RegisterPlayer(clientID, player);
             }
+
+            Debug.Log($"chara spawned {clientID}");
 
             if (IsServer)
             {
@@ -170,14 +177,19 @@ namespace Project3D.Controller
             if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
                return;
 
+            Debug.Log($"{skillID} use");
             _skillCoolDownTimeMarks[skillID] = Time.time;
-            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill,this.transform);
+            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
             skill.Init(this);
             skill.Execute();
+
+            ChangeState((CharacterState)skillID);
         }
 
         private void Awake()
         {
+            _xAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+            _zAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
@@ -203,17 +215,22 @@ namespace Project3D.Controller
 
             if (Input.GetKey(KeyCode.Q))
             {
-                UseSkill(1);
+                UseSkill(_skillIDs[0]);
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                UseSkill(_skillIDs[1]);
             }
 
             if (IsGrounded())
             {
                 _rigid.position = new Vector3(_rigid.position.x, 0.0f, _rigid.position.z);
 
-                if (_isStiffed == false)
+                if (_isStiffed == false || state == CharacterState.Locomotion)
                 {
-                    _xAxis = Input.GetAxisRaw("Horizontal");
-                    _zAxis = Input.GetAxisRaw("Vertical");
+                    _xAxis.Value = Input.GetAxisRaw("Horizontal");
+                    _zAxis.Value = Input.GetAxisRaw("Vertical");
                 }
                 else
                 {
@@ -250,7 +267,7 @@ namespace Project3D.Controller
             if (state == CharacterState.Die)
                 return;
 
-            MovePosition(_xAxis, _zAxis);
+            MovePosition(_xAxis.Value, _zAxis.Value);
             GetVelocity();
 
             if (_isStiffed == false)
@@ -287,13 +304,11 @@ namespace Project3D.Controller
             if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(xAxis, 0.0f, 0.0f), 0.5f, _wallMask))
             {
                 horizontalWallDetected = true;
-                Debug.Log("walldetect");
             }
 
             if (Physics.Raycast(transform.position + Vector3.up * 0.2f, new Vector3(0.0f, 0.0f, zAxis), 0.5f, _wallMask))
             {
                 verticalWallDetected = true;
-                Debug.Log("walldetect");
             }
 
             if ((horizontalWallDetected == false && verticalWallDetected == false))
@@ -303,9 +318,12 @@ namespace Project3D.Controller
                 if (_isStiffed)
                     transform.position += moveDir * (Convert.ToInt32(_isWeaked) + 1) * _speed * Time.fixedDeltaTime;
 
-                else
+                else if (state == CharacterState.Locomotion)
                     transform.position += moveDir.normalized * _speed * Time.fixedDeltaTime;
-                    
+
+                else
+                    transform.position += moveDir * _speed * Time.fixedDeltaTime;
+
             }
 
             else if (horizontalWallDetected && verticalWallDetected)
@@ -329,7 +347,7 @@ namespace Project3D.Controller
             if (state != CharacterState.Locomotion)
                 return;
 
-            transform.LookAt(transform.position + new Vector3(_xAxis, 0.0f, _zAxis));
+            transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
         }
 
         private void GetVelocity()
@@ -406,8 +424,8 @@ namespace Project3D.Controller
         {
             Gizmos.color = Color.blue;
 
-            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
-            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
+            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis.Value, 0.0f, 0.0f));
+            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis.Value));
         }
     }
 }
