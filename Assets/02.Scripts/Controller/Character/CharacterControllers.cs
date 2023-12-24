@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using UnityEngine.UIElements;
 using Project3D.GameSystem;
 using Project3D.Animations;
+using Unity.Netcode.Components;
 
 namespace Project3D.Controller
 {
@@ -19,15 +20,11 @@ namespace Project3D.Controller
         Hit,
         Ceremony,
         Attack = 20,
+        DashAttack = 21,
         Die,
     }
     public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
     {
-
-        static Dictionary<ulong, CharacterControllers> _spawned = new Dictionary<ulong, CharacterControllers>();
-
-
-
         public CharacterState state
         {
             get => _state;
@@ -46,7 +43,7 @@ namespace Project3D.Controller
 
         }
 
-        public float HpValue
+        public float hpValue
         {
             get => _hpValue;
             set
@@ -59,13 +56,15 @@ namespace Project3D.Controller
 
                 if (value == _hpMax)
                     onHpMax?.Invoke();
+
                 else if (value == _hpMin)
                     onHpMin?.Invoke();
+
                 onDirectionChanged?.Invoke(value);
             }
         }
 
-        public float HpMax
+        public float hpMax
         {
             get => _hpMax;
             set
@@ -74,26 +73,25 @@ namespace Project3D.Controller
             }
         }
             
-        public float HpMin => _hpMin;
+        public float hpMin => _hpMin;
 
         public float xAxis
         {
-            get => _xAxis;
-            set => _xAxis = value;
+            get => _xAxis.Value;
+            set => _xAxis.Value = value;
         }
 
         public float zAxis
         {
-            get => _zAxis;
-            set => _zAxis = value;
+            get => _zAxis.Value;
+            set => _zAxis.Value = value;
         }
 
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
-
         public ulong clientID => OwnerClientId;
-        public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int Lv { get => _level.Value; set => _level.Value = value; }
 
         public Team team;
         public event Action<float> onHpChanged;
@@ -104,28 +102,28 @@ namespace Project3D.Controller
         public event Action<float> onDirectionChanged;
         public event Action<int> onLvChanged;
 
-        NetworkVariable<float> _exp;
-        NetworkVariable<int> _level;
+        private NetworkVariable<float> _exp;
+        private NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
         private float _hpValue;
         private float _hpMax;
         private float _hpMin;
         private float _damage;
-        [SerializeField] private GameObject[] _skillList;
-        [SerializeField] private Skill[] _skills;
+        [SerializeField] private int[] _skillIDs;
+        public Dictionary<int, float> _skillCoolDownTimeMarks;
         [SerializeField] private float _speed;
         [SerializeField] private LayerMask _enemyMask;
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private LayerMask _wallMask;
-        private float _xAxis;
-        private float _zAxis;
+        private NetworkVariable<float> _xAxis;
+        private NetworkVariable<float> _zAxis;
         private bool _isStiffed;
+        private bool _isWeaked;
         [SerializeField] private float _stiffTime = 0.2f;
         private float _stiffTimer;
         private Rigidbody _rigid;
         private Animator _animator;
-        int getdamaged;
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
@@ -137,35 +135,27 @@ namespace Project3D.Controller
 
             if (IsOwner)
             {
-                // temp
-                TestUI_Hp.testHp.chara = this;
+                PrivateInit();
             }
 
-            _state = CharacterState.Locomotion;
+            
+
+            ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
             _hpValue = 80; // temp
+            onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
-            // temp
+            //temp
             team = InGameManager.instance.blueTeam;
-
-            _skills = new Skill[_skillList.Length];
-
-            Debug.Log($"chara spawned : {OwnerClientId}");
-
-            for (int i = 0; i < _skillList.Length; i++)
-            {
-                GameObject go = Instantiate(_skillList[i], transform);
-                Skill skill = go.GetComponent<Skill>();
-                skill.Init(this);
-                _skills[i] = skill;
-            }
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
-                InGameManager.instance.RegisterPlayer(player.OwnerClientId, player);
+                InGameManager.instance.RegisterPlayer(clientID, player);
             }
+
+            Debug.Log($"chara spawned {clientID}");
 
             if (IsServer)
             {
@@ -182,16 +172,38 @@ namespace Project3D.Controller
             }
         }
 
+        public void UseSkill(int skillID)
+        {
+            if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
+               return;
+
+            Debug.Log($"{skillID} use");
+            _skillCoolDownTimeMarks[skillID] = Time.time;
+            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
+            skill.Init(this);
+            skill.Execute();
+
+            ChangeState((CharacterState)skillID);
+        }
+
         private void Awake()
         {
+            _xAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+            _zAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
-            _rigid = GetComponent<Rigidbody>();
+            
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
                 animBehaviours[i].Init(this);
+            }
+
+            _skillCoolDownTimeMarks = new Dictionary<int, float>();
+            foreach (var skillID in _skillIDs)
+            {
+                _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
 
@@ -200,54 +212,50 @@ namespace Project3D.Controller
             if (!IsOwner)
                 return;
 
-            if (IsGrounded())
+
+            if (Input.GetKey(KeyCode.Q))
             {
-                transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
+                UseSkill(_skillIDs[0]);
             }
 
-            if (_isStiffed == false)
+            if (Input.GetMouseButtonDown(1))
             {
-                _xAxis = Input.GetAxisRaw("Horizontal");
-                _zAxis = Input.GetAxisRaw("Vertical");
+                UseSkill(_skillIDs[1]);
+            }
 
-                // Temp SkillACtion Input
-                if (Input.GetMouseButtonDown(0))
-                {
-                    GetComponent<CharacterControllers>().ChangeState(CharacterState.Attack);
-                    _skills[0].Execute();
-                }
+            if (IsGrounded())
+            {
+                _rigid.position = new Vector3(_rigid.position.x, 0.0f, _rigid.position.z);
 
-                if (Input.GetMouseButton(0))
+                if (_isStiffed == false || state == CharacterState.Locomotion)
                 {
-                    _skills[1].Casting();
+                    _xAxis.Value = Input.GetAxisRaw("Horizontal");
+                    _zAxis.Value = Input.GetAxisRaw("Vertical");
                 }
-                if (Input.GetMouseButtonUp(0))
+                else
                 {
-                    _skills[1].Execute();
-                }
+                    if (_stiffTimer < _stiffTime)
+                    {
+                        _stiffTimer += Time.deltaTime;
+                    }
+                    else
+                    {
+                        if (_stiffTimer < _stiffTime)
+                        {
+                            _stiffTimer += Time.deltaTime;
+                        }
 
-                if (Input.GetKeyDown(KeyCode.Q))
-                {
-                    _skills[1].Execute();
-                }
-
-                if (Input.GetMouseButtonDown(1))
-                {
-                    _skills[2].Execute();
+                        else
+                        {
+                            _stiffTimer = 0;
+                            _isStiffed = false;
+                        }
+                    }
                 }
             }
             else
             {
-                if (_stiffTimer < _stiffTime)
-                {
-                    _stiffTimer += Time.deltaTime;
-                }
-
-                else
-                {
-                    _stiffTimer = 0;
-                    _isStiffed = false;
-                }
+                ChangeState(CharacterState.Die);
             }
         }
 
@@ -256,7 +264,10 @@ namespace Project3D.Controller
             if (IsOwner == false)
                 return;
 
-            MovePosition(_xAxis, _zAxis);
+            if (state == CharacterState.Die)
+                return;
+
+            MovePosition(_xAxis.Value, _zAxis.Value);
             GetVelocity();
 
             if (_isStiffed == false)
@@ -265,12 +276,19 @@ namespace Project3D.Controller
             }
         }
 
+        public void PrivateInit()
+        {
+            // temp
+            TestUI_Hp.testHp.chara = this;
+
+            _rigid = GetComponent<Rigidbody>();
+        }
         
-        public virtual void SetUp()
+        public virtual void ReSetUp()
         {
             _hpValue = _hpMax;
-            
         }
+
         private void MovePosition(float xAxis, float zAxis)
         {
             if (IsOwner == false)
@@ -293,9 +311,19 @@ namespace Project3D.Controller
                 verticalWallDetected = true;
             }
 
-            if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
+            if ((horizontalWallDetected == false && verticalWallDetected == false))
             {
-                transform.position += new Vector3(xAxis, 0.0f, zAxis) * _speed * Time.fixedDeltaTime;
+                Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
+
+                if (_isStiffed)
+                    transform.position += moveDir * (Convert.ToInt32(_isWeaked) + 1) * _speed * Time.fixedDeltaTime;
+
+                else if (state == CharacterState.Locomotion)
+                    transform.position += moveDir.normalized * _speed * Time.fixedDeltaTime;
+
+                else
+                    transform.position += moveDir * _speed * Time.fixedDeltaTime;
+
             }
 
             else if (horizontalWallDetected && verticalWallDetected)
@@ -316,24 +344,43 @@ namespace Project3D.Controller
 
         private void ChangeRotation()
         {
-            transform.LookAt(transform.position + new Vector3(_xAxis, 0.0f, _zAxis));
+            if (state != CharacterState.Locomotion)
+                return;
+
+            transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
         }
 
         private void GetVelocity()
         {
-            currentPosition = transform.position;
+            currentPosition = _rigid.position;
             Vector3 dis = (currentPosition - oldPosition);
             var distance = Math.Sqrt(Math.Pow(dis.x, 2) + Math.Pow(dis.y, 2) + Math.Pow(dis.z, 2));
-            _velocity = distance / Time.deltaTime;
+            _velocity = distance / Time.fixedDeltaTime;
             oldPosition = currentPosition;
             _animator.SetFloat("Velocity", Convert.ToSingle(_velocity));
         }
+
         public bool ChangeState(CharacterState newState)
+        {
+            if (state == newState)
+                return false;
+
+            ChangeStateServerRpc(newState);
+            return true;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ChangeStateServerRpc(CharacterState newState, ServerRpcParams rpcParams = default)
+        {
+            ChangeStateClientRpc(newState);
+        }
+
+        [ClientRpc]
+        public void ChangeStateClientRpc(CharacterState newState, ClientRpcParams rpcParams = default)
         {
             _animator.SetInteger("state", (int)newState);
             _animator.SetBool("isDirty", true);
             _state = newState;
-            return true;
         }
 
         private bool IsGrounded()
@@ -345,24 +392,23 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            _hpValue -= amount;
+            hpValue -= amount;
             onHpDepleted?.Invoke(amount);
         }
 
         public void RecoverHp(float amount)
         {
-            _hpValue += amount;
+            hpValue += amount;
             onHpRecovered?.Invoke(amount);
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
-            _isStiffed = true;
-            xAxis = pushDir.x * pushPower;
-            zAxis = pushDir.z * pushPower;
+            //_isStiffed = true;
+            //xAxis = pushDir.x * pushPower;
+            //zAxis = pushDir.z * pushPower;
 
-            ulong clientID2 = rpcParams.Receive.SenderClientId;
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
@@ -378,13 +424,8 @@ namespace Project3D.Controller
         {
             Gizmos.color = Color.blue;
 
-            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis, 0.0f, 0.0f));
-            Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis));
-        }
-
-        public void Attack(float amount)
-        {
-
+            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis.Value, 0.0f, 0.0f));
+            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis.Value));
         }
     }
 }
