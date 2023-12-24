@@ -93,6 +93,9 @@ namespace Project3D.Controller
         public ulong clientID => OwnerClientId;
         public int Lv { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        [SerializeField]public CooltimeSlotUI slot1;
+
+        
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -167,10 +170,13 @@ namespace Project3D.Controller
         public void UseSkill(int skillID)
         {
             if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
-               return;
+            {
+                Debug.Log("CoolT");
+                return;
+            }
 
             _skillCoolDownTimeMarks[skillID] = Time.time;
-            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill,this.transform);
+            Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, this.transform);
             skill.Init(this);
             skill.Execute();
         }
@@ -181,6 +187,7 @@ namespace Project3D.Controller
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponent<Animator>();
             _rigid = GetComponent<Rigidbody>();
+            slot1 = CooltimeSlotUI.instance;
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -200,9 +207,11 @@ namespace Project3D.Controller
                 return;
 
 
-            if (Input.GetKey(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.Q))
             {
                 UseSkill(1);
+                slot1.slots.data = SkillDataAssets.instance.skillDatum[1];
+                slot1.cooltimeCheckTest();
             }
 
             if (IsGrounded())
@@ -290,8 +299,8 @@ namespace Project3D.Controller
             if ((horizontalWallDetected == false && verticalWallDetected == false))
             {
                 Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
-                Debug.Log($".normalized{moveDir.normalized}");
-                Debug.Log($"nomalize {Vector3.Normalize(moveDir)}");
+                //Debug.Log($".normalized{moveDir.normalized}");
+                //Debug.Log($"nomalize {Vector3.Normalize(moveDir)}");
 
                 if (_isStiffed)
                     _rigid.position += moveDir * _speed * Time.fixedDeltaTime;
