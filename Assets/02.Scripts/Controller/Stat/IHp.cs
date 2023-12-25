@@ -12,6 +12,7 @@ namespace Project3D.Controller
         public float hpMax { get; set; }
         public float hpMin { get; }
         public int Lv { get; set; }
+
         public event Action<int> onLvChanged;
         public event Action<float> onHpChanged; 
         public event Action<float> onHpRecovered; 
