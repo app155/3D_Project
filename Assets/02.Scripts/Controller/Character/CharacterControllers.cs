@@ -120,7 +120,7 @@ namespace Project3D.Controller
         private NetworkVariable<float> _exp;
         private NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
-        private float _hpValue;
+        private NetworkVariable<float> _hpValue;
         private float _hpMax;
         private float _hpMin;
         private float _damage;
@@ -208,6 +208,7 @@ namespace Project3D.Controller
         {
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+            _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponentInChildren<Animator>();
 
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
