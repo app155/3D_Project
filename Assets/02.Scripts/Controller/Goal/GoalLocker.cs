@@ -17,12 +17,14 @@ namespace Project3D.Controller
 
                 _knockCount = value;
 
-                if (_knockCount <= 0)
+                if (_knockCount >= _knockCountOffset)
                 {
                     DisapearServerRpc();
                 }
             }
         }
+
+        public int knockCountOffset => _knockCountOffset;
 
         [SerializeField] private int _knockCount;
         [SerializeField] private int _knockCountOffset = 1;
@@ -36,7 +38,7 @@ namespace Project3D.Controller
         [ClientRpc]
         public void ResetGoalLockerClientRpc()
         {
-            knockCount = _knockCountOffset;
+            knockCount = 0;
             gameObject.SetActive(true);
         }
 
@@ -55,7 +57,7 @@ namespace Project3D.Controller
 
         public void Execute()
         {
-            knockCount--;
+            knockCount++;
         }
     }
 }

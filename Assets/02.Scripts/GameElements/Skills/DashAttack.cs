@@ -3,6 +3,8 @@ using Project3D.Controller;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
+using Project3D.GameSystem;
 
 namespace Project3D.GameElements.Skill
 {
@@ -10,8 +12,8 @@ namespace Project3D.GameElements.Skill
     public class DashAttack : Skill, IAttack
     {
         private BoxCollider _col;
-        private float _ballPushPower = 10.0f;
-        private float _characterPushPower = 5.0f;
+        [SerializeField] private float _ballPushPower = 10.0f;
+        [SerializeField] private float _characterPushPower = 4.0f;
         private float _atkGain;
         private float _dashSpeed = 4.0f;
         private bool _isExecuting;
@@ -23,9 +25,7 @@ namespace Project3D.GameElements.Skill
         {
             base.Init(owner);
             _col = GetComponent<BoxCollider>();
-            _col.enabled = false;
             _col.size = Vector3.one;
-            _col.isTrigger = true;
             castTime = 0.3f;
             _isExecuting = false;
 
@@ -45,23 +45,29 @@ namespace Project3D.GameElements.Skill
                 }
             }
 
-            else if ((1 << other.gameObject.layer & owner.enemyMask) > 0 && other.GetComponent<CharacterControllers>().team.id != owner.team.id)
+            else if ((1 << other.gameObject.layer & owner.enemyMask) > 0)
             {
-                if (_hits.Contains(other.gameObject) == false)
+                if (other.TryGetComponent(out CharacterControllers chara) && chara.team.id != owner.team.id)
                 {
-                    if (other.TryGetComponent(out IHp target))
+                    if (_hits.Contains(other.gameObject) == false)
                     {
-                        target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, owner.clientID);
-                        Attack(target);
-                        _hits.Add(other.gameObject);
+                        if (other.TryGetComponent(out IHp target))
+                        {
+                            target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, owner.clientID);
+                            Attack(chara.clientID);
+                            _hits.Add(other.gameObject);
+                        }
                     }
                 }
             }
         }
 
-        public void Attack(IHp target)
+        public void Attack(ulong targetID)
         {
-            target.DepleteHp(10.0f);
+            IHp target = InGameManager.instance.player[targetID].GetComponent<IHp>();
+            Debug.Log($"target hp deplete before : {target.hpValue}");
+            target.DepleteHp(40.0f); // temp 
+            Debug.Log($"target hp deplete after : {target.hpValue}");
         }
 
         public override void Execute()
@@ -81,8 +87,6 @@ namespace Project3D.GameElements.Skill
 
         IEnumerator C_Execute(Vector3 direction)
         {
-            _col.enabled = true;
-
             Debug.Log("dash coroutine start");
 
             while (castTimer > 0)
@@ -94,10 +98,9 @@ namespace Project3D.GameElements.Skill
             }
 
             castTimer = castTime;
-            _col.enabled = false;
             Debug.Log("dash coroutine end");
-            //owner.ChangeState(CharacterState.Locomotion);
-            //Destroy(gameObject);
+            owner.ChangeState(CharacterState.Locomotion);
+            Destroy(gameObject);
         }
 
         public override void Casting()
