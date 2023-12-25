@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 using Project3D.GameSystem;
 using Project3D.Animations;
 using Unity.Netcode.Components;
+using Project3D.UI;
 
 namespace Project3D.Controller
 {
@@ -32,6 +33,13 @@ namespace Project3D.Controller
             {
                 if (_state == value)
                     return;
+
+                if (value == CharacterState.Die)
+                {
+                    Debug.Log("diestate");
+                    onDie?.Invoke();
+                }
+                    
 
                 _state = value;
             }
@@ -102,6 +110,8 @@ namespace Project3D.Controller
         public event Action<float> onDirectionChanged;
         public event Action<int> onLvChanged;
 
+        public event Action onDie;
+
         private NetworkVariable<float> _exp;
         private NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
@@ -124,13 +134,13 @@ namespace Project3D.Controller
         private float _stiffTimer;
         private Rigidbody _rigid;
         private Animator _animator;
-        private NetworkAnimator _networkAnimator;
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
 
-        //Test
-        [SerializeField] GameObject _renderer;
+        //Temp
+        [SerializeField] private GameObject _renderer;
+        [SerializeField] private Canvas _hpUI;
 
 
         public override void OnNetworkSpawn()
@@ -151,6 +161,7 @@ namespace Project3D.Controller
 
             //temp
             team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+            transform.position = InGameManager.instance._spawnPoints[clientID].position;
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
@@ -181,6 +192,7 @@ namespace Project3D.Controller
 
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
+
             skill.Init(this);
             skill.Execute();
 
@@ -192,7 +204,6 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _animator = GetComponentInChildren<Animator>();
-            _networkAnimator = GetComponentInChildren<NetworkAnimator>();
 
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
@@ -281,6 +292,11 @@ namespace Project3D.Controller
         {
             // temp
             TestUI_Hp.testHp.chara = this;
+
+            onDie += () =>
+            {
+                StartCoroutine(C_OnDie());
+            };
 
             _rigid = GetComponent<Rigidbody>();
         }
@@ -381,7 +397,7 @@ namespace Project3D.Controller
         {
             _animator.SetInteger("state", (int)newState);
             _animator.SetBool("isDirty", true);
-            _state = newState;
+            state = newState;
         }
 
         private bool IsGrounded()
@@ -393,6 +409,24 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
+            DepleteHpServerRpc(amount);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DepleteHpServerRpc(float amount)
+        {
+            hpValue -= amount;
+            onHpDepleted?.Invoke(amount);
+
+            DepleteHpClientRpc(amount);
+        }
+
+        [ClientRpc]
+        public void DepleteHpClientRpc(float amount)
+        {
+            if (IsServer)
+                return;
+
             hpValue -= amount;
             onHpDepleted?.Invoke(amount);
         }
@@ -415,6 +449,57 @@ namespace Project3D.Controller
             _isStiffed = true;
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
+        }
+
+        private IEnumerator C_OnDie()
+        {
+            Debug.Log("ondie routine start");
+
+            DisappearServerRpc();
+
+            yield return new WaitForSeconds(2.0f);
+
+            RespawnServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DisappearServerRpc()
+        {
+            _renderer.SetActive(false);
+            _hpUI.enabled = false;
+
+            DisappearClientRpc();
+        }
+
+        [ClientRpc]
+        public void DisappearClientRpc()
+        {
+            _renderer.SetActive(false);
+            _hpUI.enabled = false;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RespawnServerRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            ChangeState(CharacterState.Locomotion);
+            _renderer.SetActive(true);
+            gameObject.SetActive(true);
+            _hpUI.enabled = true;
+            hpValue = _hpMax;
+
+            RespawnClientRpc();
+        }
+
+        [ClientRpc]
+        public void RespawnClientRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            ChangeState(CharacterState.Locomotion);
+            _renderer.SetActive(true);
+            gameObject.SetActive(true);
+            _hpUI.enabled = true;
+            hpValue = _hpMax;
         }
 
         private void OnDrawGizmos()
