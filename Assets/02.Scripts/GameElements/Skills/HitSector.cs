@@ -73,7 +73,7 @@ public class HitSector : Skill
                     throw new Exception("[Hit] - Target Wrong");
                 }
 
-                owner.transform.LookAt(hit.point);
+                owner.ChangeRotation(hit.point.x, hit.point.z);
             }
         }
     }

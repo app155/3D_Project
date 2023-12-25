@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 using Project3D.GameSystem;
 using Project3D.Animations;
 using Unity.Netcode.Components;
+using Project3D.UI;
 
 namespace Project3D.Controller
 {
@@ -32,6 +33,13 @@ namespace Project3D.Controller
             {
                 if (_state == value)
                     return;
+
+                if (value == CharacterState.Die)
+                {
+                    Debug.Log("diestate");
+                    onDie?.Invoke();
+                }
+                    
 
                 _state = value;
             }
@@ -82,14 +90,14 @@ namespace Project3D.Controller
 
         public float xAxis
         {
-            get => _xAxis.Value;
-            set => _xAxis.Value = value;
+            get => _xAxis;
+            set => _xAxis = value;
         }
 
         public float zAxis
         {
-            get => _zAxis.Value;
-            set => _zAxis.Value = value;
+            get => _zAxis;
+            set => _zAxis = value;
         }
 
         public LayerMask enemyMask => _enemyMask;
@@ -110,10 +118,12 @@ namespace Project3D.Controller
         public event Action<float> onDirectionChanged;
         public event Action<int> onLvChanged;
 
+        public event Action onDie;
+
         private NetworkVariable<float> _exp;
         private NetworkVariable<int> _level;
         [SerializeField] private CharacterState _state;
-        private NetworkVariable <float> _hpValue;
+        private NetworkVariable<float> _hpValue;
         private float _hpMax;
         private float _hpMin;
         private float _damage;
@@ -124,8 +134,8 @@ namespace Project3D.Controller
         [SerializeField] private LayerMask _ballMask;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private LayerMask _wallMask;
-        private NetworkVariable<float> _xAxis;
-        private NetworkVariable<float> _zAxis;
+        private float _xAxis;
+        private float _zAxis;
         private bool _isStiffed;
         private bool _isWeaked;
         [SerializeField] private float _stiffTime = 0.2f;
@@ -135,6 +145,10 @@ namespace Project3D.Controller
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
+
+        //Temp
+        [SerializeField] private GameObject _renderer;
+        [SerializeField] private Canvas _hpUI;
 
 
         public override void OnNetworkSpawn()
@@ -146,8 +160,6 @@ namespace Project3D.Controller
                 PrivateInit();
             }
 
-            
-
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
@@ -156,7 +168,8 @@ namespace Project3D.Controller
             oldPosition = transform.position;
 
             //temp
-            team = InGameManager.instance.blueTeam;
+            team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+            transform.position = InGameManager.instance._spawnPoints[clientID].position;
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
@@ -188,9 +201,9 @@ namespace Project3D.Controller
                 return;
             }
 
-            Debug.Log($"{skillID} use");
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
+
             skill.Init(this);
             skill.Execute();
 
@@ -199,34 +212,10 @@ namespace Project3D.Controller
 
         private void Awake()
         {
-            _xAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-            _zAxis = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-            _animator = GetComponent<Animator>();
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-            _hpValue.OnValueChanged += (prev, current) =>
-            {
-                onHpChanged?.Invoke(current);
-                if (prev < current)
-                {
-                    onHpRecovered?.Invoke(current - prev);
-                }
-                else if (prev > current)
-                {
-                    onHpDepleted?.Invoke(prev - current);
-                }
-                if (current == _hpMax)
-                {
-                    onHpMax?.Invoke();
-                }
-                else if (current == _hpMin)
-                {
-                    onHpMin?.Invoke();
-                }
-
-
-            };
+            _animator = GetComponentInChildren<Animator>();
 
             _rigid = GetComponent<Rigidbody>();
             slot1 = CooltimeSlotUI.instance;
@@ -259,13 +248,14 @@ namespace Project3D.Controller
 
             if (IsGrounded())
             {
-                _rigid.position = new Vector3(_rigid.position.x, 0.0f, _rigid.position.z);
+                transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
 
-                if (_isStiffed == false || state == CharacterState.Locomotion)
+                if (_isStiffed == false)
                 {
-                    _xAxis.Value = Input.GetAxisRaw("Horizontal");
-                    _zAxis.Value = Input.GetAxisRaw("Vertical");
+                    _zAxis = Input.GetAxisRaw("Vertical");
+                    _xAxis = Input.GetAxisRaw("Horizontal");
                 }
+
                 else
                 {
                     if (_stiffTimer < _stiffTime)
@@ -301,12 +291,12 @@ namespace Project3D.Controller
             if (state == CharacterState.Die)
                 return;
 
-            MovePosition(_xAxis.Value, _zAxis.Value);
+            MovePosition(_xAxis, _zAxis);
             GetVelocity();
 
             if (_isStiffed == false)
             {
-                ChangeRotation();
+                ChangeRotation(_xAxis, _zAxis);
             }
         }
 
@@ -314,6 +304,11 @@ namespace Project3D.Controller
         {
             // temp
             TestUI_Hp.testHp.chara = this;
+
+            onDie += () =>
+            {
+                StartCoroutine(C_OnDie());
+            };
 
             _rigid = GetComponent<Rigidbody>();
         }
@@ -345,7 +340,7 @@ namespace Project3D.Controller
                 verticalWallDetected = true;
             }
 
-            if ((horizontalWallDetected == false && verticalWallDetected == false))
+            if ((horizontalWallDetected == false && verticalWallDetected == false) || _isStiffed)
             {
                 Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
 
@@ -379,12 +374,12 @@ namespace Project3D.Controller
             }
         }
 
-        private void ChangeRotation()
+        public void ChangeRotation(float xAixs, float zAxis)
         {
             if (state != CharacterState.Locomotion)
                 return;
 
-            transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
+            _renderer.transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
         }
 
         private void GetVelocity()
@@ -417,7 +412,7 @@ namespace Project3D.Controller
         {
             _animator.SetInteger("state", (int)newState);
             _animator.SetBool("isDirty", true);
-            _state = newState;
+            state = newState;
         }
 
         private bool IsGrounded()
@@ -429,6 +424,24 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
+            DepleteHpServerRpc(amount);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DepleteHpServerRpc(float amount)
+        {
+            hpValue -= amount;
+            onHpDepleted?.Invoke(amount);
+
+            DepleteHpClientRpc(amount);
+        }
+
+        [ClientRpc]
+        public void DepleteHpClientRpc(float amount)
+        {
+            if (IsServer)
+                return;
+
             hpValue -= amount;
             onHpDepleted?.Invoke(amount);
         }
@@ -447,10 +460,6 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
-            //_isStiffed = true;
-            //xAxis = pushDir.x * pushPower;
-            //zAxis = pushDir.z * pushPower;
-
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
@@ -460,6 +469,57 @@ namespace Project3D.Controller
             _isStiffed = true;
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
+        }
+
+        private IEnumerator C_OnDie()
+        {
+            Debug.Log("ondie routine start");
+
+            DisappearServerRpc();
+
+            yield return new WaitForSeconds(2.0f);
+
+            RespawnServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DisappearServerRpc()
+        {
+            _renderer.SetActive(false);
+            _hpUI.enabled = false;
+
+            DisappearClientRpc();
+        }
+
+        [ClientRpc]
+        public void DisappearClientRpc()
+        {
+            _renderer.SetActive(false);
+            _hpUI.enabled = false;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RespawnServerRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            ChangeState(CharacterState.Locomotion);
+            _renderer.SetActive(true);
+            gameObject.SetActive(true);
+            _hpUI.enabled = true;
+            hpValue = _hpMax;
+
+            RespawnClientRpc();
+        }
+
+        [ClientRpc]
+        public void RespawnClientRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            ChangeState(CharacterState.Locomotion);
+            _renderer.SetActive(true);
+            gameObject.SetActive(true);
+            _hpUI.enabled = true;
+            hpValue = _hpMax;
         }
 
         private void OnDrawGizmos()
