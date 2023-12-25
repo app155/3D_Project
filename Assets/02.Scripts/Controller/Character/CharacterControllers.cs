@@ -98,6 +98,9 @@ namespace Project3D.Controller
         public ulong clientID => OwnerClientId;
 
 
+        [SerializeField]public CooltimeSlotUI slot1;
+
+        
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -180,7 +183,10 @@ namespace Project3D.Controller
         public void UseSkill(int skillID)
         {
             if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
-               return;
+            {
+                Debug.Log("CoolT");
+                return;
+            }
 
             Debug.Log($"{skillID} use");
             _skillCoolDownTimeMarks[skillID] = Time.time;
@@ -222,6 +228,8 @@ namespace Project3D.Controller
 
             };
 
+            _rigid = GetComponent<Rigidbody>();
+            slot1 = CooltimeSlotUI.instance;
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -241,14 +249,12 @@ namespace Project3D.Controller
                 return;
 
 
-            if (Input.GetKey(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.Q))
             {
-                UseSkill(_skillIDs[0]);
-            }
 
-            if (Input.GetMouseButtonDown(1))
-            {
-                UseSkill(_skillIDs[1]);
+                UseSkill(1);
+                slot1.slots.data = SkillDataAssets.instance.skillDatum[1];
+                slot1.cooltimeCheckTest();
             }
 
             if (IsGrounded())
@@ -342,6 +348,9 @@ namespace Project3D.Controller
             if ((horizontalWallDetected == false && verticalWallDetected == false))
             {
                 Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
+
+                //Debug.Log($".normalized{moveDir.normalized}");
+                //Debug.Log($"nomalize {Vector3.Normalize(moveDir)}");
 
                 if (_isStiffed)
                     transform.position += moveDir * (Convert.ToInt32(_isWeaked) + 1) * _speed * Time.fixedDeltaTime;
