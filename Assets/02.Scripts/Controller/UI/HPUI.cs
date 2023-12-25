@@ -21,7 +21,7 @@ namespace Project3D.UI
             _hpBar.minValue = hp.hpMin;
             _hpBar.maxValue = hp.hpMax;
             _hpBar.value = hp.hpValue;
-            //_Lv.value = hp.Lv;
+            
 
             hp.onHpChanged += (value) => _hpBar.value = value;
             //hp.onLvChanged += (value) => _Lv.value = value;
