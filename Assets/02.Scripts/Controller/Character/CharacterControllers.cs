@@ -36,7 +36,6 @@ namespace Project3D.Controller
 
                 if (value == CharacterState.Die)
                 {
-                    Debug.Log("diestate");
                     onDie?.Invoke();
                 }
                     
@@ -241,13 +240,21 @@ namespace Project3D.Controller
             if (Input.GetKeyDown(KeyCode.Q))
             {
 
-                UseSkill(1);
-                slot1.slots.data = SkillDataAssets.instance.skillDatum[1];
+                UseSkill(_skillIDs[0]);
+                slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
                 slot1.cooltimeCheckTest();
+            }
+            
+            if (Input.GetMouseButtonDown(1))
+            {
+
+                UseSkill(_skillIDs[1]);
+                //slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
+                //slot1.cooltimeCheckTest();
             }
 
             if (IsGrounded())
-            {
+            {                
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
 
                 if (_isStiffed == false)

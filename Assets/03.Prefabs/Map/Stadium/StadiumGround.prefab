@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6917926873357762526}
   - component: {fileID: 2887794772396489666}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BTGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -63,7 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 702343268503431094}
   - component: {fileID: 9084403953899479245}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: RTGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9038320754646457140}
   - component: {fileID: 3030917437411534991}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -196,7 +196,7 @@ Transform:
   - {fileID: 6917926873357762526}
   - {fileID: 702343268503431094}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 179.966, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3969418009623876473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2406,7 +2406,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 3738
+  m_VersionIndex: 3744
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
