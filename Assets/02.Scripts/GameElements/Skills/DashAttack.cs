@@ -89,11 +89,13 @@ namespace Project3D.GameElements.Skill
         {
             Debug.Log("dash coroutine start");
 
+
             while (castTimer > 0)
             {
-                castTimer -= Time.deltaTime;
+                castTimer -= Time.fixedDeltaTime;
                 owner.xAxis = direction.x * _dashSpeed;
                 owner.zAxis = direction.z * _dashSpeed;
+
                 yield return null;
             }
 
