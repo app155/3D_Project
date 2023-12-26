@@ -148,6 +148,7 @@ namespace Project3D.Controller
         //Temp
         [SerializeField] private GameObject _renderer;
         [SerializeField] private Canvas _hpUI;
+        [SerializeField] private ParticleSystem _dieEffect;
 
 
         public override void OnNetworkSpawn()
@@ -239,7 +240,6 @@ namespace Project3D.Controller
 
             if (Input.GetKeyDown(KeyCode.Q))
             {
-
                 UseSkill(_skillIDs[0]);
                 slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
                 slot1.cooltimeCheckTest();
@@ -351,9 +351,6 @@ namespace Project3D.Controller
             {
                 Vector3 moveDir = new Vector3(xAxis, 0.0f, zAxis);
 
-                //Debug.Log($".normalized{moveDir.normalized}");
-                //Debug.Log($"nomalize {Vector3.Normalize(moveDir)}");
-
                 if (_isStiffed)
                     transform.position += moveDir * (Convert.ToInt32(_isWeaked) + 1) * _speed * Time.fixedDeltaTime;
 
@@ -431,6 +428,8 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
+            hpValue -= amount;
+
             DepleteHpServerRpc(amount);
         }
 
@@ -494,6 +493,8 @@ namespace Project3D.Controller
         {
             _renderer.SetActive(false);
             _hpUI.enabled = false;
+            _dieEffect.gameObject.SetActive(true);
+            _dieEffect.Play();
 
             DisappearClientRpc();
         }
@@ -503,6 +504,8 @@ namespace Project3D.Controller
         {
             _renderer.SetActive(false);
             _hpUI.enabled = false;
+            _dieEffect.gameObject.SetActive(true);
+            _dieEffect.Play();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -514,6 +517,7 @@ namespace Project3D.Controller
             gameObject.SetActive(true);
             _hpUI.enabled = true;
             hpValue = _hpMax;
+            _dieEffect.gameObject.SetActive(false);
 
             RespawnClientRpc();
         }
@@ -527,6 +531,7 @@ namespace Project3D.Controller
             gameObject.SetActive(true);
             _hpUI.enabled = true;
             hpValue = _hpMax;
+            _dieEffect.gameObject.SetActive(false);
         }
 
         private void OnDrawGizmos()
