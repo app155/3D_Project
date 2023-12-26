@@ -41,7 +41,7 @@ public class Hit : Skill
                 Debug.Log("Hit Ball");
             }
 
-            owner.transform.LookAt(hit.point);
+            owner.ChangeRotation(hit.point.x, hit.point.z);
         }
     }
 

@@ -83,6 +83,8 @@ namespace Project3D.GameElements.Skill
                 owner.transform.LookAt(hit.point);
                 StartCoroutine(C_Execute(_executeDir));
             }
+
+            owner.ChangeRotation(hit.point.x, hit.point.z);
         }
 
         IEnumerator C_Execute(Vector3 direction)
