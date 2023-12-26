@@ -8,15 +8,22 @@ namespace Project3D.Lobbies
         public string Id { get; set; }
         public string Gametag {  get; set; }
         public bool IsReady { get; set; }
+        public string NickName { get; set; }
 
+        public int Team {  get; set; }
+
+        private int _team;
+        private string _nickName;
         private string _id;
         private string _gametag;
         private bool _isReady;
 
-        public void Initialize(string id, string gametag)
+        public void Initialize(string id, string gametag, string nickName)
         {
             _id = id;
             _gametag = gametag;
+            _nickName = nickName;
+            _team = 0;
         }
 
         public void Initialize(Dictionary<string, PlayerDataObject> playerData)
@@ -35,9 +42,17 @@ namespace Project3D.Lobbies
                 _gametag = playerData["Gametag"].Value;
 
             }
+            if (playerData.ContainsKey("NickName"))
+            {
+                _nickName = playerData["NickName"].Value;
+            }
             if (playerData.ContainsKey("IsReady"))
             {
                 _isReady = playerData["IsReady"].Value == "True";
+            }
+            if (playerData.ContainsKey("Team"))
+            {
+                _team = int.Parse(playerData["Team"].Value);
             }
         }
 
@@ -47,7 +62,9 @@ namespace Project3D.Lobbies
             {
                 { "Id", _id },
                 { "Gametag", _gametag },
-                { "IsReady", _isReady.ToString() }
+                { "IsReady", _isReady.ToString() },
+                { "NickName", _nickName },
+                { "Team", _team.ToString() }
             };
         }
 

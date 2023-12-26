@@ -36,7 +36,12 @@ namespace Project3D.Lobbies
             return _lobby?.LobbyCode;
             
         }
-        public async Task<bool> CreateLobby(int maxPlayers, bool isPrivate, Dictionary<string, string> data)
+        public string GetLobbyName()
+        {
+           
+            return _lobby.Name;
+        }
+        public async Task<bool> CreateLobby(string roomName, int maxPlayers, bool isPrivate, Dictionary<string, string> data)
         {
             Dictionary<string, PlayerDataObject> playerData = SerializePlayerData(data);
 
@@ -44,13 +49,15 @@ namespace Project3D.Lobbies
 
             CreateLobbyOptions options = new CreateLobbyOptions()
             {
+                
                 IsPrivate = isPrivate,
                 Player = player,
             };
 
             try
             {
-                _lobby = await LobbyService.Instance.CreateLobbyAsync("Lobby", maxPlayers, options);
+                _lobby = await LobbyService.Instance.CreateLobbyAsync(roomName, maxPlayers, options);
+                
             }
 
             catch (Exception)
@@ -90,7 +97,7 @@ namespace Project3D.Lobbies
                 if (newLobby.LastUpdated > _lobby.LastUpdated)
                 {
                     _lobby = newLobby;
-                    GameFramework.LobbyEvent.OnLobbyUpdated.Invoke(_lobby);
+                    GameFramework.LobbyEvent.OnLobbyUpdated?.Invoke(_lobby);
                 }
 
                 yield return new WaitForSecondsRealtime(waitSeconds);
@@ -139,6 +146,27 @@ namespace Project3D.Lobbies
             return true;
         }
 
+        internal async Task<bool> JoinLobbyById(string _lobbyId, Dictionary<string, string> playerData)
+        {
+            JoinLobbyByIdOptions options = new JoinLobbyByIdOptions();
+            Player player = new Player(AuthenticationService.Instance.PlayerId, null, SerializePlayerData(playerData));
+
+            options.Player = player;
+
+            try
+            {
+                _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(_lobbyId, options);
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            _refreshLobbyCoroutine = StartCoroutine(C_RefreshLobby(_lobby.Id, 1.0f));
+            return true;
+        }
+
         public List<Dictionary<string, PlayerDataObject>> GetPlayerData()
         {
             List<Dictionary<string, PlayerDataObject>> data = new List<Dictionary<string, PlayerDataObject>> ();
@@ -149,6 +177,27 @@ namespace Project3D.Lobbies
 
             }
             return data;
+        }
+
+        public async Task<bool> UpdatePlayerData(string playerId, Dictionary<string, string> data)
+        {
+            Dictionary<string, PlayerDataObject> playerData = SerializePlayerData(data);
+            UpdatePlayerOptions options = new UpdatePlayerOptions()
+            {
+                Data = playerData
+            };
+
+            try
+            {
+                await LobbyService.Instance.UpdatePlayerAsync(_lobby.Id, playerId, options);
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+
+            GameFramework.LobbyEvent.OnLobbyUpdated(_lobby);
+            return true;    
         }
     }
 }
