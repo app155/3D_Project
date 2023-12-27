@@ -158,18 +158,22 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
+                
             }
 
+            //temp
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
-            _hpValue.Value = 80.0f; // temp
             onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
             //temp
             team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
-            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            ReSetUp();
+            InGameManager.instance.onStandbyState += ReSetUp;
+            
+
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
@@ -215,6 +219,7 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
             _hpValue.OnValueChanged += (prev, current) =>
             {
                 onHpChanged?.Invoke(current);
@@ -319,12 +324,12 @@ namespace Project3D.Controller
             if (state == CharacterState.Die)
                 return;
 
-            MovePosition(_xAxis, _zAxis);
+            MovePosition(xAxis, zAxis);
             GetVelocity();
 
             if (_isStiffed == false)
             {
-                ChangeRotation(_xAxis, _zAxis);
+                ChangeRotation(xAxis, zAxis);
             }
         }
 
@@ -343,7 +348,10 @@ namespace Project3D.Controller
         
         public virtual void ReSetUp()
         {
-            _hpValue.Value = _hpMax;
+            RecoverHp(hpMax);
+            xAxis = 0.0f;
+            zAxis = 0.0f;
+            Spawn();
         }
 
         private void MovePosition(float xAxis, float zAxis)
@@ -494,6 +502,10 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
+            _isStiffed = true;
+            xAxis = pushDir.x * pushPower;
+            zAxis = pushDir.z * pushPower;
+
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
@@ -538,7 +550,27 @@ namespace Project3D.Controller
             _renderer.SetActive(false);
             _hpUI.enabled = false;
             _dieEffect.gameObject.SetActive(true);
+            xAxis = 0.0f;
+            zAxis = 0.0f;
             _dieEffect.Play();
+        }
+
+        public void Spawn()
+        {
+            SpawnServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnServerRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            SpawnClientRpc();
+        }
+
+        [ClientRpc]
+        public void SpawnClientRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[clientID].position;
         }
 
         public void Respawn()
