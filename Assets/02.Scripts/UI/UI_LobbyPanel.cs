@@ -5,7 +5,7 @@ using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.UI;
 using Project3D.Lobbies;
-using TMPro;
+
 namespace Project3D.UI
 {
     public class UI_LobbyPanel : UIMonobehaviour

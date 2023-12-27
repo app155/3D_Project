@@ -5,10 +5,14 @@ namespace Project3D.Lobbies
 {
     public class LobbyPlayerData
     {
-        public string Id { get; set; }
-        public string Gametag {  get; set; }
-        public bool IsReady { get; set; }
-        public string NickName { get; set; }
+        public string Id => _id;
+        public string Gametag => _gametag;
+        public bool IsReady
+        {
+            get => _isReady;
+            set => _isReady = value;
+        }
+        public string NickName => _nickName;
 
         public int Team {  get; set; }
 

@@ -41,7 +41,7 @@ namespace Project3D.Lobbies
            
             return _lobby.Name;
         }
-        public async Task<bool> CreateLobby(string roomName, int maxPlayers, bool isPrivate, Dictionary<string, string> data)
+        public async Task<bool> CreateLobby(string roomName, int maxPlayers, bool isPrivate, Dictionary<string, string> data, Dictionary<string, string> lobbyData)
         {
             Dictionary<string, PlayerDataObject> playerData = SerializePlayerData(data);
 
@@ -49,7 +49,7 @@ namespace Project3D.Lobbies
 
             CreateLobbyOptions options = new CreateLobbyOptions()
             {
-                
+                Data = SerializeLobbyData(lobbyData),
                 IsPrivate = isPrivate,
                 Player = player,
             };
@@ -97,7 +97,7 @@ namespace Project3D.Lobbies
                 if (newLobby.LastUpdated > _lobby.LastUpdated)
                 {
                     _lobby = newLobby;
-                    GameFramework.LobbyEvent.OnLobbyUpdated?.Invoke(_lobby);
+                    LobbyEvent.OnLobbyUpdated?.Invoke(_lobby);
                 }
 
                 yield return new WaitForSecondsRealtime(waitSeconds);
@@ -117,6 +117,17 @@ namespace Project3D.Lobbies
             return playerData;
         }
 
+        private Dictionary<string, DataObject> SerializeLobbyData(Dictionary<string, string> data)
+        {
+            Dictionary<string, DataObject> lobbyData = new Dictionary<string, DataObject>();
+            foreach(var(key, value) in data)
+            {
+                lobbyData.Add(key, new DataObject(
+                    visibility: DataObject.VisibilityOptions.Member,
+                    value : value));
+            }
+            return lobbyData;
+        }
         private void OnApplicationQuit()
         {
             if (_lobby != null && _lobby.HostId == AuthenticationService.Instance.PlayerId)
@@ -169,7 +180,7 @@ namespace Project3D.Lobbies
 
         public List<Dictionary<string, PlayerDataObject>> GetPlayerData()
         {
-            List<Dictionary<string, PlayerDataObject>> data = new List<Dictionary<string, PlayerDataObject>> ();
+            List<Dictionary<string, PlayerDataObject>> data = new List<Dictionary<string, PlayerDataObject>>();
 
             foreach(Player player in _lobby.Players)
             {
@@ -179,12 +190,14 @@ namespace Project3D.Lobbies
             return data;
         }
 
-        public async Task<bool> UpdatePlayerData(string playerId, Dictionary<string, string> data)
+        public async Task<bool> UpdatePlayerData(string playerId, Dictionary<string, string> data, string allocationId = default, string connectionData = default)
         {
             Dictionary<string, PlayerDataObject> playerData = SerializePlayerData(data);
             UpdatePlayerOptions options = new UpdatePlayerOptions()
             {
-                Data = playerData
+                Data = playerData,
+                AllocationId = allocationId,
+                ConnectionInfo = connectionData
             };
 
             try
@@ -196,8 +209,36 @@ namespace Project3D.Lobbies
                 return false;
             }
 
-            GameFramework.LobbyEvent.OnLobbyUpdated(_lobby);
+            LobbyEvent.OnLobbyUpdated(_lobby);
             return true;    
+        }
+
+        public async Task<bool> UpdateLobbyData(Dictionary<string, string> data)
+        {
+            Dictionary<string ,DataObject> lobbyData = SerializeLobbyData(data);
+
+            UpdateLobbyOptions options = new UpdateLobbyOptions()
+            {
+                Data = lobbyData
+            };
+
+            try
+            {
+                await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, options);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            LobbyEvent.OnLobbyUpdated(_lobby);
+            return true;
+
+        }
+
+        public string GetHostId()
+        {
+            return _lobby.HostId;
         }
     }
 }

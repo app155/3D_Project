@@ -4,7 +4,7 @@ namespace Project3D.Lobbies
 {
     public static class LobbyEvent
     {
-        public delegate void LobbyUpdated();
+        public delegate void LobbyUpdated(Lobby lobby);
         public static LobbyUpdated OnLobbyUpdated;
 
     }

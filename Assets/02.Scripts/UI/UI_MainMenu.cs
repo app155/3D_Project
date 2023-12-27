@@ -40,14 +40,15 @@ namespace Project3D.UI
         {
             if (_nickNameText.text != null)
             {
+                bool succeeded = await GameLobbyManager.instance.CreateLobby(_roomNameText.text, 6, _nickNameText.text);
                 _mainScreen.SetActive(false);
                 _createRoomScreen.SetActive(false);
-                bool succeeded = await GameLobbyManager.instance.CreateLobby(_roomNameText.text, 6, _nickNameText.text);
+
 
                 if (succeeded)
                 {
                     // open LobbyUI
-                    IUI ui = UIManager.instance.Get<UI_LobbyPanel>();
+                    IUI ui = UIManager.instance.Get <LobbyUI>();
                     ui.Show();
                 }
             }
@@ -79,7 +80,7 @@ namespace Project3D.UI
             if (succeeded)
             {
                 // open LobbyUI
-                IUI ui = UIManager.instance.Get<UI_LobbyPanel>();
+                IUI ui = UIManager.instance.Get<LobbyUI>();
                 ui.Show();
             }
         }
