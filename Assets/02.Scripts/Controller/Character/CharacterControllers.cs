@@ -215,10 +215,31 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-            _animator = GetComponentInChildren<Animator>();
+            _hpValue.OnValueChanged += (prev, current) =>
+            {
+                onHpChanged?.Invoke(current);
+                if (prev < current)
+                {
+                    onHpRecovered?.Invoke(current - prev);
+                }
+                else if (prev > current)
+                {
+                    onHpDepleted?.Invoke(prev - current);
+                }
+                if (current == _hpMax)
+                {
+                    onHpMax?.Invoke();
+                }
+                else if (current == _hpMin)
+                {
+                    onHpMin?.Invoke();
+                }
+            };
+
 
             _rigid = GetComponent<Rigidbody>();
             slot1 = CooltimeSlotUI.instance;
+            _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -428,8 +449,6 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            hpValue -= amount;
-
             DepleteHpServerRpc(amount);
         }
 
@@ -439,7 +458,7 @@ namespace Project3D.Controller
             hpValue -= amount;
             onHpDepleted?.Invoke(amount);
 
-            DepleteHpClientRpc(amount);
+            //DepleteHpClientRpc(amount);
         }
 
         [ClientRpc]
@@ -454,9 +473,18 @@ namespace Project3D.Controller
 
         public void RecoverHp(float amount)
         {
+            RecoverHpServerRpc(amount);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RecoverHpServerRpc(float amount)
+        {
             hpValue += amount;
             onHpRecovered?.Invoke(amount);
+
+            //DepleteHpClientRpc(amount);
         }
+
         public void LvUp(int amount)
         {
             LvValue += amount;
@@ -483,9 +511,14 @@ namespace Project3D.Controller
 
             DisappearServerRpc();
 
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(3.0f);
 
             RespawnServerRpc();
+        }
+
+        public void Disappear()
+        {
+            DisappearServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -508,6 +541,12 @@ namespace Project3D.Controller
             _dieEffect.Play();
         }
 
+        public void Respawn()
+        {
+            RecoverHp(hpMax);
+            RespawnServerRpc();
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void RespawnServerRpc()
         {
@@ -516,8 +555,8 @@ namespace Project3D.Controller
             _renderer.SetActive(true);
             gameObject.SetActive(true);
             _hpUI.enabled = true;
-            hpValue = _hpMax;
             _dieEffect.gameObject.SetActive(false);
+            RecoverHp(hpMax);
 
             RespawnClientRpc();
         }
@@ -530,7 +569,6 @@ namespace Project3D.Controller
             _renderer.SetActive(true);
             gameObject.SetActive(true);
             _hpUI.enabled = true;
-            hpValue = _hpMax;
             _dieEffect.gameObject.SetActive(false);
         }
 
