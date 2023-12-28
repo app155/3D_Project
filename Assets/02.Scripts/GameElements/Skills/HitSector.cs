@@ -7,7 +7,6 @@ using System;
 using UnityEditor;
 using System.Collections;
 using DG.Tweening;
-using TreeEditor;
 
 public class HitSector : Skill
 {

@@ -15,7 +15,7 @@ namespace Project3D.GameElements.Skill
         [SerializeField] private float _ballPushPower = 10.0f;
         [SerializeField] private float _characterPushPower = 4.0f;
         private float _atkGain;
-        private float _dashSpeed = 4.0f;
+        private float _dashSpeed = 5.0f;
         private bool _isExecuting;
         private Vector3 _executeDir;
         private HashSet<GameObject> _hits;
@@ -53,6 +53,7 @@ namespace Project3D.GameElements.Skill
                     {
                         if (other.TryGetComponent(out IHp target))
                         {
+                            Debug.Log($"owner : {owner.clientID} knockback {chara.clientID}");
                             target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, owner.clientID);
                             Attack(chara.clientID);
                             _hits.Add(other.gameObject);
@@ -91,10 +92,12 @@ namespace Project3D.GameElements.Skill
         {
             Debug.Log("dash coroutine start");
 
+            float startTime = Time.time;
 
-            while (castTimer > 0)
+            while (Time.time - startTime < castTime)
             {
-                castTimer -= Time.fixedDeltaTime;
+                Debug.Log(Time.time - startTime);
+
                 owner.xAxis = direction.x * _dashSpeed;
                 owner.zAxis = direction.z * _dashSpeed;
 

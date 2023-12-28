@@ -62,9 +62,13 @@ namespace Project3D.Controller
         [ClientRpc]
         public void ShowScorerClientRpc()
         {
-            _scorerZoomCam.Priority = 11;
-            _ballFollowCam.Priority = 10;
-            _scorerZoomCam.Follow = InGameManager.instance.player[InGameManager.instance.scorerID].transform;
+            if (InGameManager.instance.player.ContainsKey(InGameManager.instance.scorerID))
+            {
+                _scorerZoomCam.Priority = 11;
+                _ballFollowCam.Priority = 10;
+                _scorerZoomCam.Follow = InGameManager.instance.player[InGameManager.instance.scorerID].transform;
+            }
+
             _director.Play();
             _ballFollowCam.transform.position = new Vector3(0.0f, _ballFollowCam.transform.position.y, _ballFollowCam.transform.position.z);
         }

@@ -136,8 +136,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   description: 
-  castTimer: 0.2
-  castTime: 0.2
+  castTimer: 0.5
+  castTime: 0.5
   _ballPushPower: 10
   _characterPushPower: 4
 --- !u!114 &723932814758821314

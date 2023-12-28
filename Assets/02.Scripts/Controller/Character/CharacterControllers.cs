@@ -158,18 +158,22 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
+                
             }
 
+            //temp
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
             _hpMin = 0;
-            _hpValue.Value = 80.0f; // temp
             onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
             //temp
             team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
-            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            ReSetUp();
+            InGameManager.instance.onStandbyState += ReSetUp;
+            
+
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
@@ -215,10 +219,32 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-            _animator = GetComponentInChildren<Animator>();
+
+            _hpValue.OnValueChanged += (prev, current) =>
+            {
+                onHpChanged?.Invoke(current);
+                if (prev < current)
+                {
+                    onHpRecovered?.Invoke(current - prev);
+                }
+                else if (prev > current)
+                {
+                    onHpDepleted?.Invoke(prev - current);
+                }
+                if (current == _hpMax)
+                {
+                    onHpMax?.Invoke();
+                }
+                else if (current == _hpMin)
+                {
+                    onHpMin?.Invoke();
+                }
+            };
+
 
             _rigid = GetComponent<Rigidbody>();
             slot1 = CooltimeSlotUI.instance;
+            _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
             {
@@ -298,12 +324,12 @@ namespace Project3D.Controller
             if (state == CharacterState.Die)
                 return;
 
-            MovePosition(_xAxis, _zAxis);
+            MovePosition(xAxis, zAxis);
             GetVelocity();
 
             if (_isStiffed == false)
             {
-                ChangeRotation(_xAxis, _zAxis);
+                ChangeRotation(xAxis, zAxis);
             }
         }
 
@@ -322,7 +348,10 @@ namespace Project3D.Controller
         
         public virtual void ReSetUp()
         {
-            _hpValue.Value = _hpMax;
+            RecoverHp(hpMax);
+            xAxis = 0.0f;
+            zAxis = 0.0f;
+            Spawn();
         }
 
         private void MovePosition(float xAxis, float zAxis)
@@ -428,8 +457,6 @@ namespace Project3D.Controller
 
         public void DepleteHp(float amount)
         {
-            hpValue -= amount;
-
             DepleteHpServerRpc(amount);
         }
 
@@ -439,7 +466,7 @@ namespace Project3D.Controller
             hpValue -= amount;
             onHpDepleted?.Invoke(amount);
 
-            DepleteHpClientRpc(amount);
+            //DepleteHpClientRpc(amount);
         }
 
         [ClientRpc]
@@ -454,9 +481,18 @@ namespace Project3D.Controller
 
         public void RecoverHp(float amount)
         {
+            RecoverHpServerRpc(amount);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RecoverHpServerRpc(float amount)
+        {
             hpValue += amount;
             onHpRecovered?.Invoke(amount);
+
+            //DepleteHpClientRpc(amount);
         }
+
         public void LvUp(int amount)
         {
             LvValue += amount;
@@ -466,6 +502,10 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void KnockbackServerRpc(Vector3 pushDir, float pushPower, ulong clientID, ServerRpcParams rpcParams = default)
         {
+            _isStiffed = true;
+            xAxis = pushDir.x * pushPower;
+            zAxis = pushDir.z * pushPower;
+
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
 
@@ -483,9 +523,14 @@ namespace Project3D.Controller
 
             DisappearServerRpc();
 
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(3.0f);
 
             RespawnServerRpc();
+        }
+
+        public void Disappear()
+        {
+            DisappearServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -505,7 +550,33 @@ namespace Project3D.Controller
             _renderer.SetActive(false);
             _hpUI.enabled = false;
             _dieEffect.gameObject.SetActive(true);
+            xAxis = 0.0f;
+            zAxis = 0.0f;
             _dieEffect.Play();
+        }
+
+        public void Spawn()
+        {
+            SpawnServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnServerRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            SpawnClientRpc();
+        }
+
+        [ClientRpc]
+        public void SpawnClientRpc()
+        {
+            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+        }
+
+        public void Respawn()
+        {
+            RecoverHp(hpMax);
+            RespawnServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -516,8 +587,8 @@ namespace Project3D.Controller
             _renderer.SetActive(true);
             gameObject.SetActive(true);
             _hpUI.enabled = true;
-            hpValue = _hpMax;
             _dieEffect.gameObject.SetActive(false);
+            RecoverHp(hpMax);
 
             RespawnClientRpc();
         }
@@ -530,7 +601,6 @@ namespace Project3D.Controller
             _renderer.SetActive(true);
             gameObject.SetActive(true);
             _hpUI.enabled = true;
-            hpValue = _hpMax;
             _dieEffect.gameObject.SetActive(false);
         }
 
