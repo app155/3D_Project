@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e4fab560b5195547a0b145ec7a8c978, type: 3}
-  m_Name: HitSector
+  m_Name: Defend
   m_EditorClassIdentifier: 
-  id: 20
-  coolDownTime: 2
+  id: 22
+  coolDownTime: 10
   description: 
-  skill: {fileID: 8001297072544061546, guid: 71c33465148f3e54db1f2cb22d19d1d0, type: 3}
-  skillRatio: 10
-  Range: {fileID: 3487944321762587485, guid: 58c5669341e0a5b46b9f75ddb200c306, type: 3}
-  icon: {fileID: 6019335580879616647, guid: cbbbddd0105aba049a7bd60b3eccfa37, type: 3}
+  skill: {fileID: 6251436227082604118, guid: d729dd78a8f5925439001506a3bebcf8, type: 3}
+  skillRatio: 0
+  Range: {fileID: 912858709172159029, guid: 90078d96c7eedd64491434fd0defb7a1, type: 3}
+  icon: {fileID: 6019335580879616647, guid: e8235fb2a48473b41b890ca978ff72ef, type: 3}

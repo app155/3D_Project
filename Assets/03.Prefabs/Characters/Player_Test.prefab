@@ -2123,8 +2123,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slot1: {fileID: 0}
+  ch: {fileID: 11400000, guid: c343af667ed07194da12f76aa74f2b26, type: 2}
   _state: 0
-  _skillIDs: 1400000015000000
+  _skillIDs: 1400000016000000
   _speed: 3
   _enemyMask:
     serializedVersion: 2

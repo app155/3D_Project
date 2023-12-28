@@ -4,12 +4,9 @@ using UnityEngine;
 using Unity.Netcode;
 using Project3D.GameElements.Skill;
 using System;
-using System.Security.Cryptography;
-using UnityEngine.UIElements;
 using Project3D.GameSystem;
 using Project3D.Animations;
-using Unity.Netcode.Components;
-using Project3D.UI;
+using UnityEngine.UI;
 
 namespace Project3D.Controller
 {
@@ -22,6 +19,7 @@ namespace Project3D.Controller
         Ceremony,
         Attack = 20,
         DashAttack = 21,
+        Defend=22,
         Die,
     }
     public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
@@ -128,8 +126,7 @@ namespace Project3D.Controller
 
 
         [SerializeField]public CooltimeSlotUI slot1;
-
-        
+        [SerializeField] CharacterData ch;
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -227,11 +224,6 @@ namespace Project3D.Controller
 
         public void UseSkill(int skillID)
         {
-            if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
-            {
-                Debug.Log("CoolT");
-                return;
-            }
 
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
@@ -247,7 +239,6 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
             _hpValue.OnValueChanged += (prev, current) =>
             {
                 onHpChanged?.Invoke(current);
@@ -272,6 +263,9 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
             slot1 = CooltimeSlotUI.instance;
+            slot1.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
+            slot1.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
+            ProfileLoading();
             _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
@@ -285,7 +279,15 @@ namespace Project3D.Controller
                 _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
-
+        public void ProfileLoading()
+        {
+            Image profileImage = slot1.profile.GetComponent<Image>();
+            profileImage.material = ch.profile.material;
+            Image Skill1 = slot1.slot1._icon.GetComponent<Image>();
+            Image Skill2 = slot1.slot2._icon.GetComponent<Image>();
+            Skill1.material = SkillDataAssets.instance.skillDatum[_skillIDs[0]].icon.material;
+            Skill2.material = SkillDataAssets.instance.skillDatum[_skillIDs[1]].icon.material;
+        }
         private void Update()
         {
             if (!IsOwner)
@@ -376,7 +378,7 @@ namespace Project3D.Controller
                 }
             });
 
-            // °øÅë
+            // ï¿½ï¿½ï¿½ï¿½
             InputSystem.instance.maps["Player"].RegisterMouseDownAction(0, () =>
             {
                 UseSkill(_skillIDs[0]);
@@ -388,7 +390,7 @@ namespace Project3D.Controller
                 UseSkill(_skillIDs[1]);
             });
 
-            // 2¹øÂ°
+            // 2ï¿½ï¿½Â°
             InputSystem.instance.maps["Player"].RegisterKeyDownAction(KeyCode.LeftShift, () =>
             {
                 UseSkill(_skillIDs[2]);
