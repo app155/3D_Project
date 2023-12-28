@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6822556934314360622}
   - component: {fileID: 5090573577088221585}
   - component: {fileID: 3452787423483174658}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 2718542854930001523}
   - component: {fileID: 2715948306001856784}
   - component: {fileID: 4898846659133667822}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: DWall_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -300,7 +300,7 @@ Transform:
   - {fileID: 9051734292881814581}
   - {fileID: 1317970354621658923}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 179.966, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6190830629932138817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1555,7 +1555,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 4817
+  m_VersionIndex: 4823
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1655,7 +1655,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -1671,7 +1671,7 @@ GameObject:
   - component: {fileID: 1142061175383960288}
   - component: {fileID: 5091899564755056114}
   - component: {fileID: 5906928415148331373}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BTGWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1746,7 +1746,7 @@ GameObject:
   - component: {fileID: 6018551872132808271}
   - component: {fileID: 1070941228472613721}
   - component: {fileID: 7494629143001927862}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: DWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1820,7 +1820,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9051734292881814581}
   - component: {fileID: 7850557215203361054}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BTGWall_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1873,7 +1873,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1317970354621658923}
   - component: {fileID: 1550213795807145126}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RTGWall_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1927,7 +1927,7 @@ GameObject:
   - component: {fileID: 8230905955720016584}
   - component: {fileID: 7605668427886139171}
   - component: {fileID: 6484090396016059609}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RTGWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}

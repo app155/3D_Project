@@ -80,15 +80,13 @@ public class HitSector : Skill
 
     private void OnDrawGizmos()
     {
-#if UNITY_EDITOR
-        Handles.color = new UnityEngine.Color(1f,0f,0f);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
-        {
-            Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, angle / 2, 2f);
-            Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
-        }
-#endif
+        //Handles.color = new UnityEngine.Color(1f,0f,0f);
+        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
+        //{
+        //    Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, angle / 2, 2f);
+        //    Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
+        //}
     }
 
     IEnumerator SkillRange()
