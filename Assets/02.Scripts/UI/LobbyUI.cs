@@ -27,16 +27,17 @@ namespace Project3D.UI
         private void OnEnable()
         {
             _readyButton.onClick.AddListener(OnReadyPressed);
+
             if (GameLobbyManager.instance.IsHost)
             {
                 _leftButton.onClick.AddListener(OnLeftButtonClicked);
                 _rightButton.onClick.AddListener(OnRightButtonClicked);
                 _startButton.onClick.AddListener(OnstartButtonClicked);
-                Lobbies.GameFramework.LobbyEvent.OnLobbyReady += OnlobbyReady;
+                Lobbies.GameFramework.LobbyEvent.OnLobbyReady += OnLobbyReady;
             }
-            
-                
+
             Lobbies.GameFramework.LobbyEvent.OnLobbyUpdated += OnLobbyUpdated;
+
         }
 
         private void OnDisable()
@@ -47,9 +48,9 @@ namespace Project3D.UI
             _startButton.onClick.RemoveListener(OnstartButtonClicked);
 
             Lobbies.GameFramework.LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
-            Lobbies.GameFramework.LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
+            Lobbies.GameFramework.LobbyEvent.OnLobbyReady -= OnLobbyReady;
         }
-        private void Start()
+        private async void Start()
         {
             _lobbyCodeText.text = $"Lobby code : {GameLobbyManager.instance.GetLobbyCode()}";    
             _lobbyNameText.text = $"Title : {GameLobbyManager.instance.GetLobbyName()}";
@@ -58,6 +59,10 @@ namespace Project3D.UI
             {
                 _leftButton.gameObject.SetActive(false);
                 _rightButton.gameObject.SetActive(false); 
+            }
+            else
+            {
+                 await GameLobbyManager.instance.SetSelectedMap(_currentMapIndex, _mapSelectionData.maps[_currentMapIndex].sceneName);
             }
         }
 
@@ -108,7 +113,7 @@ namespace Project3D.UI
             UpdateMap();
         }
 
-        private void OnlobbyReady()
+        private void OnLobbyReady()
         {
             _startButton.gameObject.SetActive(true);    
         }

@@ -16,8 +16,8 @@ namespace Project3D.Lobbies
 
         public string RelayJoinCode
         {
-            get => RelayJoinCode;
-            set => RelayJoinCode = value;
+            get => _relayJoinCode;
+            set => _relayJoinCode = value;
         }
 
         public string SceneName

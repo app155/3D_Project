@@ -17,6 +17,8 @@ namespace Project3D.Lobbies
 
         private LobbyData _lobbyData;
         private int _maxNumberOfPlayers;
+        private bool _inGame = false;
+
         public bool IsHost => _localLobbyPlayerData.Id == LobbyManager.instance.GetHostId();
 
         private void OnEnable()
@@ -124,7 +126,7 @@ namespace Project3D.Lobbies
                 GameFramework.LobbyEvent.OnLobbyReady?.Invoke();
             }
 
-            if(_lobbyData.RelayJoinCode != default) 
+            if(_lobbyData.RelayJoinCode != default && !_inGame) 
             {
                 await JoinRelayServer(_lobbyData.RelayJoinCode);
                 SceneManager.LoadSceneAsync(_lobbyData.SceneName);
@@ -164,6 +166,8 @@ namespace Project3D.Lobbies
         {
             string relayJoinCode = await RelayManager.Instance.CreateRelay(_maxNumberOfPlayers);
 
+            _inGame = true;
+
             _lobbyData.RelayJoinCode = relayJoinCode;
             await LobbyManager.instance.UpdateLobbyData(_lobbyData.Serialize());
 
@@ -176,9 +180,11 @@ namespace Project3D.Lobbies
 
         private async Task<bool> JoinRelayServer(string relayJoinCode)
         {
+            _inGame = true;
             await RelayManager.Instance.JoinRelay(relayJoinCode);
             string allocationId = RelayManager.Instance.GetAllocationId();
             string connectionData = RelayManager.Instance.GetConnectionData();
+            _localLobbyPlayerData.IsReady = false;
             await LobbyManager.instance.UpdatePlayerData(_localLobbyPlayerData.Id, _localLobbyPlayerData.Serialize(), allocationId, connectionData);
             return true;
         }
