@@ -24,7 +24,7 @@ namespace Project3D.Controller
         DashAttack = 21,
         Die,
     }
-    public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
+    public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
     {
         public CharacterState state
         {
@@ -99,6 +99,28 @@ namespace Project3D.Controller
             set => _zAxis = value;
         }
 
+        public int score
+        {
+            get => _score;
+            set
+            {
+                onScore?.Invoke(clientID);
+
+                _score = value;
+            }
+        }
+
+        public int LvMax
+        {
+            get => _LvMax;
+            set
+            {
+                _LvMax = value;
+            }
+        }
+
+        public int LvMin => _LvMin;
+
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
@@ -116,8 +138,11 @@ namespace Project3D.Controller
         public event Action onHpMin;
         public event Action<float> onDirectionChanged;
         public event Action<int> onLvChanged;
+        public event Action<ulong> onScore;
 
         public event Action onDie;
+        public event Action onLvMax;
+        public event Action onLvMin;
 
         private NetworkVariable<float> _exp;
         private NetworkVariable<int> _level;
@@ -126,6 +151,9 @@ namespace Project3D.Controller
         private float _hpMax;
         private float _hpMin;
         private float _damage;
+        private int _LvMax;
+        private int _LvMin;
+
         [SerializeField] private int[] _skillIDs;
         public Dictionary<int, float> _skillCoolDownTimeMarks;
         [SerializeField] private float _speed;
@@ -144,6 +172,7 @@ namespace Project3D.Controller
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
+        [SerializeField] private int _score; //Test
 
         //Temp
         [SerializeField] private GameObject _renderer;
@@ -158,7 +187,6 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
-                
             }
 
             //temp
@@ -172,7 +200,7 @@ namespace Project3D.Controller
             team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
             ReSetUp();
             InGameManager.instance.onStandbyState += ReSetUp;
-            
+            InGameManager.instance.onScoreState += Score;
 
 
             if (TryGetComponent(out NetworkBehaviour player))
@@ -264,29 +292,14 @@ namespace Project3D.Controller
                 return;
 
 
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                UseSkill(_skillIDs[0]);
-                slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
-                slot1.cooltimeCheckTest();
-            }
-            
-            if (Input.GetMouseButtonDown(1))
-            {
-
-                UseSkill(_skillIDs[1]);
-                //slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
-                //slot1.cooltimeCheckTest();
-            }
-
             if (IsGrounded())
             {                
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
 
                 if (_isStiffed == false)
                 {
-                    _zAxis = Input.GetAxisRaw("Vertical");
-                    _xAxis = Input.GetAxisRaw("Horizontal");
+                    //_xAxis = Input.GetAxisRaw("Horizontal");
+                    //_zAxis = Input.GetAxisRaw("Vertical");
                 }
 
                 else
@@ -344,6 +357,48 @@ namespace Project3D.Controller
             };
 
             _rigid = GetComponent<Rigidbody>();
+
+
+            // Key Mapping
+            InputSystem.instance.maps["Player"].RegisterAxisAction("Horizontal", (value) =>
+            {
+                if (_isStiffed == false)
+                {
+                    _xAxis = value;
+                }
+            });
+
+            InputSystem.instance.maps["Player"].RegisterAxisAction("Vertical", (value) => 
+            {
+                if (_isStiffed == false)
+                {
+                    _zAxis = value;
+                }
+            });
+
+            // 공통
+            InputSystem.instance.maps["Player"].RegisterMouseDownAction(0, () =>
+            {
+                UseSkill(_skillIDs[0]);
+            });
+
+            // 1
+            InputSystem.instance.maps["Player"].RegisterMouseDownAction(1, () =>
+            {
+                UseSkill(_skillIDs[1]);
+            });
+
+            // 2번째
+            InputSystem.instance.maps["Player"].RegisterKeyDownAction(KeyCode.LeftShift, () =>
+            {
+                UseSkill(_skillIDs[2]);
+            });
+
+            // 3
+            InputSystem.instance.maps["Player"].RegisterKeyDownAction(KeyCode.Space, () =>
+            {
+                UseSkill(_skillIDs[3]);
+            });
         }
         
         public virtual void ReSetUp()
@@ -604,12 +659,33 @@ namespace Project3D.Controller
             _dieEffect.gameObject.SetActive(false);
         }
 
+        public void Score()
+        {
+            ScoreServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ScoreServerRpc()
+        {
+
+            ScoreClientRpc();
+        }
+
+        [ClientRpc]
+        public void ScoreClientRpc()
+        {
+            if (InGameManager.instance.player.TryGetValue(InGameManager.instance.scorerID, out NetworkBehaviour player))
+            {
+                if (clientID == player.OwnerClientId)
+                {
+                    score++;
+                }
+            }
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
-
-            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis.Value, 0.0f, 0.0f));
-            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis.Value));
         }
     }
 }

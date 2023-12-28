@@ -36,7 +36,6 @@ public class HitSector : Skill
         {
             Range.transform.forward = (hit.point - transform.position).normalized;
         }
-            
     }
     public override void Execute()
     {
@@ -95,7 +94,7 @@ public class HitSector : Skill
     {
         Casting();
         yield return new WaitForSeconds(1.0f);
-        Destroy(this.gameObject);
+        Destroy(gameObject);
         Destroy(Range);
     }
 }

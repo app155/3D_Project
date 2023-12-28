@@ -78,8 +78,6 @@ namespace Project3D.Controller
                 Vector3 normalVecWithRight = wall.transform.TransformDirection(Vector3.right);
                 Vector3 normalVecWithForward = wall.transform.TransformDirection(Vector3.forward);
 
-                Debug.Log($"bounceBefore = {_moveDir}");
-
                 Vector3 reflectVecWithRight = Vector3.Reflect(_moveDir, normalVecWithRight).normalized;
                 Vector3 reflectVecWithForward = Vector3.Reflect(_moveDir, normalVecWithForward).normalized;
 
@@ -87,7 +85,6 @@ namespace Project3D.Controller
 
                 _moveDir = afterReflect.Length > 0 ? reflectVecWithForward : reflectVecWithRight;
 
-                Debug.Log($"bounceAfter = {_moveDir}");
 
                 if (wall.TryGetComponent(out IBounce executer))
                 {
