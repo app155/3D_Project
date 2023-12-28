@@ -24,6 +24,8 @@ namespace Project3D.GameSystem
 
         public Dictionary<ulong, NetworkBehaviour> player => _players;
 
+        public Transform[] _spawnPoints;
+
         public GameState gameState
         {
             get => _gameState;

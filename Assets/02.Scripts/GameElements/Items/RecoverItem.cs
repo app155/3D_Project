@@ -20,6 +20,10 @@ namespace Project3D.GameElements.Items
         [ServerRpc(RequireOwnership = false)]
         public void AffectServerRpc(ulong targetID, ServerRpcParams rpcParams = default)
         {
+            IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
+            Debug.Log($"target Hp Before {targetHp.hpValue}");
+            targetHp.RecoverHp(amount);
+            Debug.Log($"target Hp After {targetHp.hpValue}");
             AffectClientRpc(targetID);
         }
 
@@ -28,10 +32,6 @@ namespace Project3D.GameElements.Items
         {
             if (IsClient)
             {
-                IHp targetHp = InGameManager.instance.player[targetID].GetComponent<IHp>();
-                Debug.Log($"target Hp Before {targetHp.HpValue}");
-                targetHp.RecoverHp(amount);
-                Debug.Log($"target Hp After {targetHp.HpValue}");
                 gameObject.SetActive(false);
             }
         }

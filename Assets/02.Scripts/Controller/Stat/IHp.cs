@@ -8,10 +8,10 @@ namespace Project3D.Controller
 {
     public interface IHp : IKnockback
     {
-        public float HpValue { get; set; }
-        public float HpMax { get; set; }
-        public float HpMin { get; }
-        public int Lv { get; set; }
+        public float hpValue { get; set; }
+        public float hpMax { get; set; }
+        public float hpMin { get; }
+
         public event Action<int> onLvChanged;
         public event Action<float> onHpChanged; 
         public event Action<float> onHpRecovered; 
