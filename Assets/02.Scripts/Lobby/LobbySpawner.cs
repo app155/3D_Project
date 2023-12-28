@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Project3D.Lobbies.GameFramework;
+using Project3D.Lobbies;
 using TMPro;
 
 namespace Project3D.Lobbies
@@ -11,12 +11,12 @@ namespace Project3D.Lobbies
 
         private void OnEnable()
         {
-            LobbyEvent.OnLobbyUpdated += OnLobbyUpdated;
+          GameFramework.LobbyEvent.OnLobbyUpdated += OnLobbyUpdated;
         }
 
         private void OnDisable()
         {
-            LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
+          GameFramework.LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
         }
         private void OnLobbyUpdated()
         {
