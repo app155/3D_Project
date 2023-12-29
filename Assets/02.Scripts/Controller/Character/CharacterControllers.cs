@@ -70,8 +70,23 @@ namespace Project3D.Controller
         }
         public int LvValue
         {
-            get => _level.Value; 
-            set => _level.Value = value;
+            get => _level.Value;
+            set
+            {
+                if (_level.Value == value)
+                    return;
+
+                _level.Value = Mathf.Clamp(value, _LvMin, _LvMax);
+                onLvChanged?.Invoke((int)value);
+
+                if (value == _LvMax)
+                    onLvMax?.Invoke();
+
+                else if (value == _LvMin)
+                    onLvMin?.Invoke();
+
+                onDirectionChanged?.Invoke(value);
+            }
         }
 
         public float hpMax
