@@ -351,7 +351,6 @@ namespace Project3D.Controller
         public void PrivateInit()
         {
             // temp
-            TestUI_Hp.testHp.chara = this;
 
             onDie += () =>
             {

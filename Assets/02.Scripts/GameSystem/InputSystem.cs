@@ -16,7 +16,7 @@ namespace Project3D.GameSystem
             {
                 if (_instance == null)
                 {
-                    _instance = new GameObject("UIController").AddComponent<InputSystem>();
+                    _instance = new GameObject("InputSystem").AddComponent<InputSystem>();
                 }
 
                 return _instance;

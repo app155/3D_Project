@@ -1,9 +1,9 @@
+using Project3D.GameSystem;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Services.Relay;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.GameElements.Items
 {
@@ -13,17 +13,14 @@ namespace Project3D.GameElements.Items
         [SerializeField] private float _appearTime = 5.0f;
         [SerializeField] private float _appearTimer;
 
-        private void OnEnable()
+        public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             if (IsOwner == false)
                 return;
 
             _appearTimer = 0.0f;
-        }
-
-        public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -57,6 +54,9 @@ namespace Project3D.GameElements.Items
             {
                 Disappear();
             }
+
+            if (InGameManager.instance.gameState == GameState.Score)
+                Disappear();
         }
 
         public abstract void Affect(NetworkBehaviour target);

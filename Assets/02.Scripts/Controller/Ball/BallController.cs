@@ -22,11 +22,6 @@ namespace Project3D.Controller
 
         private Recoder _recoder;
 
-        private void Start()
-        {
-            
-        }
-
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -49,19 +44,10 @@ namespace Project3D.Controller
 
             else if (_moveSpeed < 0.0f)
                 _moveSpeed = 0.0f;
-        }
-
-        private void FixedUpdate()
-        {
-            if (!IsOwner)
-                return;
-
-            _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
 
             Collider[] bounces = Physics.OverlapSphere(transform.position + _moveDir * _moveSpeed * Time.fixedDeltaTime,
                                                        _col.radius,
                                                        _wallMask);
-
 
             if (bounces.Length > 0)
             {
@@ -91,6 +77,14 @@ namespace Project3D.Controller
                     executer.Execute();
                 }
             }
+        }
+
+        private void FixedUpdate()
+        {
+            if (!IsOwner)
+                return;
+
+            transform.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
         }
 
         [ServerRpc(RequireOwnership = false)]
