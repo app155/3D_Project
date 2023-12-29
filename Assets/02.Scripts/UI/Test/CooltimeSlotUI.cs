@@ -13,9 +13,8 @@ public class CooltimeSlotUI : MonoBehaviour
         {
             instance = this;
         }
-        else
-            Destroy(this.gameObject);
     }
+
     [SerializeField] public Image profile;
     [SerializeField] public CooltimeSlot slot1;
     [SerializeField] public CooltimeSlot slot2;

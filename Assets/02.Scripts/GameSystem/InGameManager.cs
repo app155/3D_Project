@@ -217,7 +217,7 @@ namespace Project3D.GameSystem
             if (IsServer)
                 return;
 
-            this.gameState = curState;
+            gameState = curState;
         }
 
         [ServerRpc(RequireOwnership = false)]
