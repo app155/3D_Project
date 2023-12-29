@@ -48,8 +48,8 @@ public class Hit : Skill
 
     private void OnDrawGizmos()
     {
-        DrawCube();
-        DrawRay();
+        //DrawCube();
+        //DrawRay();
     }
 
     void DrawCube()

@@ -101,7 +101,7 @@ namespace Project3D.Lobbies.Manager
         }
         public (byte[] AllocationId, byte[] key, byte[] ConnectionData, byte[] HostConnectionData, string _dtlsAddress, int _dtlsPort) GetClientConnectionInfo()
         {
-            return (_allocationIdBytes, _key, _hostConnectionData, _connectionData, _ip, _port);
+            return (_allocationIdBytes, _key, _connectionData, _hostConnectionData, _ip, _port);
         }
     }
 }
