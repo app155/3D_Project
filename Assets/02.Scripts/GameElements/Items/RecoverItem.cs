@@ -3,13 +3,13 @@ using Project3D.GameSystem;
 using Project3D.Stat;
 using Unity.Netcode;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterControllers;
 
 namespace Project3D.GameElements.Items
 {
     public class RecoverItem : Item, IItem
     {
         [SerializeField] float amount;
+
 
         public override void Affect(NetworkBehaviour target)
         {
@@ -32,7 +32,8 @@ namespace Project3D.GameElements.Items
         {
             if (IsClient)
             {
-                gameObject.SetActive(false);
+                //gameObject.SetActive(false);
+                Destroy(gameObject);
             }
         }
 
@@ -50,7 +51,10 @@ namespace Project3D.GameElements.Items
         [ClientRpc]
         public void DisappearClientRpc(ClientRpcParams rpcParams = default)
         {
-            gameObject.SetActive(false);
+            if (IsClient)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

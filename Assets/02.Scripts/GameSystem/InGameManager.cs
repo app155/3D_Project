@@ -105,13 +105,30 @@ namespace Project3D.GameSystem
         }
 
         private void Start()
-        {
-            NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
+        { 
+            // origin
+            //NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
+            //if (RelayManager.Instance.IsHost)
+            //{
+            //    NetworkManager.Singleton.ConnectionApprovalCallback = ConnectionApproval;
+            //    (byte[] allocationId, byte[] key, byte[] connectionData, string ip, int port) = RelayManager.Instance.GetHostConnectionInfo();
+            //    NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(ip,(ushort)port, allocationId, key, connectionData, true);
+            //    NetworkManager.Singleton.StartHost();
+            //}
+            //else
+            //{
+            //    (byte[] allocationId, byte[] key, byte[] connectionData, byte[] hostConnectionData, string ip, int port) = RelayManager.Instance.GetClientConnectionInfo();
+            //    NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(ip, (ushort)port, allocationId, key, connectionData, hostConnectionData, true);
+            //    NetworkManager.Singleton.StartClient();
+            //}
+
+            
             if (RelayManager.Instance.IsHost)
             {
+                NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
                 NetworkManager.Singleton.ConnectionApprovalCallback = ConnectionApproval;
                 (byte[] allocationId, byte[] key, byte[] connectionData, string ip, int port) = RelayManager.Instance.GetHostConnectionInfo();
-                NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(ip,(ushort)port, allocationId, key, connectionData, true);
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(ip, (ushort)port, allocationId, key, connectionData, true);
                 NetworkManager.Singleton.StartHost();
             }
             else
