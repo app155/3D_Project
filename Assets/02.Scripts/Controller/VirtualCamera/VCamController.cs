@@ -15,6 +15,7 @@ namespace Project3D.Controller
         private CinemachineVirtualCamera[] _vCams;
         private CinemachineVirtualCamera _ballFollowCam;
         private CinemachineVirtualCamera _scorerZoomCam;
+        private CinemachineVirtualCamera _winningCam;
 
         private void Awake()
         {
@@ -30,9 +31,15 @@ namespace Project3D.Controller
 
             _ballFollowCam = _vCams[0];
             _scorerZoomCam = _vCams[1];
+            _winningCam = _vCams[2];
+
+            _ballFollowCam.Priority = 11;
+            _scorerZoomCam.Priority = 10;
+            _winningCam.Priority = 1;
 
             InGameManager.instance.onStandbyState += ReturnToBallClientRpc;
             InGameManager.instance.onScoreState += ShowScorerClientRpc;
+            InGameManager.instance.onEndState += ShowWinnerClientRpc;
         }
 
 
@@ -71,6 +78,20 @@ namespace Project3D.Controller
 
             _director.Play();
             _ballFollowCam.transform.position = new Vector3(0.0f, _ballFollowCam.transform.position.y, _ballFollowCam.transform.position.z);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ShowWinnerServerRpc()
+        {
+
+        }
+
+        [ClientRpc]
+        public void ShowWinnerClientRpc()
+        {
+            _winningCam.Priority = 12;
+
+            _director.Play();
         }
     }
 }

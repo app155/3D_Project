@@ -25,6 +25,7 @@ namespace Project3D.GameSystem
         public Dictionary<ulong, NetworkBehaviour> player => _players;
 
         public Transform[] _spawnPoints;
+        public Transform[] _winnerSpawnPoints;
 
         public GameState gameState
         {
@@ -101,6 +102,17 @@ namespace Project3D.GameSystem
             onScoreState += () =>
             {
                 StartCoroutine(C_Scored());
+            };
+
+            // temp?
+            onEndState += () =>
+            {
+                List<ulong> winTeamPlayers = _blueTeam.score == _winningPoint ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
+
+                for (int i = 0; i <  winTeamPlayers.Count; i++)
+                {
+                    _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
+                }
             };
         }
 

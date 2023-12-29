@@ -209,7 +209,7 @@ namespace Project3D.Controller
             oldPosition = transform.position;
 
             //temp
-            team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+            team = clientID % 2 == 0 ? InGameManager.instance.blueTeam.Register(clientID) : InGameManager.instance.redTeam.Register(clientID);
             ReSetUp();
             InGameManager.instance.onStandbyState += ReSetUp;
             InGameManager.instance.onScoreState += Score;
