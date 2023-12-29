@@ -41,6 +41,9 @@ namespace Project3D.Controller
 
         private void Update()
         {
+            if (IsServer == false)
+                return;
+
             if (InGameManager.instance.gameState == GameState.Score)
                 return;
 
