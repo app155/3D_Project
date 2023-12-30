@@ -73,7 +73,9 @@ namespace Project3D.UI
                 return;
 
             showns.Pop();
-            showns.Peek().inputActionEnabled = true;
+
+            if (showns.Count > 0)
+                showns.Peek().inputActionEnabled = true;
         }
     }
 }

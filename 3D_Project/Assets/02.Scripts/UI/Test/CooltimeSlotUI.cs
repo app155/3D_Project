@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CooltimeSlotUI : MonoBehaviour
 {
@@ -12,24 +13,25 @@ public class CooltimeSlotUI : MonoBehaviour
         {
             instance = this;
         }
-        else
-            Destroy(this.gameObject);
     }
-    public CooltimeSlot slots;
 
-    public void cooltimeCheckTest()
+    [SerializeField] public Image profile;
+    [SerializeField] public CooltimeSlot slot1;
+    [SerializeField] public CooltimeSlot slot2;
+
+    public void cooltimeCheckTest(CooltimeSlot slot)
     {
-        StartCoroutine(C_CoolDownSkillForTesting(slots.data.coolDownTime));
+        StartCoroutine(C_CoolDownSkillForTesting(slot, slot.data.coolDownTime));
     }
 
-    IEnumerator C_CoolDownSkillForTesting(float coolDownTime)
+    IEnumerator C_CoolDownSkillForTesting(CooltimeSlot slot, float coolDownTime)
     {
         float timeMark = Time.time;
         while (true)
         {
             float elapsedTime = Time.time - timeMark;
-            slots.OnSkillCoolDownChanged(elapsedTime);
-            
+            slot.OnSkillCoolDownChanged(elapsedTime);
+
             if (elapsedTime >= coolDownTime)
                 break;
 

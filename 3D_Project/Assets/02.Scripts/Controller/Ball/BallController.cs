@@ -22,11 +22,6 @@ namespace Project3D.Controller
 
         private Recoder _recoder;
 
-        private void Start()
-        {
-            
-        }
-
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -49,19 +44,10 @@ namespace Project3D.Controller
 
             else if (_moveSpeed < 0.0f)
                 _moveSpeed = 0.0f;
-        }
-
-        private void FixedUpdate()
-        {
-            if (!IsOwner)
-                return;
-
-            _rigid.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
 
             Collider[] bounces = Physics.OverlapSphere(transform.position + _moveDir * _moveSpeed * Time.fixedDeltaTime,
                                                        _col.radius,
                                                        _wallMask);
-
 
             if (bounces.Length > 0)
             {
@@ -78,8 +64,6 @@ namespace Project3D.Controller
                 Vector3 normalVecWithRight = wall.transform.TransformDirection(Vector3.right);
                 Vector3 normalVecWithForward = wall.transform.TransformDirection(Vector3.forward);
 
-                Debug.Log($"bounceBefore = {_moveDir}");
-
                 Vector3 reflectVecWithRight = Vector3.Reflect(_moveDir, normalVecWithRight).normalized;
                 Vector3 reflectVecWithForward = Vector3.Reflect(_moveDir, normalVecWithForward).normalized;
 
@@ -87,13 +71,20 @@ namespace Project3D.Controller
 
                 _moveDir = afterReflect.Length > 0 ? reflectVecWithForward : reflectVecWithRight;
 
-                Debug.Log($"bounceAfter = {_moveDir}");
 
                 if (wall.TryGetComponent(out IBounce executer))
                 {
                     executer.Execute();
                 }
             }
+        }
+
+        private void FixedUpdate()
+        {
+            if (!IsOwner)
+                return;
+
+            transform.position += _moveDir * _moveSpeed * Time.fixedDeltaTime;
         }
 
         [ServerRpc(RequireOwnership = false)]

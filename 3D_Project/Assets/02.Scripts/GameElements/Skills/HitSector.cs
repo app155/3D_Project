@@ -36,7 +36,6 @@ public class HitSector : Skill
         {
             Range.transform.forward = (hit.point - transform.position).normalized;
         }
-            
     }
     public override void Execute()
     {
@@ -64,6 +63,7 @@ public class HitSector : Skill
                         if (degree <= angle / 2.0f)
                         {
                             ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, owner.clientID);
+                            Formulas.CalcExp(1f,1);
                         }
                     }
                 }
@@ -80,22 +80,20 @@ public class HitSector : Skill
 
     private void OnDrawGizmos()
     {
-#if UNITY_EDITOR
-        Handles.color = new UnityEngine.Color(1f,0f,0f);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
-        {
-            Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, angle / 2, 2f);
-            Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
-        }
-#endif
+        //Handles.color = new UnityEngine.Color(1f,0f,0f);
+        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
+        //{
+        //    Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, angle / 2, 2f);
+        //    Handles.DrawSolidArc(transform.position, Vector3.up, hit.point - transform.position, -angle / 2, 2f);
+        //}
     }
 
     IEnumerator SkillRange()
     {
         Casting();
         yield return new WaitForSeconds(1.0f);
-        Destroy(this.gameObject);
+        Destroy(gameObject);
         Destroy(Range);
     }
 }

@@ -4,12 +4,9 @@ using UnityEngine;
 using Unity.Netcode;
 using Project3D.GameElements.Skill;
 using System;
-using System.Security.Cryptography;
-using UnityEngine.UIElements;
 using Project3D.GameSystem;
 using Project3D.Animations;
-using Unity.Netcode.Components;
-using Project3D.UI;
+using UnityEngine.UI;
 
 namespace Project3D.Controller
 {
@@ -22,9 +19,10 @@ namespace Project3D.Controller
         Ceremony,
         Attack = 20,
         DashAttack = 21,
+        Defend=22,
         Die,
     }
-    public class CharacterControllers : NetworkBehaviour, IHp, IKnockback
+    public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
     {
         public CharacterState state
         {
@@ -72,8 +70,23 @@ namespace Project3D.Controller
         }
         public int LvValue
         {
-            get => _level.Value; 
-            set => _level.Value = value;
+            get => _level.Value;
+            set
+            {
+                if (_level.Value == value)
+                    return;
+
+                _level.Value = Mathf.Clamp(value, _LvMin, _LvMax);
+                onLvChanged?.Invoke((int)value);
+
+                if (value == _LvMax)
+                    onLvMax?.Invoke();
+
+                else if (value == _LvMin)
+                    onLvMin?.Invoke();
+
+                onDirectionChanged?.Invoke(value);
+            }
         }
 
         public float hpMax
@@ -99,6 +112,28 @@ namespace Project3D.Controller
             set => _zAxis = value;
         }
 
+        public int score
+        {
+            get => _score;
+            set
+            {
+                onScore?.Invoke(clientID);
+
+                _score = value;
+            }
+        }
+
+        public int LvMax
+        {
+            get => _LvMax;
+            set
+            {
+                _LvMax = value;
+            }
+        }
+
+        public int LvMin => _LvMin;
+
         public LayerMask enemyMask => _enemyMask;
         public LayerMask ballMask => _ballMask;
         public LayerMask groundMask => _groundMask;
@@ -106,8 +141,7 @@ namespace Project3D.Controller
 
 
         [SerializeField]public CooltimeSlotUI slot1;
-
-        
+        [SerializeField] CharacterData ch;
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -116,8 +150,11 @@ namespace Project3D.Controller
         public event Action onHpMin;
         public event Action<float> onDirectionChanged;
         public event Action<int> onLvChanged;
+        public event Action<ulong> onScore;
 
         public event Action onDie;
+        public event Action onLvMax;
+        public event Action onLvMin;
 
         private NetworkVariable<float> _exp;
         private NetworkVariable<int> _level;
@@ -126,6 +163,9 @@ namespace Project3D.Controller
         private float _hpMax;
         private float _hpMin;
         private float _damage;
+        private int _LvMax;
+        private int _LvMin;
+
         [SerializeField] private int[] _skillIDs;
         public Dictionary<int, float> _skillCoolDownTimeMarks;
         [SerializeField] private float _speed;
@@ -144,6 +184,7 @@ namespace Project3D.Controller
         private Vector3 oldPosition;
         private Vector3 currentPosition;
         private double _velocity;
+        [SerializeField] private int _score; //Test
 
         //Temp
         [SerializeField] private GameObject _renderer;
@@ -158,7 +199,6 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
-                
             }
 
             //temp
@@ -172,7 +212,7 @@ namespace Project3D.Controller
             team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
             ReSetUp();
             InGameManager.instance.onStandbyState += ReSetUp;
-            
+            InGameManager.instance.onScoreState += Score;
 
 
             if (TryGetComponent(out NetworkBehaviour player))
@@ -199,11 +239,6 @@ namespace Project3D.Controller
 
         public void UseSkill(int skillID)
         {
-            if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
-            {
-                Debug.Log("CoolT");
-                return;
-            }
 
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
@@ -219,7 +254,6 @@ namespace Project3D.Controller
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
             _hpValue.OnValueChanged += (prev, current) =>
             {
                 onHpChanged?.Invoke(current);
@@ -244,6 +278,9 @@ namespace Project3D.Controller
 
             _rigid = GetComponent<Rigidbody>();
             slot1 = CooltimeSlotUI.instance;
+            slot1.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
+            slot1.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
+            ProfileLoading();
             _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
@@ -257,27 +294,20 @@ namespace Project3D.Controller
                 _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
-
+        public void ProfileLoading()
+        {
+            Image profileImage = slot1.profile.GetComponent<Image>();
+            profileImage.material = ch.profile.material;
+            Image Skill1 = slot1.slot1._icon.GetComponent<Image>();
+            Image Skill2 = slot1.slot2._icon.GetComponent<Image>();
+            Skill1.material = SkillDataAssets.instance.skillDatum[_skillIDs[0]].icon.material;
+            Skill2.material = SkillDataAssets.instance.skillDatum[_skillIDs[1]].icon.material;
+        }
         private void Update()
         {
             if (!IsOwner)
                 return;
 
-
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                UseSkill(_skillIDs[0]);
-                slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
-                slot1.cooltimeCheckTest();
-            }
-            
-            if (Input.GetMouseButtonDown(1))
-            {
-
-                UseSkill(_skillIDs[1]);
-                //slot1.slots.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
-                //slot1.cooltimeCheckTest();
-            }
 
             if (IsGrounded())
             {                
@@ -285,8 +315,8 @@ namespace Project3D.Controller
 
                 if (_isStiffed == false)
                 {
-                    _zAxis = Input.GetAxisRaw("Vertical");
-                    _xAxis = Input.GetAxisRaw("Horizontal");
+                    //_xAxis = Input.GetAxisRaw("Horizontal");
+                    //_zAxis = Input.GetAxisRaw("Vertical");
                 }
 
                 else
@@ -336,7 +366,6 @@ namespace Project3D.Controller
         public void PrivateInit()
         {
             // temp
-            TestUI_Hp.testHp.chara = this;
 
             onDie += () =>
             {
@@ -344,6 +373,48 @@ namespace Project3D.Controller
             };
 
             _rigid = GetComponent<Rigidbody>();
+
+
+            // Key Mapping
+            InputSystem.instance.maps["Player"].RegisterAxisAction("Horizontal", (value) =>
+            {
+                if (_isStiffed == false)
+                {
+                    _xAxis = value;
+                }
+            });
+
+            InputSystem.instance.maps["Player"].RegisterAxisAction("Vertical", (value) => 
+            {
+                if (_isStiffed == false)
+                {
+                    _zAxis = value;
+                }
+            });
+
+            // ����
+            InputSystem.instance.maps["Player"].RegisterMouseDownAction(0, () =>
+            {
+                UseSkill(_skillIDs[0]);
+            });
+
+            // 1
+            InputSystem.instance.maps["Player"].RegisterMouseDownAction(1, () =>
+            {
+                UseSkill(_skillIDs[1]);
+            });
+
+            // 2��°
+            InputSystem.instance.maps["Player"].RegisterKeyDownAction(KeyCode.LeftShift, () =>
+            {
+                UseSkill(_skillIDs[2]);
+            });
+
+            // 3
+            InputSystem.instance.maps["Player"].RegisterKeyDownAction(KeyCode.Space, () =>
+            {
+                UseSkill(_skillIDs[3]);
+            });
         }
         
         public virtual void ReSetUp()
@@ -604,12 +675,33 @@ namespace Project3D.Controller
             _dieEffect.gameObject.SetActive(false);
         }
 
+        public void Score()
+        {
+            ScoreServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ScoreServerRpc()
+        {
+
+            ScoreClientRpc();
+        }
+
+        [ClientRpc]
+        public void ScoreClientRpc()
+        {
+            if (InGameManager.instance.player.TryGetValue(InGameManager.instance.scorerID, out NetworkBehaviour player))
+            {
+                if (clientID == player.OwnerClientId)
+                {
+                    score++;
+                }
+            }
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
-
-            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(_xAxis.Value, 0.0f, 0.0f));
-            //Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, transform.position + new Vector3(0.0f, 0.0f, _zAxis.Value));
         }
     }
 }
