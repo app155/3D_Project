@@ -7,6 +7,8 @@ using System;
 using Project3D.GameSystem;
 using Project3D.Animations;
 using UnityEngine.UI;
+using Project3D.Lobbies;
+using JetBrains.Annotations;
 
 namespace Project3D.Controller
 {
@@ -209,7 +211,8 @@ namespace Project3D.Controller
             oldPosition = transform.position;
 
             //temp
-            team = clientID % 2 == 0 ? InGameManager.instance.blueTeam.Register(clientID) : InGameManager.instance.redTeam.Register(clientID);
+            team = GameLobbyManager.instance.LocalLobbyPlayerData.Team == 1 ? InGameManager.instance.blueTeam.Register(clientID) : InGameManager.instance.redTeam.Register(clientID);
+            
             ReSetUp();
             InGameManager.instance.onStandbyState += ReSetUp;
             InGameManager.instance.onScoreState += Score;
@@ -634,14 +637,55 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void SpawnServerRpc()
         {
-            transform.position = InGameManager.instance.spawnPoints[clientID].position;
+            List<ulong> playerInTeam = new List<ulong>();
+            playerInTeam = team.GetPlayersInTeam();
+            int playercount = 0;
+
+            for(int i =0; i<playerInTeam.Count; i++)
+            {
+                if (playerInTeam[i] == clientID)
+                {
+                    playercount = i;
+                }
+            }
+            if(team.id == 0)
+            {
+                transform.position = InGameManager.instance.spawnPoints[playercount * 2].position;
+
+            }
+            else if(team.id == 1)
+            {
+                transform.position = InGameManager.instance.spawnPoints[1 + playercount * 2].position;
+
+            }
+
             SpawnClientRpc();
         }
 
         [ClientRpc]
         public void SpawnClientRpc()
         {
-            transform.position = InGameManager.instance.spawnPoints[clientID].position;
+            List<ulong> playerInTeam = new List<ulong>();
+            playerInTeam = team.GetPlayersInTeam();
+            int playercount = 0;
+
+            for (int i = 0; i < playerInTeam.Count; i++)
+            {
+                if (playerInTeam[i] == clientID)
+                {
+                    playercount = i;
+                }
+            }
+            if (team.id == 0)
+            {
+                transform.position = InGameManager.instance.spawnPoints[playercount * 2].position;
+
+            }
+            else if (team.id == 1)
+            {
+                transform.position = InGameManager.instance.spawnPoints[1 + playercount * 2].position;
+
+            }
         }
 
         public void Respawn()

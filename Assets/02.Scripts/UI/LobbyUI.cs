@@ -18,21 +18,28 @@ namespace Project3D.UI
         [SerializeField] private Image _mapImage;
         [SerializeField] private Button _rightButton;
         [SerializeField] private Button _leftButton;
+        [SerializeField] private Button _setRedTeam;
+        [SerializeField] private Button _setBlueTeam;
         [SerializeField] private TextMeshProUGUI _MapName;
         [SerializeField] private MapSelectionData _mapSelectionData;
 
-
         private int _currentMapIndex = 0;
+
+        private int _setTeamBlue = 0;
+        private int _setTeamRed = 0;
 
         private void OnEnable()
         {
             _readyButton.onClick.AddListener(OnReadyPressed);
-
+            _setRedTeam.onClick.AddListener(OnSetRedButton);
+            _setBlueTeam.onClick.AddListener(OnSetBlueButton);
             if (GameLobbyManager.instance.IsHost)
             {
                 _leftButton.onClick.AddListener(OnLeftButtonClicked);
                 _rightButton.onClick.AddListener(OnRightButtonClicked);
                 _startButton.onClick.AddListener(OnstartButtonClicked);
+
+
                 Lobbies.GameFramework.LobbyEvent.OnLobbyReady += OnLobbyReady;
             }
 
@@ -46,6 +53,8 @@ namespace Project3D.UI
             _leftButton.onClick.RemoveListener(OnLeftButtonClicked);
             _rightButton.onClick.RemoveListener(OnRightButtonClicked);
             _startButton.onClick.RemoveListener(OnstartButtonClicked);
+            _setRedTeam.onClick.RemoveListener(OnSetRedButton);
+            _setBlueTeam.onClick.RemoveListener(OnSetBlueButton);
 
             Lobbies.GameFramework.LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
             Lobbies.GameFramework.LobbyEvent.OnLobbyReady -= OnLobbyReady;
@@ -64,8 +73,40 @@ namespace Project3D.UI
             {
                  await GameLobbyManager.instance.SetSelectedMap(_currentMapIndex, _mapSelectionData.maps[_currentMapIndex].sceneName);
             }
+
+            if (_setTeamBlue >= _setTeamRed)
+            {
+                await GameLobbyManager.instance.SetPlayerTeam(0);
+                _setTeamRed++;
+            }
+            else
+            {
+                await GameLobbyManager.instance.SetPlayerTeam(1);
+                _setTeamBlue++;
+            }
         }
 
+        private async void OnSetRedButton()
+        {
+            bool success = await GameLobbyManager.instance.SetPlayerTeam(0);
+            
+            if (success)
+            {
+                _setTeamRed++;
+                _setTeamBlue--;
+            }
+
+        }
+        private async void OnSetBlueButton()
+        {
+            bool success = await GameLobbyManager.instance.SetPlayerTeam(1);
+            if (success)
+            {
+                _setTeamRed--;
+                _setTeamBlue++;
+            }
+
+        }
         private async void OnLeftButtonClicked()
         {
             if (_currentMapIndex - 1 < 0)
@@ -111,11 +152,12 @@ namespace Project3D.UI
         {
             _currentMapIndex = GameLobbyManager.instance.GetMapIndex();
             UpdateMap();
+            
         }
 
         private void OnLobbyReady()
         {
-            _startButton.gameObject.SetActive(true);    
+            _startButton.gameObject.SetActive(true); 
         }
 
         private async void OnstartButtonClicked()

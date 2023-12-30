@@ -13,6 +13,14 @@ namespace Project3D.Lobbies
     public class GameLobbyManager : MonoBehaviour
     {
         private List<LobbyPlayerData> _lobbyPlayerDatas = new List<LobbyPlayerData>();
+
+        public LobbyPlayerData LocalLobbyPlayerData
+        {
+            get
+            {
+                return _localLobbyPlayerData;
+            }
+        }
         private LobbyPlayerData _localLobbyPlayerData;
 
         private LobbyData _lobbyData;
@@ -46,7 +54,7 @@ namespace Project3D.Lobbies
             {
                 if (_instance == null)
                 {
-                    GameObject go = new GameObject("LobbyManager");
+                    GameObject go = new GameObject("GameLobbyManager");
                     _instance = go.AddComponent<GameLobbyManager>();
                     DontDestroyOnLoad(go);
                 }

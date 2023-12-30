@@ -14,7 +14,11 @@ namespace Project3D.Lobbies
         }
         public string NickName => _nickName;
 
-        public int Team {  get; set; }
+        public int Team
+        {
+            get => _team;
+            set => _team = value;
+        }
 
         private int _team;
         private string _nickName;
