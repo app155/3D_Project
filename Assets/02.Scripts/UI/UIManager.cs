@@ -19,8 +19,6 @@ namespace Project3D.UI
             }
         }
 
-        public Stack<IUI> showns => _showns;
-
         private static UIManager _instance;
 
         private Dictionary<Type, IUI> _uis = new Dictionary<Type, IUI>();
@@ -37,6 +35,11 @@ namespace Project3D.UI
             return (T)ui;
         }
 
+        public IEnumerable<IUI> GetAllUis()
+        {
+            return _uis.Values;
+        }
+
         public void Register(IUI ui)
         {
             Type type = ui.GetType();
@@ -51,31 +54,31 @@ namespace Project3D.UI
 
         public void Push(IUI ui)
         {
-            if (showns.Count > 0 && showns.Peek() == ui)
+            if (_showns.Count > 0 && _showns.Peek() == ui)
                 return;
 
             int sortingOrder = 0;
 
-            if (showns.Count > 0)
+            if (_showns.Count > 0)
             {
-                sortingOrder = showns.Peek().sortingOrder + 1;
-                showns.Peek().inputActionEnabled = false;
+                sortingOrder = _showns.Peek().sortingOrder + 1;
+                _showns.Peek().inputActionEnabled = false;
             }
 
-            showns.Push(ui);
+            _showns.Push(ui);
             ui.sortingOrder = sortingOrder;
             ui.inputActionEnabled = true;
         }
 
         public void Pop()
         {
-            if (showns.Count > 0 == false)
+            if (_showns.Count > 0 == false)
                 return;
 
-            showns.Pop();
+            _showns.Pop();
 
-            if (showns.Count > 0)
-                showns.Peek().inputActionEnabled = true;
+            if (_showns.Count > 0)
+                _showns.Peek().inputActionEnabled = true;
         }
     }
 }

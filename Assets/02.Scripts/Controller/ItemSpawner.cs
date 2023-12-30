@@ -70,7 +70,7 @@ namespace Project3D.Controller
 
             Vector3 spawnPos = new Vector3(randomX, 0.0f, randomZ);
 
-            GameObject go = Instantiate(_itemPrefabs[itemID], spawnPos, Quaternion.identity);
+            GameObject go = Instantiate(_itemPrefabs[itemID], spawnPos, _itemPrefabs[itemID].transform.rotation);
             go.GetComponent<NetworkObject>().Spawn();
         }
 

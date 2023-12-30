@@ -31,8 +31,15 @@ public class Team
         _id = id;
     }
 
-    public void Register(ulong clientID)
+    public Team Register(ulong clientID)
     {
         _playersInTeam.Add(clientID);
+
+        return this;
+    }
+
+    public List<ulong> GetPlayersInTeam()
+    {
+        return _playersInTeam;
     }
 }

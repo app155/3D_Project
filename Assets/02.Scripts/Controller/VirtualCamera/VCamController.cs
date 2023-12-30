@@ -10,11 +10,12 @@ namespace Project3D.Controller
 {
     public class VCamController : NetworkBehaviour
     {
-        [SerializeField] PlayableDirector _director;
+        [SerializeField] private PlayableDirector _inGameDirector;
+        [SerializeField] private PlayableDirector _afterGameDirector;
 
-        private CinemachineVirtualCamera[] _vCams;
-        private CinemachineVirtualCamera _ballFollowCam;
-        private CinemachineVirtualCamera _scorerZoomCam;
+        [SerializeField] private CinemachineVirtualCamera _ballFollowCam;
+        [SerializeField] private CinemachineVirtualCamera _scorerZoomCam;
+        [SerializeField] private CinemachineVirtualCamera _winningCam;
 
         private void Awake()
         {
@@ -25,14 +26,13 @@ namespace Project3D.Controller
         {
             base.OnNetworkSpawn();
 
-            _director = GetComponent<PlayableDirector>();
-            _vCams = GetComponentsInChildren<CinemachineVirtualCamera>();
-
-            _ballFollowCam = _vCams[0];
-            _scorerZoomCam = _vCams[1];
+            _ballFollowCam.Priority = 11;
+            _scorerZoomCam.Priority = 10;
+            _winningCam.Priority = 1;
 
             InGameManager.instance.onStandbyState += ReturnToBallClientRpc;
             InGameManager.instance.onScoreState += ShowScorerClientRpc;
+            InGameManager.instance.onEndState += ShowWinnerClientRpc;
         }
 
 
@@ -69,8 +69,22 @@ namespace Project3D.Controller
                 _scorerZoomCam.Follow = InGameManager.instance.player[InGameManager.instance.scorerID].transform;
             }
 
-            _director.Play();
+            _inGameDirector.Play();
             _ballFollowCam.transform.position = new Vector3(0.0f, _ballFollowCam.transform.position.y, _ballFollowCam.transform.position.z);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ShowWinnerServerRpc()
+        {
+            ShowWinnerClientRpc(3);
+        }
+
+        [ClientRpc]
+        public void ShowWinnerClientRpc(int dummy)
+        {
+            _winningCam.Priority = 12;
+
+            _afterGameDirector.Play();
         }
     }
 }
