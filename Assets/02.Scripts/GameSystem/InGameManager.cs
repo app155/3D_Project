@@ -6,6 +6,7 @@ using Project3D.Controller;
 using Unity.Netcode;
 using Project3D.Lobbies.Manager;
 using Unity.Netcode.Transports.UTP;
+using Project3D.UI;
 
 namespace Project3D.GameSystem
 {
@@ -24,8 +25,7 @@ namespace Project3D.GameSystem
 
         public Dictionary<ulong, NetworkBehaviour> player => _players;
 
-        public Transform[] _spawnPoints;
-        public Transform[] _winnerSpawnPoints;
+        
 
         public GameState gameState
         {
@@ -58,7 +58,7 @@ namespace Project3D.GameSystem
                             break;
                         case GameState.End:
                             {
-                                onEndState?.Invoke();
+                                onEndState?.Invoke(Convert.ToInt32(_redTeam.score == _winningPoint));
                             }
                             break;
                     }
@@ -71,11 +71,12 @@ namespace Project3D.GameSystem
         public event Action onStandbyState;
         public event Action onPlayingState;
         public event Action onScoreState;
-        public event Action onEndState;
+        public event Action<int> onEndState;
         public event Action<float> onCountdownChanged;
 
         public Team blueTeam => _blueTeam;
         public Team redTeam => _redTeam;
+        public Transform[] spawnPoints => _spawnPoints;
 
         public ulong scorerID;
 
@@ -87,6 +88,8 @@ namespace Project3D.GameSystem
         private Team _blueTeam = new Team(0);
         private Team _redTeam = new Team(1);
         [SerializeField] private int _winningPoint;
+        [SerializeField] private Transform[] _spawnPoints;
+        [SerializeField] private Transform[] _winnerSpawnPoints;
 
         private void Awake()
         {
@@ -105,7 +108,7 @@ namespace Project3D.GameSystem
             };
 
             // temp?
-            onEndState += () =>
+            onEndState += (value) =>
             {
                 List<ulong> winTeamPlayers = _blueTeam.score == _winningPoint ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
 
@@ -113,6 +116,8 @@ namespace Project3D.GameSystem
                 {
                     _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
                 }
+
+                UIManager.instance.Get<UI_TopBoard>().Hide();
             };
         }
 

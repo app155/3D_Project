@@ -634,14 +634,14 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void SpawnServerRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            transform.position = InGameManager.instance.spawnPoints[clientID].position;
             SpawnClientRpc();
         }
 
         [ClientRpc]
         public void SpawnClientRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            transform.position = InGameManager.instance.spawnPoints[clientID].position;
         }
 
         public void Respawn()
@@ -653,7 +653,7 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void RespawnServerRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            transform.position = InGameManager.instance.spawnPoints[team.id + 6].position;
             ChangeState(CharacterState.Locomotion);
             _renderer.SetActive(true);
             gameObject.SetActive(true);
@@ -667,7 +667,7 @@ namespace Project3D.Controller
         [ClientRpc]
         public void RespawnClientRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            transform.position = InGameManager.instance.spawnPoints[team.id + 6].position;
             ChangeState(CharacterState.Locomotion);
             _renderer.SetActive(true);
             gameObject.SetActive(true);
