@@ -12,7 +12,6 @@ namespace Project3D.UI
     public class HPUI : NetworkBehaviour
     {
         [SerializeField] private Slider _hpBar;
-        [SerializeField] private Slider _Lv;
         [SerializeField] private Image _hpBarBackground;
 
         private void Start()
