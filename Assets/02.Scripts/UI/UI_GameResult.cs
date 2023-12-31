@@ -18,7 +18,13 @@ namespace Project3D.UI
         public override void Init()
         {
             base.Init();
-            InGameManager.instance.onEndState += ShowWinnerTeamTextClientRpc;
+            InGameManager.instance.onEndState += ShowWinnerTeam;
+        }
+
+        private void ShowWinnerTeam(int value)
+        {
+            _winnerTeamText.color = value == 0 ? Color.blue : Color.red;
+            Show();
         }
 
         [ClientRpc]
