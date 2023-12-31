@@ -202,7 +202,6 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
-                //team ??= InGameManager.instance.RegisterInTeam(GameLobbyManager.instance.LocalLobbyPlayerData.Team, clientID);
                 
             }
 
@@ -371,14 +370,10 @@ namespace Project3D.Controller
         public void PrivateInit()
         {
             // temp
-
             onDie += () =>
             {
                 StartCoroutine(C_OnDie());
             };
-
-            _rigid = GetComponent<Rigidbody>();
-
 
             // Key Mapping
             InputSystem.instance.maps["Player"].RegisterAxisAction("Horizontal", (value) =>

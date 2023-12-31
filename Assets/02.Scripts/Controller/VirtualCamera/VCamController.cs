@@ -51,6 +51,8 @@ namespace Project3D.Controller
             Vector3 ballCamPos = _ballFollowCam.transform.position;
             _ballFollowCam.ForceCameraPosition(new Vector3(0.0f, ballCamPos.y, ballCamPos.z),
                                                _ballFollowCam.transform.rotation);
+
+            _scorerZoomCam.ForceCameraPosition(_ballFollowCam.transform.position, _ballFollowCam.transform.rotation);
         }
 
         [ServerRpc(RequireOwnership = false)]

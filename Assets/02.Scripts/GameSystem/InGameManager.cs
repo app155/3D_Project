@@ -108,17 +108,7 @@ namespace Project3D.GameSystem
             };
 
             // temp?
-            onEndState += (value) =>
-            {
-                List<ulong> winTeamPlayers = _blueTeam.score == _winningPoint ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
-
-                for (int i = 0; i <  winTeamPlayers.Count; i++)
-                {
-                    _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
-                }
-
-                UIManager.instance.Get<UI_TopBoard>().Hide();
-            };
+            onEndState += FinishGame;
         }
 
         private void Start()
@@ -275,6 +265,39 @@ namespace Project3D.GameSystem
         public void ChangeGameStateClientRpc(GameState state)
         {
             gameState = state;
+        }
+
+        public void FinishGame(int winTeamID)
+        {
+            FinishGameServerRpc(winTeamID);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void FinishGameServerRpc(int winTeamID)
+        {
+            List<ulong> winTeamPlayers = winTeamID == 0 ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
+
+            for (int i = 0; i < winTeamPlayers.Count; i++)
+            {
+                _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
+            }
+
+            UIManager.instance.Get<UI_TopBoard>().Hide();
+
+            FinishGameClientRpc(winTeamID);
+        }
+
+        [ClientRpc]
+        public void FinishGameClientRpc(int winTeamID)
+        {
+            List<ulong> winTeamPlayers = winTeamID == 0 ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
+
+            for (int i = 0; i < winTeamPlayers.Count; i++)
+            {
+                _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
+            }
+
+            UIManager.instance.Get<UI_TopBoard>().Hide();
         }
     }
 }

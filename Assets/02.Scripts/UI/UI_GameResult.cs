@@ -23,14 +23,24 @@ namespace Project3D.UI
 
         private void ShowWinnerTeam(int value)
         {
+            ShowWinnerTextServerRpc(value);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void ShowWinnerTextServerRpc(int value)
+        {
             _winnerTeamText.color = value == 0 ? Color.blue : Color.red;
+            _winnerTeamText.text = "WINNER!";
             Show();
+
+            ShowWinnerTeamTextClientRpc(value);
         }
 
         [ClientRpc]
         private void ShowWinnerTeamTextClientRpc(int value)
         {
             _winnerTeamText.color = value == 0 ? Color.blue : Color.red;
+            _winnerTeamText.text = "WINNER!";
             Show();
         }
 
