@@ -88,8 +88,8 @@ GameObject:
   - component: {fileID: 6408439620414479463}
   - component: {fileID: 7274140445739424715}
   - component: {fileID: 2313700294388834664}
-  - component: {fileID: 3477740173235251266}
   - component: {fileID: 143859110749662831}
+  - component: {fileID: 3477740173235251266}
   - component: {fileID: 8274676479971094666}
   m_Layer: 5
   m_Name: Canvas-GameUI
@@ -186,6 +186,26 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &143859110749662831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4725092678304061961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3539889295
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &3477740173235251266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,26 +220,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _blueTeamScore: {fileID: 6264489390013498940}
   _redTeamScore: {fileID: 3953395572089454083}
---- !u!114 &143859110749662831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4725092678304061961}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 951099334
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!114 &8274676479971094666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,7 +232,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd433823ad156e146aee0d9a89d8590d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slots: {fileID: 7623411876101346117}
+  profile: {fileID: 0}
+  slot1: {fileID: 0}
+  slot2: {fileID: 0}
 --- !u!1 &5456658634344877041
 GameObject:
   m_ObjectHideFlags: 0
@@ -728,7 +730,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1981aaaeaf1d00645a007943256d61b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _icon: {fileID: 0}
   _coolDownRemain: {fileID: 4626112018698077059}
+  _coolDownFill: {fileID: 0}
   data: {fileID: 0}
 --- !u!224 &3379520152435798762 stripped
 RectTransform:
