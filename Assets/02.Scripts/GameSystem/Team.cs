@@ -35,6 +35,8 @@ public class Team
     {
         _playersInTeam.Add(clientID);
 
+        Debug.Log($"{clientID} registered team {id}");
+
         return this;
     }
 

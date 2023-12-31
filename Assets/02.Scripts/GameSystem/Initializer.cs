@@ -7,7 +7,7 @@ namespace Project3D.GameSystem
     {
         [SerializeField] private List<GameObject> _initializables = new List<GameObject>();
 
-        private void Awake()
+        private void Start()
         {
             foreach (GameObject go in _initializables)
             {

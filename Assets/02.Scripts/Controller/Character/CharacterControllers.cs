@@ -9,6 +9,7 @@ using Project3D.Animations;
 using UnityEngine.UI;
 using Project3D.Lobbies;
 using JetBrains.Annotations;
+using Unity.Services.Authentication;
 
 namespace Project3D.Controller
 {
@@ -188,7 +189,7 @@ namespace Project3D.Controller
         private double _velocity;
         [SerializeField] private int _score; //Test
 
-        //Temp
+        //Temp?
         [SerializeField] private GameObject _renderer;
         [SerializeField] private Canvas _hpUI;
         [SerializeField] private ParticleSystem _dieEffect;
@@ -201,6 +202,8 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
+                //team ??= InGameManager.instance.RegisterInTeam(GameLobbyManager.instance.LocalLobbyPlayerData.Team, clientID);
+                
             }
 
             //temp
@@ -210,19 +213,17 @@ namespace Project3D.Controller
             onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
-            //temp
-            team = GameLobbyManager.instance.LocalLobbyPlayerData.Team == 1 ? InGameManager.instance.blueTeam.Register(clientID) : InGameManager.instance.redTeam.Register(clientID);
-            
+            team = GameLobbyManager.instance.lobbyPlayerDatas[(int)clientID].Team == 1 ? InGameManager.instance.blueTeam.Register(clientID) : InGameManager.instance.redTeam.Register(clientID);
+
             ReSetUp();
             InGameManager.instance.onStandbyState += ReSetUp;
             InGameManager.instance.onScoreState += Score;
-
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
                 InGameManager.instance.RegisterPlayer(clientID, player);
             }
-
+                
             Debug.Log($"chara spawned {clientID}");
 
             if (IsServer)
@@ -254,6 +255,7 @@ namespace Project3D.Controller
 
         private void Awake()
         {
+            
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -641,22 +643,21 @@ namespace Project3D.Controller
             playerInTeam = team.GetPlayersInTeam();
             int playercount = 0;
 
-            for(int i =0; i<playerInTeam.Count; i++)
+            for (int i = 0; i < playerInTeam.Count; i++)
             {
                 if (playerInTeam[i] == clientID)
                 {
                     playercount = i;
                 }
             }
-            if(team.id == 0)
+            if (team.id == 0)
             {
                 transform.position = InGameManager.instance.spawnPoints[playercount * 2].position;
 
             }
-            else if(team.id == 1)
+            else if (team.id == 1)
             {
                 transform.position = InGameManager.instance.spawnPoints[1 + playercount * 2].position;
-
             }
 
             SpawnClientRpc();
@@ -684,7 +685,6 @@ namespace Project3D.Controller
             else if (team.id == 1)
             {
                 transform.position = InGameManager.instance.spawnPoints[1 + playercount * 2].position;
-
             }
         }
 

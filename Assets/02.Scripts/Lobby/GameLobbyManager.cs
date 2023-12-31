@@ -12,6 +12,8 @@ namespace Project3D.Lobbies
 {
     public class GameLobbyManager : MonoBehaviour
     {
+        public List<LobbyPlayerData> lobbyPlayerDatas => _lobbyPlayerDatas;
+
         private List<LobbyPlayerData> _lobbyPlayerDatas = new List<LobbyPlayerData>();
 
         public LobbyPlayerData LocalLobbyPlayerData

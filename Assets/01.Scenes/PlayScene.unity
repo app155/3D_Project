@@ -1020,7 +1020,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: 0, y: 13.379773, z: -3.0752046}
+  m_LocalPosition: {x: 0, y: 13.38039, z: -3.0753286}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3157,7 +3157,7 @@ PrefabInstance:
         type: 3}
       propertyPath: _spawnPoints.Array.data[3]
       value: 
-      objectReference: {fileID: 1599676908}
+      objectReference: {fileID: 518696185}
     - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
         type: 3}
       propertyPath: _spawnPoints.Array.data[4]
@@ -3167,7 +3167,7 @@ PrefabInstance:
         type: 3}
       propertyPath: _spawnPoints.Array.data[5]
       value: 
-      objectReference: {fileID: 2031612602}
+      objectReference: {fileID: 1599676908}
     - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
         type: 3}
       propertyPath: _spawnPoints.Array.data[6]
@@ -3177,7 +3177,7 @@ PrefabInstance:
         type: 3}
       propertyPath: _spawnPoints.Array.data[7]
       value: 
-      objectReference: {fileID: 518696185}
+      objectReference: {fileID: 2031612602}
     - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
         type: 3}
       propertyPath: _spawnPoints.Array.data[8]
@@ -6366,7 +6366,7 @@ Transform:
   m_GameObject: {fileID: 1886505478}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: 0, y: 13.379773, z: -3.0752046}
+  m_LocalPosition: {x: 0, y: 13.38039, z: -3.0753286}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

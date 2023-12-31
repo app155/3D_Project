@@ -187,6 +187,33 @@ namespace Project3D.GameSystem
             }
         }
 
+        public Team RegisterInTeam(int teamID, ulong clientID)
+        {
+            RegisterInTeamServerRpc(teamID, clientID);
+
+            return teamID == 0 ? blueTeam : redTeam;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RegisterInTeamServerRpc(int teamID, ulong clientID)
+        {
+            RegisterInTeamClientRpc(teamID, clientID);
+        }
+
+        [ClientRpc]
+        public void RegisterInTeamClientRpc(int teamID, ulong clientID)
+        {
+            if (teamID == 0)
+            {
+                blueTeam.Register(clientID);
+            }
+
+            else
+            {
+                redTeam.Register(clientID);
+            }
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void StartCountDownServerRpc(float countTimer)
         {
