@@ -22,7 +22,7 @@ namespace Project3D.Controller
         Ceremony,
         Attack = 20,
         DashAttack = 21,
-        Defend=22,
+        Defend = 22,
         Die,
     }
     public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
@@ -242,7 +242,6 @@ namespace Project3D.Controller
 
         public void UseSkill(int skillID)
         {
-
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
 
@@ -311,7 +310,6 @@ namespace Project3D.Controller
         {
             if (!IsOwner)
                 return;
-
 
             if (IsGrounded())
             {                
@@ -478,11 +476,8 @@ namespace Project3D.Controller
             }
         }
 
-        public void ChangeRotation(float xAixs, float zAxis)
+        public void ChangeRotation(float xAxis, float zAxis)
         {
-            if (state != CharacterState.Locomotion)
-                return;
-
             _renderer.transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
         }
 
@@ -516,6 +511,7 @@ namespace Project3D.Controller
         {
             _animator.SetInteger("state", (int)newState);
             _animator.SetBool("isDirty", true);
+            
             state = newState;
         }
 
@@ -700,6 +696,12 @@ namespace Project3D.Controller
             _dieEffect.gameObject.SetActive(false);
             RecoverHp(hpMax);
 
+            AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
+            for (int i = 0; i < animBehaviours.Length; i++)
+            {
+                animBehaviours[i].Init(this);
+            }
+
             RespawnClientRpc();
         }
 
@@ -712,6 +714,12 @@ namespace Project3D.Controller
             gameObject.SetActive(true);
             _hpUI.enabled = true;
             _dieEffect.gameObject.SetActive(false);
+
+            AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
+            for (int i = 0; i < animBehaviours.Length; i++)
+            {
+                animBehaviours[i].Init(this);
+            }
         }
 
         public void Score()
