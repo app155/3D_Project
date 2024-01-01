@@ -45,13 +45,6 @@ namespace Project3D.Controller
             else if (_moveSpeed < 0.0f)
                 _moveSpeed = 0.0f;
 
-            if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, 0.2f, _groundMask) == false)
-            {
-                transform.position = Vector3.zero;
-                _moveSpeed = 0.0f;
-                return;
-            }
-
             Collider[] bounces = Physics.OverlapSphere(transform.position + _moveDir * _moveSpeed * Time.fixedDeltaTime,
                                                        _col.radius,
                                                        _wallMask);

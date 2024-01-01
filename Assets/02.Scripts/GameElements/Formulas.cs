@@ -28,7 +28,7 @@ public static class Formulas
         float baseExp = 0.0f; // 경험치의 기본값, 필요에 따라 조절 가능
 
         // 데미지와 레벨에 따른 경험치 계산
-        float exp = baseExp + damage * 0.5f * lv;
+        float exp = baseExp + damage * 40f * lv;
         Debug.Log("WTF");
         return exp;
     }
