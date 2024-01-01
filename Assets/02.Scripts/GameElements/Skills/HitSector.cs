@@ -63,7 +63,8 @@ public class HitSector : Skill
                         if (degree <= angle / 2.0f)
                         {
                             ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, owner.clientID);
-                            Formulas.CalcExp(1f,1);
+                            ExpBar._instance.expValue = (int)Formulas.CalcExp(1f, 1);
+
                         }
                     }
                 }

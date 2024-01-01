@@ -105,15 +105,16 @@ namespace Project3D.GameSystem
         }
 
         private void Start()
-        {
+        {            
             NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
             if (RelayManager.Instance.IsHost)
             {
                 NetworkManager.Singleton.ConnectionApprovalCallback = ConnectionApproval;
                 (byte[] allocationId, byte[] key, byte[] connectionData, string ip, int port) = RelayManager.Instance.GetHostConnectionInfo();
-                NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(ip,(ushort)port, allocationId, key, connectionData, true);
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(ip, (ushort)port, allocationId, key, connectionData, true);
                 NetworkManager.Singleton.StartHost();
             }
+
             else
             {
                 (byte[] allocationId, byte[] key, byte[] connectionData, byte[] hostConnectionData, string ip, int port) = RelayManager.Instance.GetClientConnectionInfo();
@@ -217,7 +218,7 @@ namespace Project3D.GameSystem
             if (IsServer)
                 return;
 
-            this.gameState = curState;
+            gameState = curState;
         }
 
         [ServerRpc(RequireOwnership = false)]

@@ -13,6 +13,13 @@ public class TestUI_CountDown : UIMonobehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
         InGameManager.instance.onCountdownChanged += (value) => RefreshServerRpc(value);
     }
 

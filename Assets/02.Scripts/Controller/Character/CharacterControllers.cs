@@ -70,8 +70,23 @@ namespace Project3D.Controller
         }
         public int LvValue
         {
-            get => _level.Value; 
-            set => _level.Value = value;
+            get => _level.Value;
+            set
+            {
+                if (_level.Value == value)
+                    return;
+
+                _level.Value = Mathf.Clamp(value, _LvMin, _LvMax);
+                onLvChanged?.Invoke((int)value);
+
+                if (value == _LvMax)
+                    onLvMax?.Invoke();
+
+                else if (value == _LvMin)
+                    onLvMin?.Invoke();
+
+                onDirectionChanged?.Invoke(value);
+            }
         }
 
         public float hpMax
@@ -125,7 +140,7 @@ namespace Project3D.Controller
         public ulong clientID => OwnerClientId;
 
 
-        [SerializeField]public CooltimeSlotUI slot1;
+        [SerializeField]public CooltimeSlotUI slot;
         [SerializeField] CharacterData ch;
         public Team team;
         public event Action<float> onHpChanged;
@@ -222,9 +237,13 @@ namespace Project3D.Controller
             }
         }
 
-        public void UseSkill(int skillID)
+        public bool UseSkill(int skillID)
         {
-
+            if (Time.time - _skillCoolDownTimeMarks[skillID] < SkillDataAssets.instance[skillID].coolDownTime)
+            {
+                Debug.Log("CoolT");
+                return false;
+            }
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
 
@@ -232,6 +251,7 @@ namespace Project3D.Controller
             skill.Execute();
 
             ChangeState((CharacterState)skillID);
+            return true;
         }
 
         private void Awake()
@@ -262,9 +282,9 @@ namespace Project3D.Controller
 
 
             _rigid = GetComponent<Rigidbody>();
-            slot1 = CooltimeSlotUI.instance;
-            slot1.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
-            slot1.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
+            slot = CooltimeSlotUI.instance;
+            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
+            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
             ProfileLoading();
             _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
@@ -281,10 +301,10 @@ namespace Project3D.Controller
         }
         public void ProfileLoading()
         {
-            Image profileImage = slot1.profile.GetComponent<Image>();
+            Image profileImage = slot.profile.GetComponent<Image>();
             profileImage.material = ch.profile.material;
-            Image Skill1 = slot1.slot1._icon.GetComponent<Image>();
-            Image Skill2 = slot1.slot2._icon.GetComponent<Image>();
+            Image Skill1 = slot.slot1._icon.GetComponent<Image>();
+            Image Skill2 = slot.slot2._icon.GetComponent<Image>();
             Skill1.material = SkillDataAssets.instance.skillDatum[_skillIDs[0]].icon.material;
             Skill2.material = SkillDataAssets.instance.skillDatum[_skillIDs[1]].icon.material;
         }
@@ -351,7 +371,6 @@ namespace Project3D.Controller
         public void PrivateInit()
         {
             // temp
-            TestUI_Hp.testHp.chara = this;
 
             onDie += () =>
             {
@@ -381,13 +400,21 @@ namespace Project3D.Controller
             // ����
             InputSystem.instance.maps["Player"].RegisterMouseDownAction(0, () =>
             {
-                UseSkill(_skillIDs[0]);
+
+                if (UseSkill(_skillIDs[0]))
+                {
+                    slot.cooltimeCheckTest(slot.slot1);
+                }
+                
             });
 
             // 1
             InputSystem.instance.maps["Player"].RegisterMouseDownAction(1, () =>
             {
-                UseSkill(_skillIDs[1]);
+                if (UseSkill(_skillIDs[1]))
+                {
+                    slot.cooltimeCheckTest(slot.slot2);
+                }
             });
 
             // 2��°
