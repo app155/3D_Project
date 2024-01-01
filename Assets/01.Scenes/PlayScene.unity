@@ -2156,7 +2156,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: 0, y: 13.393741, z: -3.0779924}
+  m_LocalPosition: {x: 0, y: 13.393765, z: -3.0779965}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6567,7 +6567,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1164685210}
   - component: {fileID: 1164685209}
-  - component: {fileID: 1164685211}
   - component: {fileID: 1164685212}
   m_Layer: 0
   m_Name: NetworkManager
@@ -6632,18 +6631,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1164685211
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1164685208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 033c753bb16906a439d3383531bb0822, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1164685212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10409,7 +10396,7 @@ Transform:
   m_GameObject: {fileID: 1886505478}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: 0, y: 13.393741, z: -3.0779924}
+  m_LocalPosition: {x: 0, y: 13.393765, z: -3.0779965}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -12121,7 +12108,6 @@ SceneRoots:
   - {fileID: 3570004552179025945}
   - {fileID: 590169570}
   - {fileID: 554600373}
-  - {fileID: 937403576}
   - {fileID: 4142030751791442555}
   - {fileID: 1405508326}
   - {fileID: 1649366818}
