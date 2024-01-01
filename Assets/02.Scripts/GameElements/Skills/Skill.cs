@@ -2,7 +2,6 @@ using Project3D.Controller;
 using System;
 using Unity.Netcode;
 using UnityEngine;
-using CharacterController = Project3D.Controller.CharacterController;
 
 namespace Project3D.GameElements.Skill
 {
@@ -10,17 +9,19 @@ namespace Project3D.GameElements.Skill
     {
         public string description;
 
-        protected CharacterController owner;
-        protected float coolTimer;
-        protected float coolTime;
-        protected float castTimer;
-        protected float castTime;
+        protected CharacterControllers owner;
+        [SerializeField] protected float castTimer;
+        [SerializeField] protected float castTime;
+        protected ulong clientID;
 
-        public void Init(CharacterController owner)
+
+        public virtual void Init(CharacterControllers owner)
         {
             this.owner = owner;
+            clientID = owner.GetComponent<NetworkBehaviour>().OwnerClientId;
         }
 
         public abstract void Execute();
+        public abstract void Casting();
     }
 }

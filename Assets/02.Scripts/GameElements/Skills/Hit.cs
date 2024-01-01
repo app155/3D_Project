@@ -1,4 +1,4 @@
-using CharacterController = Project3D.Controller.CharacterController;
+using CharacterController = Project3D.Controller.CharacterControllers;
 using Project3D.GameElements.Skill;
 using UnityEngine;
 using Project3D.Controller;
@@ -9,45 +9,70 @@ public class Hit : Skill
 {
     private float _pushPower = 10.0f;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+    }
+
+    public override void Init(CharacterController owner)
+    {
+        base.Init(owner);
+    }
+
     public override void Execute()
     {
-        if (coolTime > 0)
-            return;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        Collider[] cols = Physics.OverlapBox(transform.position + Vector3.forward, Vector3.one, Quaternion.identity, owner.ballMask);
-
-        if (cols.Length > 0)
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
-            if (cols[0].TryGetComponent(out IKnockback ball))
+            Collider[] cols = Physics.OverlapSphere(transform.position + (hit.point - transform.position).normalized * 0.5f, 0.5f, owner.ballMask);
+
+            if (cols.Length > 0)
             {
-                ball.Knockback((cols[0].transform.position - transform.position).normalized, _pushPower);
+                if (cols[0].TryGetComponent(out IKnockback ball))
+                {  
+                    ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower, owner.clientID);
+                }
+                else
+                {
+                    throw new Exception("[Hit] - Target Wrong");
+                }
+
+                Debug.Log("Hit Ball");
             }
 
-            else
-            {
-                throw new Exception("[Hit] - Target Wrong");
-            }
-
-            Debug.Log("Hit Ball");
+            owner.ChangeRotation(hit.point.x, hit.point.z);
         }
     }
 
-    private void Update()
-    {
-        if (coolTime > 0)
-            coolTime -= Time.deltaTime;
-
-        else if (coolTime < 0)
-            coolTime = 0;
-    }
 
     private void OnDrawGizmos()
     {
+        //DrawCube();
+        //DrawRay();
+    }
+
+    void DrawCube()
+    {
         Gizmos.color = Color.red;
 
-        Vector3 tempMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 mousePos = new Vector3(tempMousePos.x, 0.0f, tempMousePos.z);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
+        {
+            Gizmos.DrawWireSphere(transform.position + (hit.point - transform.position).normalized, 0.5f);
+        }
+    }
 
-        Gizmos.DrawWireCube(transform.position + (mousePos - transform.position).normalized + Vector3.down * 0.3f, Vector3.one);
+    void DrawRay()
+    {
+        Gizmos.color = Color.yellow;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Gizmos.DrawRay(ray.origin, ray.direction * 30.0f);
+    }
+
+    public override void Casting()
+    {
     }
 }

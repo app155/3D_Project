@@ -1,4 +1,7 @@
-public interface ITempAffect
+namespace Project3D.GameElements.Items
 {
-    float duration { get; }
+    public interface ITempAffect
+    {
+        float duration { get; }
+    }
 }
