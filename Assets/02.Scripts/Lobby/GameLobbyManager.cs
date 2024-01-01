@@ -75,7 +75,7 @@ namespace Project3D.Lobbies
             _lobbyData = new LobbyData();
             _lobbyData.Initialize(0);
             _maxNumberOfPlayers = maxPlayer;
-            bool succeeded = await LobbyManager.instance.CreateLobby(roomName, _maxNumberOfPlayers, false, _localLobbyPlayerData.Serialize(), _lobbyData.Serialize());
+            bool succeeded = await LobbyManager.instance.CreateLobby(roomName, _maxNumberOfPlayers, true, _localLobbyPlayerData.Serialize(), _lobbyData.Serialize());
 
             return succeeded;
         }
@@ -93,10 +93,10 @@ namespace Project3D.Lobbies
 
         public async Task<bool> JoinLobbyById(string _lobbyId, string nickName)
         {
-            _localLobbyPlayerData = new LobbyPlayerData();
-            _localLobbyPlayerData.Initialize(AuthenticationService.Instance.PlayerId, "Client", nickName);
+            LobbyPlayerData playerData = new LobbyPlayerData();
+            playerData.Initialize(AuthenticationService.Instance.PlayerId, "Client", nickName);
 
-            bool succeeded = await LobbyManager.instance.JoinLobbyById(_lobbyId, _localLobbyPlayerData.Serialize());
+            bool succeeded = await LobbyManager.instance.JoinLobbyById(_lobbyId, playerData.Serialize());
 
             return succeeded;
         }
