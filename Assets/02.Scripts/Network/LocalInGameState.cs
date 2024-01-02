@@ -28,8 +28,10 @@ public class LocalInGameState :  MonoBehaviour
                     break;
                 case GameState.Standby:
                     {
+
                         if (InGameManager.instance.player.ContainsKey(NetworkManager.Singleton.LocalClientId) == false)
                             InGameManager.instance.RequestSpawnCharacterServerRpc(NetworkManager.Singleton.LocalClientId, GameLobbyManager.instance.LocalLobbyPlayerData.Character);
+
 
                         InGameManager.instance.SendStandbyToServerRpc();
                     }

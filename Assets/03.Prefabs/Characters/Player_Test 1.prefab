@@ -1957,7 +1957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1931014749
+  GlobalObjectIdHash: 1601867440
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -1977,7 +1977,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3078f404df87548a1ea18e3f1db5e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot: {fileID: 0}
+  slot: {fileID: 6417295900691748749, guid: e734b7cc7d3a8874ca03d5b9066cecf8, type: 3}
   ch: {fileID: 11400000, guid: 33af61c02f3066b4687ac35192c9e491, type: 2}
   _state: 0
   _skillIDs: 1400000015000000
