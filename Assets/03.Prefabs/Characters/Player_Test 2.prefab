@@ -1979,6 +1979,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slot: {fileID: 6417295900691748749, guid: e734b7cc7d3a8874ca03d5b9066cecf8, type: 3}
   ch: {fileID: 11400000, guid: c343af667ed07194da12f76aa74f2b26, type: 2}
+  expBar: {fileID: 2454756636875678815}
   _state: 0
   _skillIDs: 1400000016000000
   _speed: 3

@@ -37,7 +37,7 @@ public class HitSector : Skill
             Range.transform.forward = (hit.point - transform.position).normalized;
         }
     }
-    public override void Execute()
+    public override bool Execute()
     {
         StartCoroutine("SkillRange");
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -66,8 +66,8 @@ public class HitSector : Skill
                         if (degree <= angle / 2.0f)
                         {
                             ball.KnockbackServerRpc((Cnormal).normalized, _pushPower, owner.clientID);
-                            ExpBar._instance.expValue = (int)Formulas.CalcExp(1f, 1);
-
+                            owner.ChangeState(CharacterState.Locomotion);
+                            return true;
                         }
                     }
                 }
@@ -79,6 +79,7 @@ public class HitSector : Skill
 
             owner.ChangeState(CharacterState.Locomotion);
         }
+        return false;
     }
 
 

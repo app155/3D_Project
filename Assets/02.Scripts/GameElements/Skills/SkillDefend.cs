@@ -30,7 +30,7 @@ namespace Project3D.GameElements.Skill
             
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
             StartCoroutine("SkillRange");
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -45,15 +45,18 @@ namespace Project3D.GameElements.Skill
                     {
                         Debug.Log(ball);
                         ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower, owner.clientID);
+                        owner.ChangeRotation(hit.point.x, hit.point.z);
+                        return true;
                     }
                     else
                     {
                         throw new Exception("[Hit] - Target Wrong");
                     }
-
-                    owner.ChangeRotation(hit.point.x, hit.point.z);
+                    
                 }
             }
+            owner.ChangeRotation(hit.point.x, hit.point.z);
+            return false;
         }
 
         private void OnDrawGizmos()

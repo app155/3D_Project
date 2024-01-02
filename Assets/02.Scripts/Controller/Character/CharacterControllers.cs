@@ -92,7 +92,6 @@ namespace Project3D.Controller
                 onDirectionChanged?.Invoke(value);
             }
         }
-
         public float hpMax
         {
             get => _hpMax;
@@ -146,7 +145,7 @@ namespace Project3D.Controller
 
         [SerializeField]public CooltimeSlotUI slot;
         [SerializeField] CharacterData ch;
-        
+        public ExpBar expBar;
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -254,10 +253,10 @@ namespace Project3D.Controller
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
 
             skill.Init(this);
-            skill.Execute();
+            
 
             ChangeState((CharacterState)skillID);
-            return true;
+            return skill.Execute();
         }
 
         private void Awake()
@@ -407,6 +406,11 @@ namespace Project3D.Controller
                 if (UseSkill(_skillIDs[0]))
                 {
                     slot.cooltimeCheckTest(slot.slot1);
+                    expBar.ExpValueClientRpc(40);
+                }
+                else 
+                {
+                    slot.cooltimeCheckTest(slot.slot1);
                 }
                 
             });
@@ -415,6 +419,11 @@ namespace Project3D.Controller
             InputSystem.instance.maps["Player"].RegisterMouseDownAction(1, () =>
             {
                 if (UseSkill(_skillIDs[1]))
+                {
+                    slot.cooltimeCheckTest(slot.slot2);
+                    expBar.ExpValueClientRpc(40);
+                }
+                else
                 {
                     slot.cooltimeCheckTest(slot.slot2);
                 }
