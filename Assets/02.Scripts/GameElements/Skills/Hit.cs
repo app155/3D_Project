@@ -19,7 +19,7 @@ public class Hit : Skill
         base.Init(owner);
     }
 
-    public override bool Execute()
+    public override void Execute()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -32,8 +32,6 @@ public class Hit : Skill
                 if (cols[0].TryGetComponent(out IKnockback ball))
                 {  
                     ball.KnockbackServerRpc((hit.point - cols[0].transform.position).normalized, _pushPower, owner.clientID);
-                    owner.ChangeRotation(hit.point.x, hit.point.z);
-                    return true;
                 }
                 else
                 {
@@ -42,9 +40,9 @@ public class Hit : Skill
 
                 Debug.Log("Hit Ball");
             }
+
             owner.ChangeRotation(hit.point.x, hit.point.z);
         }
-        return false;
     }
 
 

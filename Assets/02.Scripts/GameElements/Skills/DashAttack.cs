@@ -71,7 +71,7 @@ namespace Project3D.GameElements.Skill
             Debug.Log($"target hp deplete after : {target.hpValue}");
         }
 
-        public override bool Execute()
+        public override void Execute()
         {
             _hits.Clear();
 
@@ -82,12 +82,9 @@ namespace Project3D.GameElements.Skill
                 _executeDir = (hit.point - transform.position).normalized;
                 _isExecuting = true;
                 StartCoroutine(C_Execute(_executeDir));
-                owner.ChangeRotation(hit.point.x, hit.point.z);
-                return true;
             }
 
             owner.ChangeRotation(hit.point.x, hit.point.z);
-            return false;
         }
 
         IEnumerator C_Execute(Vector3 direction)

@@ -21,7 +21,7 @@ namespace Project3D.GameElements.Skill
             clientID = owner.GetComponent<NetworkBehaviour>().OwnerClientId;
         }
 
-        public abstract bool Execute();
+        public abstract void Execute();
         public abstract void Casting();
     }
 }

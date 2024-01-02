@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,14 +14,15 @@ public class ExpBar : MonoBehaviour
     [SerializeField] private int _expValue;
     [SerializeField] private int _LvValue;
 
-    [ClientRpc]
-    public void ExpValueClientRpc(int exp)
-    {
-        expValue = exp;
-    }
-
+    public static ExpBar _instance;
     private void Awake()
     {
+
+        if (_instance == null)
+        {
+            _instance = this;
+        }
+
         _expValue = 0;
         _LvValue = 1;
         
