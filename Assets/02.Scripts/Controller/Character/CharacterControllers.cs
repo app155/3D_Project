@@ -204,7 +204,6 @@ namespace Project3D.Controller
             if (IsOwner)
             {
                 PrivateInit();
-                
             }
             //temp
             ChangeState(CharacterState.Locomotion);
@@ -263,7 +262,6 @@ namespace Project3D.Controller
 
         private void Awake()
         {
-            
             _exp = new NetworkVariable<float>(0.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _level = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
             _hpValue = new NetworkVariable<float>(80.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);

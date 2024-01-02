@@ -927,15 +927,13 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-
-  cloudProjectId: 8dd61339-b66d-4ab2-a863-eec3433c937f
+  cloudProjectId: 60680334-e953-4c3f-a038-32106f3335ae
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 3DProject (7)
-  organizationId: rin1380
-
+  projectName: 3DProject (3)
+  organizationId: yeonsung
   cloudEnabled: 0
-  legacyClampBlendShapeWeights: 0
+  legacyClampBlendShapeWeights: 1
   hmiLoadingImage: {fileID: 0}
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
