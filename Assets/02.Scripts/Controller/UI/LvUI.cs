@@ -17,6 +17,12 @@ namespace Project3D.UI
 
         private void Start()
         {
+            
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
             ILv Lv = transform.root.GetComponent<ILv>();
             _Lv.text = "1";
 

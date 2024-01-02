@@ -28,12 +28,21 @@ namespace Project3D.Controller
             (_upLocker, _downLocker) = (_lockers[0], _lockers[1]);
         }
 
-        private void Start()
+
+        public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+            StartCoroutine(C_Init());
+        }
+
+        IEnumerator C_Init()
+        {
+            yield return new WaitUntil(() => InGameManager.instance != null);
             InGameManager.instance.onStandbyState += ResetObject;
             _upLocker.knockCount = 0;
             _downLocker.knockCount = 0;
         }
+
 
         private void OnEnable()
         {

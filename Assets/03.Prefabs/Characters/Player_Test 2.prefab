@@ -1871,7 +1871,7 @@ GameObject:
   - component: {fileID: 6243159304127098089}
   - component: {fileID: 2266615485825019201}
   m_Layer: 11
-  m_Name: Player_Test 1
+  m_Name: Player_Test 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1957,7 +1957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1931014749
+  GlobalObjectIdHash: 2169253453
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -1978,9 +1978,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slot: {fileID: 0}
-  ch: {fileID: 11400000, guid: 33af61c02f3066b4687ac35192c9e491, type: 2}
+  ch: {fileID: 11400000, guid: c343af667ed07194da12f76aa74f2b26, type: 2}
   _state: 0
-  _skillIDs: 1400000015000000
+  _skillIDs: 1400000016000000
   _speed: 3
   _enemyMask:
     serializedVersion: 2

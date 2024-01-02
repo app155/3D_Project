@@ -27,6 +27,7 @@ namespace Project3D.Controller
     }
     public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
     {
+        public static Dictionary<ulong, CharacterControllers> spawned = new Dictionary<ulong, CharacterControllers>();
         public CharacterState state
         {
             get => _state;
@@ -238,6 +239,8 @@ namespace Project3D.Controller
                     }
                 };
             }
+
+            spawned.Add(OwnerClientId, this);
         }
 
         public bool UseSkill(int skillID)

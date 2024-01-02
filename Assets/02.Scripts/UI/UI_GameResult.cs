@@ -18,8 +18,15 @@ namespace Project3D.UI
         public override void Init()
         {
             base.Init();
+            StartCoroutine(C_Init());
+        }
+
+        IEnumerator C_Init()
+        {
+            yield return new WaitUntil(() => InGameManager.instance != null);
             InGameManager.instance.onEndState += ShowWinnerTeam;
         }
+
 
         private void ShowWinnerTeam(int value)
         {
