@@ -255,6 +255,7 @@ namespace Project3D.Controller
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
             skill.Init(this);
             skill.Execute();
+            expBar.IncreaseExp(40);
             ChangeState((CharacterState)skillID);
             return true;
         }
@@ -285,7 +286,6 @@ namespace Project3D.Controller
                     onHpMin?.Invoke();
                 }
             };
-
 
             _rigid = GetComponent<Rigidbody>();
             _animator = GetComponentInChildren<Animator>();
