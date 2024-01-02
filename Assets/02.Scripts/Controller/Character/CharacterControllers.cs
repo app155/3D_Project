@@ -146,7 +146,6 @@ namespace Project3D.Controller
 
         [SerializeField]public CooltimeSlotUI slot;
         [SerializeField] CharacterData ch;
-        
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -206,9 +205,9 @@ namespace Project3D.Controller
                 PrivateInit();
                 
             }
+
             //temp
             ChangeState(CharacterState.Locomotion);
-            ProfileLoadingClientRpc();
             _hpMax = 100;
             _hpMin = 0;
             onHpMin += () => _isWeaked = true;
@@ -290,7 +289,10 @@ namespace Project3D.Controller
 
 
             _rigid = GetComponent<Rigidbody>();
-            
+            slot = CooltimeSlotUI.instance;
+            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
+            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
+            ProfileLoading();
             _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
@@ -304,14 +306,8 @@ namespace Project3D.Controller
                 _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
-        [ClientRpc]
-        public void ProfileLoadingClientRpc()
+        public void ProfileLoading()
         {
-            if (!IsOwner)
-                return;
-            slot = Instantiate(slot);
-            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
-            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
             Image profileImage = slot.profile.GetComponent<Image>();
             profileImage.material = ch.profile.material;
             Image Skill1 = slot.slot1._icon.GetComponent<Image>();
@@ -323,6 +319,7 @@ namespace Project3D.Controller
         {
             if (!IsOwner)
                 return;
+
             if (IsGrounded())
             {                
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -525,7 +522,7 @@ namespace Project3D.Controller
         {
             ChangeStateClientRpc(newState);
         }
-        
+
         [ClientRpc]
         public void ChangeStateClientRpc(CharacterState newState, ClientRpcParams rpcParams = default)
         {

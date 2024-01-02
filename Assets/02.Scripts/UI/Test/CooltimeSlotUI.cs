@@ -5,6 +5,16 @@ using UnityEngine.UI;
 
 public class CooltimeSlotUI : MonoBehaviour
 {
+    public static CooltimeSlotUI instance;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
     [SerializeField] public Image profile;
     [SerializeField] public CooltimeSlot slot1;
     [SerializeField] public CooltimeSlot slot2;
