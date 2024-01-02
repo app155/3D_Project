@@ -1,5 +1,6 @@
 using Project3D.Controller;
 using Project3D.GameSystem;
+using Project3D.Lobbies;
 using Project3D.UI;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,13 +10,12 @@ using UnityEngine;
 
 public class UI_TabUI : UIMonobehaviour
 {
-    [SerializeField] private TMP_Text[] _playersInfoText;
+    [SerializeField] private TMP_Text[] _blueInfoText;
+    [SerializeField] private TMP_Text[] _redInfoText;
 
     public override void Init()
     {
         base.Init();
-
-        // temp
     }
 
     public override void InputAction()
@@ -30,10 +30,19 @@ public class UI_TabUI : UIMonobehaviour
 
     public void Refresh()
     {
-        for (int i = 0; i < InGameManager.instance.player.Count; i++)
+        List<ulong> blueTeam = InGameManager.instance.blueTeam.GetPlayersInTeam();
+        List<ulong> redTeam = InGameManager.instance.redTeam.GetPlayersInTeam();
+
+        for (int i = 0; i < blueTeam.Count; i++)
         {
-            _playersInfoText[i].text =
-                $"{InGameManager.instance.player[(ulong)i].GetComponent<CharacterControllers>().score}";
+            _blueInfoText[i].text =
+                $"{GameLobbyManager.instance.lobbyPlayerDatas[(int)blueTeam[i]].NickName}\n{InGameManager.instance.player[blueTeam[i]].GetComponent<CharacterControllers>().score} Goal";
+        }
+
+        for (int i = 0; i < redTeam.Count; i++)
+        {
+            _redInfoText[i].text =
+                $"{GameLobbyManager.instance.lobbyPlayerDatas[(int)redTeam[i]].NickName}\n{InGameManager.instance.player[redTeam[i]].GetComponent<CharacterControllers>().score} Goal";
         }
 
         // RefreshServerRpc();
@@ -42,10 +51,19 @@ public class UI_TabUI : UIMonobehaviour
     [ServerRpc(RequireOwnership = false)]
     public void RefreshServerRpc()
     {
-        for (int i = 0; i < InGameManager.instance.player.Count; i++)
+        List<ulong> blueTeam = InGameManager.instance.blueTeam.GetPlayersInTeam();
+        List<ulong> redTeam = InGameManager.instance.redTeam.GetPlayersInTeam();
+
+        for (int i = 0; i < blueTeam.Count; i++)
         {
-            _playersInfoText[i].text =
-                $"{InGameManager.instance.player[(ulong)i].GetComponent<CharacterControllers>().score}";
+            _blueInfoText[i].text =
+                $"{InGameManager.instance.player[blueTeam[i]].GetComponent<CharacterControllers>().score}";
+        }
+
+        for (int i = 0; i < redTeam.Count; i++)
+        {
+            _redInfoText[i].text =
+                $"{InGameManager.instance.player[redTeam[i]].GetComponent<CharacterControllers>().score}";
         }
 
         // RefreshClientRpc();
@@ -54,10 +72,19 @@ public class UI_TabUI : UIMonobehaviour
     [ClientRpc]
     public void RefreshClientRpc()
     {
-        for (int i = 0; i < InGameManager.instance.player.Count; i++)
+        List<ulong> blueTeam = InGameManager.instance.blueTeam.GetPlayersInTeam();
+        List<ulong> redTeam = InGameManager.instance.redTeam.GetPlayersInTeam();
+
+        for (int i = 0; i < blueTeam.Count; i++)
         {
-            _playersInfoText[i].text =
-                $"{InGameManager.instance.player[(ulong)i].GetComponent<CharacterControllers>().score}";
+            _blueInfoText[i].text =
+                $"{InGameManager.instance.player[blueTeam[i]].GetComponent<CharacterControllers>().score}";
+        }
+
+        for (int i = 0; i < redTeam.Count; i++)
+        {
+            _redInfoText[i].text =
+                $"{InGameManager.instance.player[redTeam[i]].GetComponent<CharacterControllers>().score}";
         }
     }
 }

@@ -20,6 +20,7 @@ namespace Project3D.Animations
 
             if (stateInfo.normalizedTime >= 1.0f)
             {
+                
                 controller.ChangeState(state);
             }
         }

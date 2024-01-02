@@ -7,6 +7,9 @@ using System;
 using Project3D.GameSystem;
 using Project3D.Animations;
 using UnityEngine.UI;
+using Project3D.Lobbies;
+using JetBrains.Annotations;
+using Unity.Services.Authentication;
 
 namespace Project3D.Controller
 {
@@ -19,11 +22,12 @@ namespace Project3D.Controller
         Ceremony,
         Attack = 20,
         DashAttack = 21,
-        Defend=22,
+        Defend = 22,
         Die,
     }
     public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
     {
+        public static Dictionary<ulong, CharacterControllers> spawned = new Dictionary<ulong, CharacterControllers>();
         public CharacterState state
         {
             get => _state;
@@ -142,6 +146,7 @@ namespace Project3D.Controller
 
         [SerializeField]public CooltimeSlotUI slot;
         [SerializeField] CharacterData ch;
+        
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -186,7 +191,7 @@ namespace Project3D.Controller
         private double _velocity;
         [SerializeField] private int _score; //Test
 
-        //Temp
+        //Temp?
         [SerializeField] private GameObject _renderer;
         [SerializeField] private Canvas _hpUI;
         [SerializeField] private ParticleSystem _dieEffect;
@@ -200,26 +205,25 @@ namespace Project3D.Controller
             {
                 PrivateInit();
             }
-
             //temp
             ChangeState(CharacterState.Locomotion);
+            ProfileLoadingClientRpc();
             _hpMax = 100;
             _hpMin = 0;
             onHpMin += () => _isWeaked = true;
             oldPosition = transform.position;
 
-            //temp
-            team = clientID % 2 == 0 ? InGameManager.instance.blueTeam : InGameManager.instance.redTeam;
+            team = GameLobbyManager.instance.lobbyPlayerDatas[(int)clientID].Team == 1 ? InGameManager.instance.blueTeam.Register(clientID) : InGameManager.instance.redTeam.Register(clientID);
+
             ReSetUp();
             InGameManager.instance.onStandbyState += ReSetUp;
             InGameManager.instance.onScoreState += Score;
-
 
             if (TryGetComponent(out NetworkBehaviour player))
             {
                 InGameManager.instance.RegisterPlayer(clientID, player);
             }
-
+                
             Debug.Log($"chara spawned {clientID}");
 
             if (IsServer)
@@ -235,6 +239,8 @@ namespace Project3D.Controller
                     }
                 };
             }
+
+            spawned.Add(OwnerClientId, this);
         }
 
         public bool UseSkill(int skillID)
@@ -282,10 +288,7 @@ namespace Project3D.Controller
 
 
             _rigid = GetComponent<Rigidbody>();
-            slot = CooltimeSlotUI.instance;
-            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
-            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
-            ProfileLoading();
+            
             _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
@@ -299,8 +302,14 @@ namespace Project3D.Controller
                 _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
-        public void ProfileLoading()
+        [ClientRpc]
+        public void ProfileLoadingClientRpc()
         {
+            if (!IsOwner)
+                return;
+            slot = Instantiate(slot);
+            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
+            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
             Image profileImage = slot.profile.GetComponent<Image>();
             profileImage.material = ch.profile.material;
             Image Skill1 = slot.slot1._icon.GetComponent<Image>();
@@ -312,8 +321,6 @@ namespace Project3D.Controller
         {
             if (!IsOwner)
                 return;
-
-
             if (IsGrounded())
             {                
                 transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z);
@@ -371,14 +378,10 @@ namespace Project3D.Controller
         public void PrivateInit()
         {
             // temp
-
             onDie += () =>
             {
                 StartCoroutine(C_OnDie());
             };
-
-            _rigid = GetComponent<Rigidbody>();
-
 
             // Key Mapping
             InputSystem.instance.maps["Player"].RegisterAxisAction("Horizontal", (value) =>
@@ -491,11 +494,8 @@ namespace Project3D.Controller
             }
         }
 
-        public void ChangeRotation(float xAixs, float zAxis)
+        public void ChangeRotation(float xAxis, float zAxis)
         {
-            if (state != CharacterState.Locomotion)
-                return;
-
             _renderer.transform.LookAt(transform.position + new Vector3(xAxis, 0.0f, zAxis));
         }
 
@@ -523,12 +523,13 @@ namespace Project3D.Controller
         {
             ChangeStateClientRpc(newState);
         }
-
+        
         [ClientRpc]
         public void ChangeStateClientRpc(CharacterState newState, ClientRpcParams rpcParams = default)
         {
             _animator.SetInteger("state", (int)newState);
             _animator.SetBool("isDirty", true);
+            
             state = newState;
         }
 
@@ -647,14 +648,53 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void SpawnServerRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            List<ulong> playerInTeam = new List<ulong>();
+            playerInTeam = team.GetPlayersInTeam();
+            int playercount = 0;
+
+            for (int i = 0; i < playerInTeam.Count; i++)
+            {
+                if (playerInTeam[i] == clientID)
+                {
+                    playercount = i;
+                }
+            }
+            if (team.id == 0)
+            {
+                transform.position = InGameManager.instance.spawnPoints[playercount * 2].position;
+
+            }
+            else if (team.id == 1)
+            {
+                transform.position = InGameManager.instance.spawnPoints[1 + playercount * 2].position;
+            }
+
             SpawnClientRpc();
         }
 
         [ClientRpc]
         public void SpawnClientRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[clientID].position;
+            List<ulong> playerInTeam = new List<ulong>();
+            playerInTeam = team.GetPlayersInTeam();
+            int playercount = 0;
+
+            for (int i = 0; i < playerInTeam.Count; i++)
+            {
+                if (playerInTeam[i] == clientID)
+                {
+                    playercount = i;
+                }
+            }
+            if (team.id == 0)
+            {
+                transform.position = InGameManager.instance.spawnPoints[playercount * 2].position;
+
+            }
+            else if (team.id == 1)
+            {
+                transform.position = InGameManager.instance.spawnPoints[1 + playercount * 2].position;
+            }
         }
 
         public void Respawn()
@@ -666,7 +706,7 @@ namespace Project3D.Controller
         [ServerRpc(RequireOwnership = false)]
         public void RespawnServerRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            transform.position = InGameManager.instance.spawnPoints[team.id + 6].position;
             ChangeState(CharacterState.Locomotion);
             _renderer.SetActive(true);
             gameObject.SetActive(true);
@@ -674,18 +714,30 @@ namespace Project3D.Controller
             _dieEffect.gameObject.SetActive(false);
             RecoverHp(hpMax);
 
+            AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
+            for (int i = 0; i < animBehaviours.Length; i++)
+            {
+                animBehaviours[i].Init(this);
+            }
+
             RespawnClientRpc();
         }
 
         [ClientRpc]
         public void RespawnClientRpc()
         {
-            transform.position = InGameManager.instance._spawnPoints[team.id + 6].position;
+            transform.position = InGameManager.instance.spawnPoints[team.id + 6].position;
             ChangeState(CharacterState.Locomotion);
             _renderer.SetActive(true);
             gameObject.SetActive(true);
             _hpUI.enabled = true;
             _dieEffect.gameObject.SetActive(false);
+
+            AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
+            for (int i = 0; i < animBehaviours.Length; i++)
+            {
+                animBehaviours[i].Init(this);
+            }
         }
 
         public void Score()

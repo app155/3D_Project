@@ -12,7 +12,17 @@ namespace Project3D.Lobbies
 {
     public class GameLobbyManager : MonoBehaviour
     {
+        public List<LobbyPlayerData> lobbyPlayerDatas => _lobbyPlayerDatas;
+
         private List<LobbyPlayerData> _lobbyPlayerDatas = new List<LobbyPlayerData>();
+
+        public LobbyPlayerData LocalLobbyPlayerData
+        {
+            get
+            {
+                return _localLobbyPlayerData;
+            }
+        }
         private LobbyPlayerData _localLobbyPlayerData;
 
         private LobbyData _lobbyData;
@@ -46,7 +56,7 @@ namespace Project3D.Lobbies
             {
                 if (_instance == null)
                 {
-                    GameObject go = new GameObject("LobbyManager");
+                    GameObject go = new GameObject("GameLobbyManager");
                     _instance = go.AddComponent<GameLobbyManager>();
                     DontDestroyOnLoad(go);
                 }
@@ -65,7 +75,7 @@ namespace Project3D.Lobbies
             _lobbyData = new LobbyData();
             _lobbyData.Initialize(0);
             _maxNumberOfPlayers = maxPlayer;
-            bool succeeded = await LobbyManager.instance.CreateLobby(roomName, _maxNumberOfPlayers, true, _localLobbyPlayerData.Serialize(), _lobbyData.Serialize());
+            bool succeeded = await LobbyManager.instance.CreateLobby(roomName, _maxNumberOfPlayers, false, _localLobbyPlayerData.Serialize(), _lobbyData.Serialize());
 
             return succeeded;
         }
@@ -83,10 +93,10 @@ namespace Project3D.Lobbies
 
         public async Task<bool> JoinLobbyById(string _lobbyId, string nickName)
         {
-            LobbyPlayerData playerData = new LobbyPlayerData();
-            playerData.Initialize(AuthenticationService.Instance.PlayerId, "Client", nickName);
+            _localLobbyPlayerData = new LobbyPlayerData();
+            _localLobbyPlayerData.Initialize(AuthenticationService.Instance.PlayerId, "Client", nickName);
 
-            bool succeeded = await LobbyManager.instance.JoinLobbyById(_lobbyId, playerData.Serialize());
+            bool succeeded = await LobbyManager.instance.JoinLobbyById(_lobbyId, _localLobbyPlayerData.Serialize());
 
             return succeeded;
         }
@@ -149,6 +159,11 @@ namespace Project3D.Lobbies
             return await LobbyManager.instance.UpdatePlayerData(_localLobbyPlayerData.Id, _localLobbyPlayerData.Serialize());
         }
 
+        public async Task<bool> SetPlayerCharacter(int character)
+        {
+            _localLobbyPlayerData.Character = character;
+            return await LobbyManager.instance.UpdatePlayerData(_localLobbyPlayerData.Id, LocalLobbyPlayerData.Serialize());
+        }
         public int GetMapIndex()
         {
             return _lobbyData.MapIndex;

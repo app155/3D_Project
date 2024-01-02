@@ -13,17 +13,30 @@ namespace Project3D.UI
 
         [SerializeField] private GameObject lobbyInfoPrefab;
         [SerializeField] private GameObject lobbiesInfoContent;
+        [SerializeField] private GameObject lobbyListScreen;
+
         [SerializeField] private TextMeshProUGUI nickName;
         [SerializeField] private Button GetLobbiesList;
+        [SerializeField] private Button _joinWithCode;
+        [SerializeField] private GameObject _joinScreen;
+
+        private float updateLobbiesListTimer = 2f;
+
 
         private void OnEnable()
         {
             GetLobbiesList.onClick.AddListener(ListPublicLobbies);
-
+            _joinWithCode.onClick.AddListener(OnJoinClicked);
         }
         private void OnDisable()
         {
             GetLobbiesList.onClick.RemoveListener(ListPublicLobbies);
+            _joinWithCode.onClick.RemoveListener(OnJoinClicked);
+
+        }
+        private void Update()
+        {
+            HandleLobbiesListUpdate();
         }
         private async void ListPublicLobbies()
         {
@@ -37,7 +50,15 @@ namespace Project3D.UI
                 Debug.Log(e);
             }
         }
-
+        private void HandleLobbiesListUpdate()
+        {
+            updateLobbiesListTimer -= Time.deltaTime;
+            if (updateLobbiesListTimer <= 0)
+            {
+                ListPublicLobbies();
+                updateLobbiesListTimer = 2f;
+            }
+        }
         private void VisualizeLobbyList(List<Lobby> _publicLobbies)
         {
             // We need to clear previous info
@@ -51,8 +72,27 @@ namespace Project3D.UI
                 var lobbyDetailsTexts = newLobbyInfo.GetComponentsInChildren<TextMeshProUGUI>();
                 lobbyDetailsTexts[0].text = _lobby.Name;
                 lobbyDetailsTexts[1].text = (_lobby.MaxPlayers - _lobby.AvailableSlots).ToString() + "/" + _lobby.MaxPlayers.ToString();
-                newLobbyInfo.GetComponentInChildren<Button>().onClick.AddListener(() => GameLobbyManager.instance.JoinLobbyById(_lobby.Id, nickName.text));
+                newLobbyInfo.GetComponentInChildren<Button>().onClick.AddListener(() => LobbyClicked(_lobby));
             }
+        }
+        private void OnJoinClicked()
+        {
+            _joinScreen.SetActive(true);
+        }
+
+        private async void LobbyClicked(Lobby lobby)
+        {
+            bool successed = await GameLobbyManager.instance.JoinLobbyById(lobby.Id, nickName.text);
+            Debug.Log(successed);
+            if(successed)
+            {
+
+                // open LobbyUI
+                IUI ui = UIManager.instance.Get<LobbyUI>();
+                ui.Show();
+            }
+            lobbyListScreen.SetActive(false);
+
         }
         public override void InputAction()
         {

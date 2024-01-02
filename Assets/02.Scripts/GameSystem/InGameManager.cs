@@ -6,6 +6,11 @@ using Project3D.Controller;
 using Unity.Netcode;
 using Project3D.Lobbies.Manager;
 using Unity.Netcode.Transports.UTP;
+using Project3D.UI;
+using Project3D.Lobbies;
+using static UnityEngine.Rendering.DebugUI;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Project3D.GameSystem
 {
@@ -24,7 +29,8 @@ namespace Project3D.GameSystem
 
         public Dictionary<ulong, NetworkBehaviour> player => _players;
 
-        public Transform[] _spawnPoints;
+        [SerializeField] private List<GameObject> _playerlist;
+        NetworkVariable<int> standbyCount = new NetworkVariable<int>();
 
         public GameState gameState
         {
@@ -36,13 +42,19 @@ namespace Project3D.GameSystem
 
                 if (IsOwner)
                 {
+
                     switch (value)
                     {
                         case GameState.None:
                             break;
                         case GameState.Standby:
                             {
-                                onStandbyState?.Invoke();
+
+                                if(_playerlist != null)
+                                {
+                                    onStandbyState?.Invoke();
+                                }
+
                             }
                             break;
                         case GameState.Playing:
@@ -57,12 +69,14 @@ namespace Project3D.GameSystem
                             break;
                         case GameState.End:
                             {
-                                onEndState?.Invoke();
+                                onEndState?.Invoke(Convert.ToInt32(_redTeam.score == _winningPoint));
                             }
                             break;
                     }
-                }
 
+                }
+                RequestChangeClientStateServerRpc((int)value);
+                Debug.Log($"[InGameManager] : changed game state ... [{value}]");
                 _gameState = value;
             }
         }
@@ -70,11 +84,12 @@ namespace Project3D.GameSystem
         public event Action onStandbyState;
         public event Action onPlayingState;
         public event Action onScoreState;
-        public event Action onEndState;
+        public event Action<int> onEndState;
         public event Action<float> onCountdownChanged;
 
         public Team blueTeam => _blueTeam;
         public Team redTeam => _redTeam;
+        public Transform[] spawnPoints => _spawnPoints;
 
         public ulong scorerID;
 
@@ -86,6 +101,31 @@ namespace Project3D.GameSystem
         private Team _blueTeam = new Team(0);
         private Team _redTeam = new Team(1);
         [SerializeField] private int _winningPoint;
+        [SerializeField] private Transform[] _spawnPoints;
+        [SerializeField] private Transform[] _winnerSpawnPoints;
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestChangeClientStateServerRpc(int newState)
+        {
+            ChangeStateClientRpc(newState);
+        }
+
+        [ClientRpc]
+        public void ChangeStateClientRpc(int newState)
+        {
+            Debug.Log($"[InGameManager] : ChageStateClientRpc... to {newState}");
+            LocalInGameState.instance.gameState = (GameState)newState;
+        }
+
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestSpawnCharacterServerRpc(ulong clientId, int characterIndex)
+        {
+            Debug.Log($"[InGameManager] : Spawn character... for {clientId}");
+            GameObject go = Instantiate(_playerlist[characterIndex]);
+            go.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+        }
+
 
         private void Awake()
         {
@@ -95,13 +135,17 @@ namespace Project3D.GameSystem
 
             onStandbyState += () =>
             {
-                StartCountDownServerRpc(5.0f);
+                Debug.Log("check");
+                //StartCoroutine(C_CheckAllReadyAndStartPlay(5.0f));
             };
 
             onScoreState += () =>
             {
                 StartCoroutine(C_Scored());
             };
+
+            // temp?
+            onEndState += FinishGame;
         }
 
         private void Start()
@@ -170,6 +214,76 @@ namespace Project3D.GameSystem
             }
         }
 
+        public Team RegisterInTeam(int teamID, ulong clientID)
+        {
+            RegisterInTeamServerRpc(teamID, clientID);
+
+            return teamID == 0 ? blueTeam : redTeam;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RegisterInTeamServerRpc(int teamID, ulong clientID)
+        {
+            RegisterInTeamClientRpc(teamID, clientID);
+        }
+
+        [ClientRpc]
+        public void RegisterInTeamClientRpc(int teamID, ulong clientID)
+        {
+            if (teamID == 0)
+            {
+                blueTeam.Register(clientID);
+            }
+
+            else
+            {
+                redTeam.Register(clientID);
+            }
+        }
+
+        IEnumerator C_CheckAllReadyAndStartPlay(float countTimer)
+        {
+            Debug.Log($"[InGameManager] : Wait for all ready..");
+            yield return new WaitUntil(() =>
+            {
+                Debug.Log($"[InGameManager] : spawned count : {CharacterControllers.spawned.Count} lobby player count : {GameLobbyManager.instance.lobbyPlayerDatas.Count}");
+                return CharacterControllers.spawned.Count != GameLobbyManager.instance.lobbyPlayerDatas.Count;
+            });
+            StartCountDownServerRpc(countTimer);
+        }
+
+        async Task CheckAllReadyAndStartPlay(float countTimer)
+        {
+            Debug.Log($"[InGameManager] : Wait for all ready..");
+            float timeOut = 10.0f;
+            float timeMark = Time.time;
+            await Task.Run(async () =>
+            {
+                Debug.Log("before Waiting");
+
+                while (CharacterControllers.spawned.Count != GameLobbyManager.instance.lobbyPlayerDatas.Count &&
+                       Time.time - timeMark < timeOut)
+                {
+                    Debug.Log("Waiting");
+                    await Task.Delay(1000);
+                }
+
+                Debug.Log("checked");
+                StartCountDownServerRpc(countTimer);
+            });
+
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SendStandbyToServerRpc()
+        {
+            standbyCount.Value++;
+            if (standbyCount.Value >= GameLobbyManager.instance.lobbyPlayerDatas.Count)
+            {
+                StartCountDownClientRpc(5.0f);
+            }
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void StartCountDownServerRpc(float countTimer)
         {
@@ -184,6 +298,8 @@ namespace Project3D.GameSystem
 
         IEnumerator C_StartCountDown(float countTimer)
         {
+            Debug.Log("cd routine start");
+
             onCountdownChanged?.Invoke(countTimer);
             float start = Time.time;
 
@@ -231,6 +347,39 @@ namespace Project3D.GameSystem
         public void ChangeGameStateClientRpc(GameState state)
         {
             gameState = state;
+        }
+
+        public void FinishGame(int winTeamID)
+        {
+            FinishGameServerRpc(winTeamID);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void FinishGameServerRpc(int winTeamID)
+        {
+            List<ulong> winTeamPlayers = winTeamID == 0 ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
+
+            for (int i = 0; i < winTeamPlayers.Count; i++)
+            {
+                _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
+            }
+
+            UIManager.instance.Get<UI_TopBoard>().Hide();
+
+            FinishGameClientRpc(winTeamID);
+        }
+
+        [ClientRpc]
+        public void FinishGameClientRpc(int winTeamID)
+        {
+            List<ulong> winTeamPlayers = winTeamID == 0 ? _blueTeam.GetPlayersInTeam() : _redTeam.GetPlayersInTeam();
+
+            for (int i = 0; i < winTeamPlayers.Count; i++)
+            {
+                _players[winTeamPlayers[i]].transform.position = _winnerSpawnPoints[i].position;
+            }
+
+            UIManager.instance.Get<UI_TopBoard>().Hide();
         }
     }
 }

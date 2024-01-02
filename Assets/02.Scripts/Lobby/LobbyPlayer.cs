@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 namespace Project3D.Lobbies
 {
@@ -7,9 +8,11 @@ namespace Project3D.Lobbies
     {
         [SerializeField] private TextMeshProUGUI _playerName;
         [SerializeField] private TextMeshProUGUI _isReadyRenderer;
+        [SerializeField] private Image _teamColor;
 
         private LobbyPlayerData _data;
 
+        
         private void Start()
         {
         }
@@ -18,6 +21,15 @@ namespace Project3D.Lobbies
 
             _data = data;
             _playerName.text = _data.NickName;
+            if(_data.Team == 1)
+            {
+                _teamColor.color = Color.blue;
+            }
+            else
+            {
+                _teamColor.color = Color.red;
+            }
+
             if (_data.IsReady)
             {
                 if(_isReadyRenderer != null)
@@ -26,7 +38,6 @@ namespace Project3D.Lobbies
                 }
                 
             }
-            Debug.Log($"{data.Gametag}");
             gameObject.SetActive(true);
         }
     }

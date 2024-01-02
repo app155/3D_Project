@@ -81,7 +81,6 @@ namespace Project3D.GameElements.Skill
             {
                 _executeDir = (hit.point - transform.position).normalized;
                 _isExecuting = true;
-                owner.transform.LookAt(hit.point);
                 StartCoroutine(C_Execute(_executeDir));
             }
 

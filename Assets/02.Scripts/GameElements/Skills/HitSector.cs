@@ -42,8 +42,11 @@ public class HitSector : Skill
         StartCoroutine("SkillRange");
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
+
         if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, owner.groundMask))
         {
+            owner.ChangeRotation(hit.point.x - transform.position.x, hit.point.z - transform.position.z);
+
             Collider[] cols = Physics.OverlapSphere(transform.position, 2.0f, owner.ballMask);
 
             if (cols.Length > 0)
@@ -72,9 +75,9 @@ public class HitSector : Skill
                 {
                     throw new Exception("[Hit] - Target Wrong");
                 }
-
-                owner.ChangeRotation(hit.point.x, hit.point.z);
             }
+
+            owner.ChangeState(CharacterState.Locomotion);
         }
     }
 
@@ -93,7 +96,7 @@ public class HitSector : Skill
     IEnumerator SkillRange()
     {
         Casting();
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
         Destroy(Range);
     }
