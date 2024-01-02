@@ -2156,7 +2156,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: 0, y: 13.393765, z: -3.0779965}
+  m_LocalPosition: {x: 0, y: 13.394452, z: -3.0781338}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5919,16 +5919,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
         type: 3}
-      propertyPath: _winningPoint
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.size
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
       propertyPath: _spawnPoints.Array.data[0]
       value: 
       objectReference: {fileID: 561939521}
@@ -5967,51 +5957,6 @@ PrefabInstance:
       propertyPath: _spawnPoints.Array.data[7]
       value: 
       objectReference: {fileID: 2031612602}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[8]
-      value: 
-      objectReference: {fileID: 1264805858}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[9]
-      value: 
-      objectReference: {fileID: 518696185}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[10]
-      value: 
-      objectReference: {fileID: 1599676908}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[11]
-      value: 
-      objectReference: {fileID: 2031612602}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[12]
-      value: 
-      objectReference: {fileID: 561939521}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[13]
-      value: 
-      objectReference: {fileID: 1439863821}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[14]
-      value: 
-      objectReference: {fileID: 1925874773}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _spawnPoints.Array.data[15]
-      value: 
-      objectReference: {fileID: 334064406}
-    - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
-        type: 3}
-      propertyPath: _winnerSpawnPoints.Array.size
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 8656718496717561671, guid: ebad654f60a56084ca9224ceef3c23c4,
         type: 3}
       propertyPath: _winnerSpawnPoints.Array.data[0]
@@ -6551,6 +6496,11 @@ PrefabInstance:
         type: 3}
       propertyPath: GlobalObjectIdHash
       value: 4278028420
+      objectReference: {fileID: 0}
+    - target: {fileID: 8176829612692669699, guid: cb53aa93a3eb67345b4bd850b6a8b4ef,
+        type: 3}
+      propertyPath: _interpolationTime
+      value: 0.05
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10396,7 +10346,7 @@ Transform:
   m_GameObject: {fileID: 1886505478}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: 0, y: 13.393765, z: -3.0779965}
+  m_LocalPosition: {x: 0, y: 13.394452, z: -3.0781338}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

@@ -446,7 +446,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _hpBar: {fileID: 7127475881366322766}
-  _Lv: {fileID: 0}
   _hpBarBackground: {fileID: 0}
 --- !u!1 &499392036422348184
 GameObject:
@@ -1436,7 +1435,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _hpBar: {fileID: 2438029962759859636}
-  _Lv: {fileID: 0}
   _hpBarBackground: {fileID: 0}
 --- !u!1 &2707854011045918036
 GameObject:
@@ -1983,7 +1981,7 @@ MonoBehaviour:
   ch: {fileID: 11400000, guid: 33af61c02f3066b4687ac35192c9e491, type: 2}
   _state: 0
   _skillIDs: 1400000015000000
-  _speed: 4
+  _speed: 3
   _enemyMask:
     serializedVersion: 2
     m_Bits: 2048
