@@ -927,11 +927,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: f1770cd2-7fbc-46f3-8c46-2497c17bf701
+  cloudProjectId: 8dd61339-b66d-4ab2-a863-eec3433c937f
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 3DProject
-  organizationId: k10kk10
+  projectName: 3DProject (7)
+  organizationId: rin1380
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
