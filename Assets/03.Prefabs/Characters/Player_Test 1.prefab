@@ -1977,11 +1977,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3078f404df87548a1ea18e3f1db5e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot: {fileID: 0}
+  slot: {fileID: 6417295900691748749, guid: e734b7cc7d3a8874ca03d5b9066cecf8, type: 3}
   ch: {fileID: 11400000, guid: 33af61c02f3066b4687ac35192c9e491, type: 2}
+  expBar: {fileID: 2454756636875678815}
   _state: 0
   _skillIDs: 1400000015000000
-  _speed: 3
+  _speed: 4
   _enemyMask:
     serializedVersion: 2
     m_Bits: 2048
@@ -4070,8 +4071,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   expSlider: {fileID: 4778929038073067623}
   LvText: {fileID: 5516391044367327537}
-  _expValue: 0
-  _LvValue: 0
+  _expValue:
+    m_InternalValue: 0
+  _LvValue:
+    m_InternalValue: 0
 --- !u!1 &7318472228943854721
 GameObject:
   m_ObjectHideFlags: 0

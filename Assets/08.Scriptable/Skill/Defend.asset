@@ -16,6 +16,6 @@ MonoBehaviour:
   coolDownTime: 10
   description: 
   skill: {fileID: 6251436227082604118, guid: d729dd78a8f5925439001506a3bebcf8, type: 3}
-  skillRatio: 0
+  skillRatio: 4
   Range: {fileID: 912858709172159029, guid: 90078d96c7eedd64491434fd0defb7a1, type: 3}
   icon: {fileID: 6019335580879616647, guid: e8235fb2a48473b41b890ca978ff72ef, type: 3}

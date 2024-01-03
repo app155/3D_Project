@@ -159,6 +159,11 @@ namespace Project3D.Lobbies
             return await LobbyManager.instance.UpdatePlayerData(_localLobbyPlayerData.Id, _localLobbyPlayerData.Serialize());
         }
 
+        public async Task<bool> SetPlayerCharacter(int character)
+        {
+            _localLobbyPlayerData.Character = character;
+            return await LobbyManager.instance.UpdatePlayerData(_localLobbyPlayerData.Id, LocalLobbyPlayerData.Serialize());
+        }
         public int GetMapIndex()
         {
             return _lobbyData.MapIndex;

@@ -23,6 +23,14 @@ namespace Project3D.UI
         [SerializeField] private TextMeshProUGUI _MapName;
         [SerializeField] private MapSelectionData _mapSelectionData;
 
+        [SerializeField] private Button _characterChoice;
+        [SerializeField] private Button _characterOne;
+        [SerializeField] private Button _characterTwo;
+        [SerializeField] private Button _characterSubmit;
+        [SerializeField] private GameObject _characterChoiceScreen;
+        [SerializeField] private GameObject _characterOneScreen;
+        [SerializeField] private GameObject _characterTwoScreen;
+
         private int _currentMapIndex = 0;
 
         private int _setTeamBlue = 0;
@@ -33,12 +41,16 @@ namespace Project3D.UI
             _readyButton.onClick.AddListener(OnReadyPressed);
             _setRedTeam.onClick.AddListener(OnSetRedButton);
             _setBlueTeam.onClick.AddListener(OnSetBlueButton);
+            _characterChoice.onClick.AddListener(OnCharacterChoice);
+            _characterOne.onClick.AddListener(OnCharacterOne);
+            _characterTwo.onClick.AddListener(OnCharacterTwo);
+            _characterSubmit.onClick.AddListener(OnCharacterSubmit);
+
             if (GameLobbyManager.instance.IsHost)
             {
                 _leftButton.onClick.AddListener(OnLeftButtonClicked);
                 _rightButton.onClick.AddListener(OnRightButtonClicked);
                 _startButton.onClick.AddListener(OnstartButtonClicked);
-
 
                 Lobbies.GameFramework.LobbyEvent.OnLobbyReady += OnLobbyReady;
             }
@@ -55,6 +67,10 @@ namespace Project3D.UI
             _startButton.onClick.RemoveListener(OnstartButtonClicked);
             _setRedTeam.onClick.RemoveListener(OnSetRedButton);
             _setBlueTeam.onClick.RemoveListener(OnSetBlueButton);
+            _characterChoice.onClick.RemoveListener(OnCharacterChoice);
+            _characterOne.onClick.RemoveListener(OnCharacterOne);
+            _characterTwo.onClick.RemoveListener(OnCharacterTwo);
+            _characterSubmit.onClick.RemoveListener(OnCharacterSubmit);
 
             Lobbies.GameFramework.LobbyEvent.OnLobbyUpdated -= OnLobbyUpdated;
             Lobbies.GameFramework.LobbyEvent.OnLobbyReady -= OnLobbyReady;
@@ -86,6 +102,32 @@ namespace Project3D.UI
             }
         }
 
+        private void OnCharacterChoice()
+        {
+            _characterChoiceScreen.SetActive(true);
+        }
+
+        private async void OnCharacterOne()
+        {
+            await GameLobbyManager.instance.SetPlayerCharacter(0);
+
+            Debug.Log(GameLobbyManager.instance.LocalLobbyPlayerData.Character);
+            _characterOneScreen.SetActive(true);
+            _characterTwoScreen.SetActive(false);
+        }
+
+        private async void OnCharacterTwo()
+        {
+            await GameLobbyManager.instance.SetPlayerCharacter(1);
+            _characterOneScreen.SetActive(false);
+            _characterTwoScreen.SetActive(true);
+        }
+
+        private void OnCharacterSubmit()
+        {
+            _characterChoiceScreen.SetActive(false);
+
+        }
         private async void OnSetRedButton()
         {
             bool success = await GameLobbyManager.instance.SetPlayerTeam(0);

@@ -81,7 +81,7 @@ AnimatorStateMachine:
     m_Position: {x: 320, y: 120, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 4826042710285328026}
-    m_Position: {x: 320, y: 200, z: 0}
+    m_Position: {x: 310, y: 200, z: 0}
   m_AnyStateTransitions:
   - {fileID: -6723145010094917110}
   - {fileID: -1645523126923961740}
@@ -264,6 +264,18 @@ BlendTree:
   m_UseAutomaticThresholds: 1
   m_NormalizedBlendValues: 0
   m_BlendType: 0
+--- !u!114 &-1978031625155213108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42cdb185a9283a40942b7c20c37f131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1101 &-1645523126923961740
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -347,7 +359,7 @@ AnimatorController:
   - serializedVersion: 5
     m_Name: Top Layer
     m_StateMachine: {fileID: -7964571260622057507}
-    m_Mask: {fileID: 0}
+    m_Mask: {fileID: 31900000, guid: d0683f1000f90ef4a96ed3c3098ce3ad, type: 2}
     m_Motions: []
     m_Behaviours: []
     m_BlendingMode: 0
@@ -498,7 +510,8 @@ AnimatorStateMachine:
   m_AnyStateTransitions: []
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: -1978031625155213108}
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
   m_EntryPosition: {x: 50, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}

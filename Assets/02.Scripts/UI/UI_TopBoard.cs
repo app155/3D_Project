@@ -2,6 +2,7 @@ using Project3D.GameSystem;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
 
 namespace Project3D.UI
 {
@@ -12,9 +13,13 @@ namespace Project3D.UI
 
         private void Start()
         {
+            StartCoroutine(C_Init());
+        }
+        IEnumerator C_Init()
+        {
+            yield return new WaitUntil(() => InGameManager.instance != null);
             InGameManager.instance.onScoreState += RefreshServerRpc;
         }
-
         public override void InputAction()
         {
             

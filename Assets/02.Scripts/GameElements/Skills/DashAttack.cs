@@ -42,6 +42,7 @@ namespace Project3D.GameElements.Skill
                 {
                     other.GetComponent<IKnockback>().KnockbackServerRpc((other.transform.position - transform.position).normalized, _ballPushPower, owner.clientID);
                     _hits.Add(other.gameObject);
+                    owner.expBar.IncreaseExpServerRpc((int)Formulas.CalcExp(1f, 1));
                 }
             }
 
@@ -57,6 +58,7 @@ namespace Project3D.GameElements.Skill
                             target.KnockbackServerRpc((other.transform.position - transform.position).normalized, _characterPushPower, owner.clientID);
                             Attack(chara.clientID);
                             _hits.Add(other.gameObject);
+                            owner.expBar.IncreaseExpServerRpc((int)Formulas.CalcExp(1f, 1));
                         }
                     }
                 }

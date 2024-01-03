@@ -99,6 +99,7 @@ namespace Project3D.Controller
         {
             _moveDir = pushDir;
             _moveSpeed = pushPower;
+            InGameManager.instance.player[clientID].GetComponent<CharacterControllers>().expBar.IncreaseExpServerRpc((int)Formulas.CalcExp(1f, 1));
             Debug.Log(clientID);
             _recoder.Add(clientID);
         }

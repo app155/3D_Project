@@ -27,6 +27,7 @@ namespace Project3D.Controller
     }
     public class CharacterControllers : NetworkBehaviour, IHp, ILv, IKnockback
     {
+        public static Dictionary<ulong, CharacterControllers> spawned = new Dictionary<ulong, CharacterControllers>();
         public CharacterState state
         {
             get => _state;
@@ -145,6 +146,7 @@ namespace Project3D.Controller
 
         [SerializeField]public CooltimeSlotUI slot;
         [SerializeField] CharacterData ch;
+        public ExpBar expBar;
         public Team team;
         public event Action<float> onHpChanged;
         public event Action<float> onHpRecovered;
@@ -204,7 +206,7 @@ namespace Project3D.Controller
                 PrivateInit();
                 
             }
-
+            ProfileLoadingClientRpc();
             //temp
             ChangeState(CharacterState.Locomotion);
             _hpMax = 100;
@@ -238,6 +240,8 @@ namespace Project3D.Controller
                     }
                 };
             }
+
+            spawned.Add(OwnerClientId, this);
         }
 
         public bool UseSkill(int skillID)
@@ -249,10 +253,9 @@ namespace Project3D.Controller
             }
             _skillCoolDownTimeMarks[skillID] = Time.time;
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
-
             skill.Init(this);
             skill.Execute();
-
+            //expBar.IncreaseExp(40);
             ChangeState((CharacterState)skillID);
             return true;
         }
@@ -284,12 +287,7 @@ namespace Project3D.Controller
                 }
             };
 
-
             _rigid = GetComponent<Rigidbody>();
-            slot = CooltimeSlotUI.instance;
-            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
-            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
-            ProfileLoading();
             _animator = GetComponentInChildren<Animator>();
             AnimBehaviour[] animBehaviours = _animator.GetBehaviours<AnimBehaviour>();
             for (int i = 0; i < animBehaviours.Length; i++)
@@ -303,8 +301,15 @@ namespace Project3D.Controller
                 _skillCoolDownTimeMarks.Add(skillID, 0.0f);
             }
         }
-        public void ProfileLoading()
+        [ClientRpc]
+        public void ProfileLoadingClientRpc()
         {
+            if (!IsOwner)
+                return;
+
+            slot = Instantiate(slot);
+            slot.slot1.data = SkillDataAssets.instance.skillDatum[_skillIDs[0]];
+            slot.slot2.data = SkillDataAssets.instance.skillDatum[_skillIDs[1]];
             Image profileImage = slot.profile.GetComponent<Image>();
             profileImage.material = ch.profile.material;
             Image Skill1 = slot.slot1._icon.GetComponent<Image>();
@@ -399,7 +404,6 @@ namespace Project3D.Controller
             // ����
             InputSystem.instance.maps["Player"].RegisterMouseDownAction(0, () =>
             {
-
                 if (UseSkill(_skillIDs[0]))
                 {
                     slot.cooltimeCheckTest(slot.slot1);
@@ -586,6 +590,7 @@ namespace Project3D.Controller
             _isStiffed = true;
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
+            InGameManager.instance.player[clientID].GetComponent<CharacterControllers>().expBar.IncreaseExpServerRpc((int)Formulas.CalcExp(1f, 1));
 
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }
