@@ -255,7 +255,7 @@ namespace Project3D.Controller
             Skill skill = Instantiate(SkillDataAssets.instance[skillID].skill, transform);
             skill.Init(this);
             skill.Execute();
-            expBar.IncreaseExp(40);
+            //expBar.IncreaseExp(40);
             ChangeState((CharacterState)skillID);
             return true;
         }
@@ -590,6 +590,7 @@ namespace Project3D.Controller
             _isStiffed = true;
             xAxis = pushDir.x * pushPower;
             zAxis = pushDir.z * pushPower;
+            InGameManager.instance.player[clientID].GetComponent<CharacterControllers>().expBar.IncreaseExpServerRpc((int)Formulas.CalcExp(1f, 1));
 
             KnockbackClientRpc(pushDir, pushPower, clientID);
         }

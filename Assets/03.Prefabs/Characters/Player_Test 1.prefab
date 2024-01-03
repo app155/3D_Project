@@ -1957,7 +1957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1931014749
+  GlobalObjectIdHash: 1601867440
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -1982,7 +1982,7 @@ MonoBehaviour:
   expBar: {fileID: 2454756636875678815}
   _state: 0
   _skillIDs: 1400000015000000
-  _speed: 3
+  _speed: 4
   _enemyMask:
     serializedVersion: 2
     m_Bits: 2048
